@@ -14,6 +14,7 @@ import {
   useColorScheme
 } from 'react-native';
 import RichTextEditor from './src/RichTextEditor';
+import { TextEditor } from './src/TextEditor';
 
 
 function App(): JSX.Element {
@@ -28,7 +29,7 @@ function App(): JSX.Element {
         contentInsetAdjustmentBehavior="automatic"
         style={styles.container}>
       </ScrollView>
-      <RichTextEditor />
+      <TextEditor />
     </SafeAreaView>
   );
 }

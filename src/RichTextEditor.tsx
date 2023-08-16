@@ -7,106 +7,69 @@ import ReactNative, {
   requireNativeComponent,
 } from 'react-native';
 
-const RCTRichTextView = requireNativeComponent('RCTRichText');
-const RCTRichTextManager = NativeModules.RCTRichTextManager;
+import { SampleText, styleText } from './utils';
 
-interface Props {
+const RCTRichTextView = requireNativeComponent<RichTextEditor>('RCTRichText');
+const { RCTRichTextManager } = NativeModules;
+
+interface RichTextEditorProps {
   style?: StyleProp<ViewStyle>;
   onSelection?: (data: any) => void;
+  ref: React.RefObject<{}>;
 }
 
-interface State {
-  text: string;
+export type RichTextEditor = {
+  insertTag: (tag: string) => void;
+  getHTML: () => void;
 }
 
-function styleText(text: string): string {
-  return `
-<html>
-<head>
-  <style type="text/css">
-  body {
-    font-size: 16px;
-    line-height: 18px;
-    font-family: Roboto;
-    color: black;
-  }
-  code {
-    background-color: #EEE;
-    border-radius: 2px;
-    padding: 8px;
-  }
-  </style>
-</head><body><p>${text}</p></body></html>`;
-}
+const RichTextEditor = React.forwardRef((props: RichTextEditorProps, ref) => {
 
-const SampleText = `<b>Bold Text</b><br>
-<i>Italic Text</i><br>
-<em>Emphasized Text</em><br>
-<mark>Marked Text</mark><br>
-<del>Deleted Text</del><br>
-<ins>Inserted Text</ins><br>
-<sub>Subscript Text</sub><br>
-<sup>Superscript Text</sup><br>
-<code>const myVar = "colin";</code><br></br>`;
-
-/*
-<b>Bold TextM/b><br>
-<i>Italic Text</i><br>
-<em>Emphasized Text</em><br>
-<mark>Marked Text</mark><br>
-<del>Deleted Text</del><br>
-<ins>Inserted Text</ins><br>
-<sub>Subscript Text</sub><br>
-<sup>Superscript Text</sup><br>
-<code>const myVar = "colin";</code><br></br> */
-
-export default class RichTextEditor extends React.Component<Props, State> {
-  private rtf: React.RefObject<any> = React.createRef();
-
-  constructor(props: Props) {
-    super(props);
-  }
-
-  onLayout = (event: any) => {
+  const onLayout = React.useCallback((event: any) => {
     console.log('[RichTextEditor] on layout: ', {event});
-  };
+  }, [])
 
-  public insertTag = (tag: string) => {
-    console.log('[RichTextEditor] insert tag called: ', tag);
-    console.log('[RichTextEdutor] current tag:', this.getTag());
-    RCTRichTextManager.insertTag(tag, this.getTag());
-  };
+  const nativeRef = React.useRef<any>(null)
 
-  public getHTML = () => {
-    RCTRichTextManager.getHTML(this.getTag());
-  };
+  const insertTag = React.useCallback((tag: string) => {
+    console.log('[RichTextEditor] insert tag called: ', tag)
+    console.log('[RichTextEdutor] current tag:', getTag())
+    RCTRichTextManager.insertTag(tag, getTag())
+  }, [nativeRef])
 
-  private getTag = () => {
-    return ReactNative.findNodeHandle(this.rtf.current); // TODO: this is broken :(
-  };
+  const getHTML = React.useCallback(() => {
+    RCTRichTextManager.getHTML(getTag())
+  }, [nativeRef])
 
-  private onSelection = (data: SyntheticEvent) => {
-    console.log('[RichTextEditor] on selection:', data.nativeEvent);
-    this.props.onSelection?.(data.nativeEvent);
-  };
+  const getTag = React.useCallback(() => {
+    return ReactNative.findNodeHandle(nativeRef.current) // TODO: this is broken :(
+  }, [nativeRef])
 
-  render(): React.ReactElement {
-    const {style} = this.props;
-    return (
-      <RCTRichTextView
-        ref={this.rtf}
-        style={[styles.frame, style]}
-        onSelection={this.onSelection}
-        text={styleText(SampleText)}
-        onLayout={this.onLayout}
-        textStyle={{
-          fontSize: 16.0,
-          fontFamily: 'Roboto',
-        }}
-      />
-    );
-  }
-}
+  const onSelection = React.useCallback((data: SyntheticEvent) => {
+    console.log('[RichTextEditor] on selection: ', {data})
+  }, [])
+
+  React.useImperativeHandle(ref, () => ({
+    insertTag,
+    getHTML,
+  }), [insertTag, getHTML])
+
+  return (
+    <RCTRichTextView
+      ref={nativeRef}
+      style={[styles.frame, props.style]}
+      onSelection={onSelection}
+      text={styleText(SampleText)}
+      onLayout={onLayout}
+      textStyle={{
+        fontSize: 16.0,
+        fontFamily: 'Roboto',
+      }}
+    />
+  );
+})
+
+export { RichTextEditor };
 
 const styles = StyleSheet.create({
   frame: {
