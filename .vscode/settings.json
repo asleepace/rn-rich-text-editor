@@ -1,0 +1,20 @@
+{
+  "editor.formatOnSave": true,
+  "editor.defaultFormatter": "esbenp.prettier-vscode",
+  "editor.codeActionsOnSave": ["source.fixAll", "source.organizeImports", "source.addMissingImports"],
+  "eslint.validate": ["javascript", "javascriptreact", "typescript", "typescriptreact"],
+  "eslint.alwaysShowStatus": true,
+  "eslint.lintTask.enable": true,
+  "eslint.codeAction.showDocumentation": {
+    "enable": true
+  },
+  "cSpell.words": ["Nevermind", "Padlet", "Signup"],
+  "tailwindCSS.classAttributes": [
+    "style",
+    "className",
+    "contentContainerClassName",
+    "pressedClassName",
+    "leadingContentClassName",
+    "trailingContentClassName"
+  ]
+}

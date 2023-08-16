@@ -1,0 +1,9 @@
+{
+  "recommendations": [
+    "dbaeumer.vscode-eslint",
+    "eg2.vscode-npm-script",
+    "esbenp.prettier-vscode",
+    "rebornix.ruby",
+    "bradlc.vscode-tailwindcss"
+  ]
+}
