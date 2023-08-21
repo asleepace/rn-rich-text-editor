@@ -4,6 +4,7 @@ import ReactNative, {
   StyleProp,
   StyleSheet,
   ViewStyle,
+  UIManager,
   requireNativeComponent,
 } from 'react-native';
 
@@ -25,6 +26,8 @@ export type RichTextEditor = {
 
 const RichTextEditor = React.forwardRef((props: RichTextEditorProps, ref) => {
 
+  console.log({ NativeModules, RCTRichTextManager, RCTRichTextView })
+
   const onLayout = React.useCallback((event: any) => {
     console.log('[RichTextEditor] on layout: ', {event});
   }, [])
@@ -33,8 +36,18 @@ const RichTextEditor = React.forwardRef((props: RichTextEditorProps, ref) => {
 
   const insertTag = React.useCallback((tag: string) => {
     console.log('[RichTextEditor] insert tag called: ', tag)
-    console.log('[RichTextEdutor] current tag:', getTag())
-    RCTRichTextManager.insertTag(tag, getTag())
+
+    const rctRichTextTag = ReactNative.findNodeHandle(nativeRef.current)
+    const rctRichTextConfig = UIManager.getViewManagerConfig('RCTRichText')
+
+    console.log('[RCTRichTextConfig] viewTag:', rctRichTextTag)
+    console.log('[RCTRichTextConfig] manager:', rctRichTextConfig)
+
+    UIManager.dispatchViewManagerCommand(
+      rctRichTextTag,
+      rctRichTextConfig.Commands.insertTag,
+      [tag]
+    )
   }, [nativeRef])
 
   const getHTML = React.useCallback(() => {
