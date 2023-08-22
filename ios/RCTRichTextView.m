@@ -26,9 +26,8 @@
 
 @implementation RCTRichTextView
 
-@synthesize text, maxHeight, minHeight, lineHeight, onSelection;
+@synthesize text, maxHeight, minHeight, lineHeight;
 
-RCT_EXPORT_MODULE("RCTRichTextView")
 
 + (BOOL)requiresMainQueueSetup
 {
@@ -47,7 +46,7 @@ const UIViewAnimationOptions viewOptions = UIViewAnimationOptionAllowUserInterac
 
 
 - (id)init {
-    RCTLogInfo(@"[RichTextEditor] init!");
+    printf("[RichTextEditor] init!\n");
     if (self = [super init]) {
         openTags = [NSMutableArray new];
         nextTags = [NSMutableArray new];
@@ -76,7 +75,7 @@ const UIViewAnimationOptions viewOptions = UIViewAnimationOptionAllowUserInterac
 
 - (void)keyboardWillChange:(NSNotification *)notification {
     keyboardFrame = [notification.userInfo[UIKeyboardFrameEndUserInfoKey] CGRectValue];
-    RCTLogInfo(@"[RichTextEditor] keyboard will change: %f", keyboardFrame.size.height);
+    printf("[RichTextEditor] keyboard will change: %f\n", keyboardFrame.size.height);
 }
 
 #pragma mark - Property Methods
@@ -115,7 +114,7 @@ const UIViewAnimationOptions viewOptions = UIViewAnimationOptionAllowUserInterac
   
     self.attributedText = attrString;
   
-    RCTLogInfo(@"[RichTextEditor] setting string: %@", attrString);
+    printf("[RichTextEditor] setting string: %s\n", [attrString.string cStringUsingEncoding:NSUTF8StringEncoding]);
     [self calculateSize];
 }
 
@@ -130,35 +129,45 @@ const UIViewAnimationOptions viewOptions = UIViewAnimationOptionAllowUserInterac
 }
 
 - (CGRect)calculateSize {
-    CGRect oldFrame = self.frame;
-    CGFloat oldWidth = oldFrame.size.width;
-    CGFloat newHeight = MIN(lineHeight * floor((self.contentSize.height / lineHeight) + 0.5), maxHeight);
-    CGFloat heightChange = newHeight - oldFrame.size.height;
-    CGRect nextFrame = CGRectMake(0, oldFrame.origin.y - heightChange, oldWidth, newHeight);
-    if (newHeight < minHeight) return oldFrame;
-    [UIView animateWithDuration:0.1 delay:0.0 options:viewOptions animations:^{
-        [self setFrame:nextFrame];
-        [self layoutIfNeeded];
-        [self layoutSubviews];
-    } completion:^(BOOL finished) {
-        [self layoutIfNeeded];
-        [self layoutSubviews];
-    }];
-    return nextFrame;
+//    CGRect oldFrame = self.frame;
+//    CGFloat oldWidth = oldFrame.size.width;
+//    CGFloat newHeight = MIN(lineHeight * floor((self.contentSize.height / lineHeight) + 0.5), maxHeight);
+//    CGFloat heightChange = newHeight - oldFrame.size.height;
+//    CGRect nextFrame = CGRectMake(0, oldFrame.origin.y - heightChange, oldWidth, newHeight);
+//    if (newHeight < minHeight) return oldFrame;
+//    [UIView animateWithDuration:0.1 delay:0.0 options:viewOptions animations:^{
+//        [self setFrame:nextFrame];
+//        [self layoutIfNeeded];
+//        [self layoutSubviews];
+//    } completion:^(BOOL finished) {
+//        [self layoutIfNeeded];
+//        [self layoutSubviews];
+//    }];
+  
+  
+  printf("[RCTRichTextView] height: %f\n", self.frame.size.height);
+  printf("[RCTRichTextView] content height: %f\n", self.contentSize.height);
+  
+  
+    return self.frame;
+}
+
+- (NSNumber *)height {
+  return @(self.contentSize.height);
 }
 
 
 - (void)insertTag:(NSString *)tag {
     NSRange range = self.selectedRange;
-    RCTLogInfo(@"[RichTextEditor] selected start: %lu length: %lu total length: %lu", range.location, range.length, self.attributedText.length);
+    //RCTLogInfo(@"[RichTextEditor] selected start: %lu length: %lu total length: %lu", range.location, range.length, self.attributedText.length);
     NSAttributedString *firstHalf = [self.attributedText attributedSubstringFromRange:NSMakeRange(0, range.location)];
-    RCTLogInfo(@"[RichTextEditor] first half: %@", firstHalf);
+    //RCTLogInfo(@"[RichTextEditor] first half: %@", firstHalf);
     NSAttributedString *midHalf = [self.attributedText attributedSubstringFromRange:range];
-    RCTLogInfo(@"[RichTextEditor] mid half: %@", midHalf);
+    //RCTLogInfo(@"[RichTextEditor] mid half: %@", midHalf);
     NSInteger selection = range.location + range.length;
     NSInteger endlength = self.attributedText.length - selection;
     NSAttributedString *lastHalf  = [self.attributedText attributedSubstringFromRange:NSMakeRange(selection, endlength)];
-    RCTLogInfo(@"[RichTextEditor] last half: %@", lastHalf);
+    //RCTLogInfo(@"[RichTextEditor] last half: %@", lastHalf);
     //NSAttributedString *middle = [self stringFromHTML:tag];
     NSMutableAttributedString *combinedString = [NSMutableAttributedString new];
     [combinedString appendAttributedString:firstHalf];
@@ -210,7 +219,7 @@ const UIViewAnimationOptions viewOptions = UIViewAnimationOptionAllowUserInterac
 
 - (NSDictionary *)subOrSup:(NSDictionary *)attr tag:(NSString *)tag value:(NSNumber *)num {
     NSMutableDictionary *mutable = attr.mutableCopy;
-    RCTLogInfo(@"[RichTextEditor] sub or sup: %@ tag: %@", selectedAttr[attr], attr);
+    //RCTLogInfo(@"[RichTextEditor] sub or sup: %@ tag: %@", selectedAttr[attr], attr);
     if ([selectedAttr[tag] isEqualToNumber:@(true)] && [mutable objectForKey:@"NSSuperScript"])
         [mutable removeObjectForKey:@"NSSuperScript"];
     else
@@ -223,13 +232,13 @@ const UIViewAnimationOptions viewOptions = UIViewAnimationOptionAllowUserInterac
 
 
 - (void)getHTMLString {
-    RCTLogInfo(@"[RichTextEditor] attributed string: %@", self.attributedText);
+    //RCTLogInfo(@"[RichTextEditor] attributed string: %@", self.attributedText);
     NSError *error;
     NSRange range = NSMakeRange(0, self.attributedText.length);
     NSDictionary *dict = @{ NSDocumentTypeDocumentAttribute: NSHTMLTextDocumentType };
     NSData *data = [self.attributedText dataFromRange:range documentAttributes:dict error:&error];
     NSString *string = [[NSString alloc] initWithData:data encoding:NSUTF8StringEncoding];
-    RCTLogInfo(@"[RichTextEditor] string: %@", string);
+    //RCTLogInfo(@"[RichTextEditor] string: %@", string);
 }
 
 - (NSString *)generateHTML {
@@ -238,7 +247,7 @@ const UIViewAnimationOptions viewOptions = UIViewAnimationOptionAllowUserInterac
     [self.attributedText enumerateAttributesInRange:range options:NSAttributedStringEnumerationLongestEffectiveRangeNotRequired usingBlock:
      ^(NSDictionary<NSAttributedStringKey,id> * _Nonnull attrs, NSRange range, BOOL * _Nonnull stop) {
         NSString *text = [self.attributedText.string substringWithRange:range];
-        RCTLogInfo(@"[RichTextEditor] '%@'", text);
+        //RCTLogInfo(@"[RichTextEditor] '%@'", text);
         NSString *currentTags = [self getTagForAttribute:attrs]; // call this before closeOpenTags!
         NSString *closingTags = [self closeOpenTags];
         [htmlString appendString:closingTags];
@@ -248,10 +257,10 @@ const UIViewAnimationOptions viewOptions = UIViewAnimationOptionAllowUserInterac
         nextTags = [NSMutableArray new]; // next tags only apply to the current element
     }];
     
-    RCTLogInfo(@"[RichTextEditor] open tags: %@", openTags);
+    //RCTLogInfo(@"[RichTextEditor] open tags: %@", openTags);
     [htmlString appendString:[self closeOpenTags]];
     [htmlString appendString:@"</p>"];
-    RCTLogInfo(@"[RichTextEditor] generated html: %@", htmlString);
+    //RCTLogInfo(@"[RichTextEditor] generated html: %@", htmlString);
     return htmlString.copy;
 }
 
@@ -333,10 +342,10 @@ const UIViewAnimationOptions viewOptions = UIViewAnimationOptionAllowUserInterac
     const NSInteger location = [textView offsetFromPosition:beginning toPosition:selectionStart];
     const NSInteger length = [textView offsetFromPosition:selectionStart toPosition:selectionEnd];
     if (length == 0) return;
-    RCTLogInfo(@"[RichTextEditor] location: %lu length: %lu", location, length);
+    //RCTLogInfo(@"[RichTextEditor] location: %lu length: %lu", location, length);
     NSRange range = NSMakeRange(location, length);
     [self getAttributesInRange:range];
-    self.onSelection(selectedAttr);
+    //self.onSelection(selectedAttr);
 }
 
 - (void)getAttributesInRange:(NSRange)range {
@@ -368,7 +377,7 @@ const UIViewAnimationOptions viewOptions = UIViewAnimationOptionAllowUserInterac
 
 -(void)animateTextField:(BOOL)up
 {
-    RCTLogInfo(@"[RichTextEditor] animate text field called!");
+    //RCTLogInfo(@"[RichTextEditor] animate text field called!");
     const int movementDistance = -keyboardFrame.size.height; // tweak as needed
     const float movementDuration = 0.3f; // tweak as needed
     int movement = (up ? movementDistance : -movementDistance);

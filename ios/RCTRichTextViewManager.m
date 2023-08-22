@@ -5,11 +5,19 @@
 //  Created by Colin Teahan on 8/16/23.
 //
 
-#import "RCTRichTextManager.h"
+#import "RCTRichTextViewManager.h"
 #import "RCTRichTextView.h"
 #import <React/RCTBridge.h>
 
-@implementation RCTRichTextManager
+@implementation RCTRichTextViewManager
+
+RCT_EXPORT_MODULE()
+
+RCT_EXPORT_VIEW_PROPERTY(height, NSNumber *)
+RCT_EXPORT_VIEW_PROPERTY(text, NSString *)
+RCT_EXPORT_VIEW_PROPERTY(onSelection, RCTBubblingEventBlock)
+RCT_EXPORT_VIEW_PROPERTY(onHeightChange, RCTBubblingEventBlock)
+
 
 - (UIView *)view {
     return [[RCTRichTextView alloc] init];
@@ -20,9 +28,6 @@
     return true;
 }
 
-RCT_EXPORT_MODULE()
-RCT_EXPORT_VIEW_PROPERTY(text, NSString *)
-RCT_EXPORT_VIEW_PROPERTY(onSelection, RCTBubblingEventBlock)
 
 // allows react-native side to open an attribute tag
 RCT_EXPORT_METHOD(insertTag:(nonnull NSNumber *)reactTag html:(NSString *)tag)
@@ -31,7 +36,7 @@ RCT_EXPORT_METHOD(insertTag:(nonnull NSNumber *)reactTag html:(NSString *)tag)
     RCTRichTextView *view = viewRegistry[reactTag];
       
     RCTLogInfo(@"[RCTRichTextManager] insertTag called with: %@, %@", reactTag, tag);
-    if ([view isKindOfClass:[UIView class]]) {
+    if ([view isKindOfClass:[RCTRichTextView class]]) {
       [view insertTag:tag];
     } else {
       RCTLogInfo(@"[RCTRichTextManager] must be a view!");
@@ -48,6 +53,15 @@ RCT_EXPORT_METHOD(getHTML:(nonnull NSNumber *)reactTag)
         RCTRichTextView *view = viewRegistry[reactTag];
         [view generateHTML];
     }];
+}
+
+
+#pragma mark - Delegate Methods
+
+
+- (void)onHeightChange:(NSNumber *)height {
+  
+  
 }
 
 @end

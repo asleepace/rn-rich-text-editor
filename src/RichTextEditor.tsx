@@ -10,8 +10,7 @@ import ReactNative, {
 
 import { SampleText, styleText } from './utils';
 
-const RCTRichTextView = requireNativeComponent<RichTextEditor>('RCTRichText');
-const { RCTRichTextManager } = NativeModules;
+const RCTRichTextView = requireNativeComponent('RCTRichTextView');
 
 interface RichTextEditorProps {
   style?: StyleProp<ViewStyle>;
@@ -34,16 +33,9 @@ const RichTextEditor = React.forwardRef((props: RichTextEditorProps, ref) => {
 
   const insertTag = React.useCallback((tag: string) => {
     console.log('[RichTextEditor] insert tag called: ', tag)
-
-    const rctRichTextTag = ReactNative.findNodeHandle(nativeRef.current)
-    const rctRichTextConfig = UIManager.getViewManagerConfig('RCTRichText')
-
-    console.log('[RCTRichTextConfig] viewTag:', rctRichTextTag)
-    console.log('[RCTRichTextConfig] manager:', rctRichTextConfig)
-
     UIManager.dispatchViewManagerCommand(
-      rctRichTextTag,
-      rctRichTextConfig.Commands.insertTag,
+      ReactNative.findNodeHandle(nativeRef.current),
+      UIManager.getViewManagerConfig('RCTRichText').Commands.insertTag,
       [tag]
     )
   }, [nativeRef])
@@ -65,11 +57,16 @@ const RichTextEditor = React.forwardRef((props: RichTextEditorProps, ref) => {
     getHTML,
   }), [insertTag, getHTML])
 
+  console.log('[RichTextEditor] render: ', nativeRef.current)
+
   return (
       <RCTRichTextView
         ref={nativeRef}
-        style={styles.frame}
-        onSelection={onSelection}
+        style={{ flex: 1 }}
+        // onHeightChange={(event: any) => {
+        //   console.log('[RichTextEditor] on height change: ', {event})
+        // }}
+        // onSelection={onSelection}
         text={styleText(SampleText)}
         textStyle={{
           fontSize: 16.0,

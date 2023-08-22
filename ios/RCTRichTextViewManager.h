@@ -1,5 +1,5 @@
 //
-//  RCTRichTextManager.h
+//  RCTRichTextViewManager.h
 //  RNRichTextEditor
 //
 //  Created by Colin Teahan on 8/16/23.
@@ -7,10 +7,11 @@
 #import <Foundation/Foundation.h>
 #import <React/RCTViewManager.h>
 #import <React/RCTUIManager.h>
+#import <React/RCTBridge.h>
 
 NS_ASSUME_NONNULL_BEGIN
 
-@interface RCTRichTextManager : RCTViewManager
+@interface RCTRichTextViewManager : RCTViewManager <RCTBridgeModule>
 
 @end
 
