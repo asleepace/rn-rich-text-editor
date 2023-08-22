@@ -16,7 +16,7 @@ export function TextEditor() {
 
   return (
     <View style={styles.overlay}>
-      <InputAccessoryView>
+      <InputAccessoryView style={{ flex:1 }}>
         <View style={styles.editor}>
           <RichTextEditor style={styles.editor} ref={editorRef} />
         </View>
@@ -41,9 +41,11 @@ const styles = StyleSheet.create({
   editor: {
     borderTopLeftRadius: 16,
     borderTopRightRadius: 16,
-    backgroundColor: "white",
+    backgroundColor: "red",
     fontFamily: 'Roboto',
     minHeight: 120,
+    flexGrow: 1,
+    flex: 1,
     padding: 8,
   },
   overlay: {

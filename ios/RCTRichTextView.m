@@ -47,27 +47,40 @@ const UIViewAnimationOptions viewOptions = UIViewAnimationOptionAllowUserInterac
 
 - (id)init {
     printf("[RichTextEditor] init!\n");
-    if (self = [super init]) {
+    if (self = [super initWithFrame:CGRectZero textContainer:nil]) {
+      self.scrollEnabled = false;
+//      self.translatesAutoresizingMaskIntoConstraints = false;
+      
         openTags = [NSMutableArray new];
         nextTags = [NSMutableArray new];
         nextHTML = [NSMutableArray new];
-        maxHeight = 600.0f;
-        minHeight = 100.0f;
-        lineHeight = 22.0f;
-        self.delegate = self;
-        self.scrollEnabled = true;
+//        maxHeight = 600.0f;
+//        minHeight = 100.0f;
+//        lineHeight = 22.0f;
+//        self.delegate = self;
         [self addKeyboardListener];
     }
     return self;
 }
 
-- (BOOL)autoresizesSubviews {
-    return true;
+
+// take from answer #2
+// https://stackoverflow.com/questions/16868117/uitextview-that-expands-to-text-using-auto-layout
+- (void)layoutSubviews {
+  [super layoutSubviews];
+  if (CGSizeEqualToSize(self.bounds.size, [self intrinsicContentSize])) {
+    [self invalidateIntrinsicContentSize];
+  }
 }
 
-- (void)layoutSubviews {
-    [super layoutSubviews];
-}
+
+//- (BOOL)autoresizesSubviews {
+//    return true;
+//}
+
+//- (void)layoutSubviews {
+//    [super layoutSubviews];
+//}
 
 - (void)addKeyboardListener {
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(keyboardWillChange:) name:UIKeyboardWillChangeFrameNotification object:nil];
@@ -101,21 +114,17 @@ const UIViewAnimationOptions viewOptions = UIViewAnimationOptionAllowUserInterac
   return attrString;
 }
 
+
+// use this method to set the font, attributes, etc.
 - (void)setText:(NSString *)text {
-    NSMutableAttributedString *attrString = [self stringFromHTML:text];
-  
-  //UIFont *font = [UIFont fontWithName:@"Palatino-Roman" size:14.0];
-  UIFont *font = [UIFont systemFontOfSize:14.0];
+  NSMutableAttributedString *attrString = [self stringFromHTML:text];
+  UIFont *font = [UIFont systemFontOfSize:17.0];
   NSRange range = NSMakeRange(0, attrString.length);
   NSDictionary *attrsDictionary = [NSDictionary dictionaryWithObject:font forKey:NSFontAttributeName];
-    
-  
-    [attrString addAttributes:attrsDictionary range:range];
-  
-    self.attributedText = attrString;
-  
-    printf("[RichTextEditor] setting string: %s\n", [attrString.string cStringUsingEncoding:NSUTF8StringEncoding]);
-    [self calculateSize];
+  [attrString addAttributes:attrsDictionary range:range];
+  self.attributedText = attrString;
+  printf("[RichTextEditor] setting string: %s\n", [attrString.string cStringUsingEncoding:NSUTF8StringEncoding]);
+  [self calculateSize];
 }
 
 - (NSAttributedString *)trim:(NSAttributedString *)originalString {

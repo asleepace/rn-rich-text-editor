@@ -11,7 +11,7 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
-@interface RCTRichTextViewManager : RCTViewManager <RCTBridgeModule>
+@interface RCTRichTextViewManager : RCTViewManager <RCTBridgeModule, UITextViewDelegate>
 
 @end
 

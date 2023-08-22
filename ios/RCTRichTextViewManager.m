@@ -18,14 +18,15 @@ RCT_EXPORT_VIEW_PROPERTY(text, NSString *)
 RCT_EXPORT_VIEW_PROPERTY(onSelection, RCTBubblingEventBlock)
 RCT_EXPORT_VIEW_PROPERTY(onHeightChange, RCTBubblingEventBlock)
 
-
 - (UIView *)view {
-    return [[RCTRichTextView alloc] init];
+  RCTRichTextView *richTextView = [[RCTRichTextView alloc] init];
+  richTextView.delegate = self;
+  return richTextView;
 }
 
 + (BOOL)requiresMainQueueSetup
 {
-    return true;
+  return true;
 }
 
 
@@ -34,15 +35,12 @@ RCT_EXPORT_METHOD(insertTag:(nonnull NSNumber *)reactTag html:(NSString *)tag)
 {
   [self.bridge.uiManager addUIBlock:^(__unused RCTUIManager *uiManager, NSDictionary<NSNumber *, RCTRichTextView *> *viewRegistry) {
     RCTRichTextView *view = viewRegistry[reactTag];
-      
-    RCTLogInfo(@"[RCTRichTextManager] insertTag called with: %@, %@", reactTag, tag);
+    RCTLogInfo(@"[TM] insertTag called with: %@, %@", reactTag, tag);
     if ([view isKindOfClass:[RCTRichTextView class]]) {
       [view insertTag:tag];
     } else {
-      RCTLogInfo(@"[RCTRichTextManager] must be a view!");
+      RCTLogInfo(@"[TM] must be a view!");
     }
-      
-    [view insertTag:tag];
   }];
 };
 
@@ -51,7 +49,11 @@ RCT_EXPORT_METHOD(getHTML:(nonnull NSNumber *)reactTag)
 {
     [self.bridge.uiManager addUIBlock:^(__unused RCTUIManager *uiManager, NSDictionary<NSNumber *, RCTRichTextView *> *viewRegistry) {
         RCTRichTextView *view = viewRegistry[reactTag];
-        [view generateHTML];
+        if ([view isKindOfClass:[RCTRichTextView class]]) {
+          [view generateHTML];
+        } else {
+          RCTLogInfo(@"[TM] must be a view!");
+        }
     }];
 }
 
@@ -59,9 +61,10 @@ RCT_EXPORT_METHOD(getHTML:(nonnull NSNumber *)reactTag)
 #pragma mark - Delegate Methods
 
 
-- (void)onHeightChange:(NSNumber *)height {
-  
-  
+- (void)textViewDidChange:(UITextView *)textView {
+  RCTLogInfo(@"[TM] textViewDidChange height: %f", textView.frame.size.height);
+  RCTLogInfo(@"[TM] textViewDidChange content height: %f", textView.contentSize.height);
+  RCTLogInfo(@"- - - - - - - - - - - - -");
 }
 
 @end
