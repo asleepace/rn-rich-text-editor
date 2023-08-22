@@ -13,6 +13,10 @@ export const styleText = (text: string): string => text ||
 <html>
 <head>
   <style type="text/css">
+  html {
+    font-family: Helvetica;
+    color: red;
+  }
   body {
     font-family: HelveticaNeue, Helvetica, Arial, sans-serif;
     font-size: 18px;

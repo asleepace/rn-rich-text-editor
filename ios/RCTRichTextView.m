@@ -9,6 +9,8 @@
 #import <CoreText/CTStringAttributes.h>
 #import <CoreText/CoreText.h>
 
+#import <UIKit/UIFont.h>
+
 @interface RCTRichTextView()
 {
     __block NSMutableString *htmlString;
@@ -83,26 +85,34 @@ const UIViewAnimationOptions viewOptions = UIViewAnimationOptionAllowUserInterac
 // attribute is export to JS as a prop of this class, we need to convert the given string into the attributed string
 // in order to be parsed with the rich text elements.
 
-- (NSAttributedString *)stringFromHTML:(NSString *)html {
+- (NSMutableAttributedString *)stringFromHTML:(NSString *)html {
   NSData *data = [html dataUsingEncoding:NSUnicodeStringEncoding];
   NSDictionary *options = @{
     NSDocumentTypeDocumentAttribute: NSHTMLTextDocumentType,
-    NSCharacterEncodingDocumentAttribute: @(NSUTF8StringEncoding)
+    NSCharacterEncodingDocumentAttribute: @(NSUTF8StringEncoding),
   };
   
-  NSDictionary *attributes = @{
-    NSFontAttributeName: [UIFont systemFontOfSize:18.0]
-  };
+//  NSDictionary *attributes = @{
+//    NSFontAttributeName: [UIFont systemFontOfSize:18.0]
+//  };
   
   
-  NSMutableAttributedString *attrString = [[NSMutableAttributedString alloc] initWithData:data options:options documentAttributes:&attributes error:nil];
+  NSMutableAttributedString *attrString = [[NSMutableAttributedString alloc] initWithData:data options:options documentAttributes:nil error:nil];
       
-  return attrString.copy;
+  return attrString;
 }
 
 - (void)setText:(NSString *)text {
-    NSAttributedString *attrString = [self stringFromHTML:text];
-    self.attributedText = [self trim:attrString];
+    NSMutableAttributedString *attrString = [self stringFromHTML:text];
+  
+  UIFont *font = [UIFont fontWithName:@"Palatino-Roman" size:14.0];
+  
+    NSDictionary *attrsDictionary = [NSDictionary dictionaryWithObject:font forKey:NSFontAttributeName];
+    
+  [attrString addAttributes:attrsDictionary range:NSMakeRange(0, attrString.length)];
+  
+    self.attributedText = attrString;
+  
     RCTLogInfo(@"[RichTextEditor] setting string: %@", attrString);
     [self calculateSize];
 }
