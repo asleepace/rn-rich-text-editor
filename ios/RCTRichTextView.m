@@ -84,13 +84,20 @@ const UIViewAnimationOptions viewOptions = UIViewAnimationOptionAllowUserInterac
 // in order to be parsed with the rich text elements.
 
 - (NSAttributedString *)stringFromHTML:(NSString *)html {
-    NSData *data = [html dataUsingEncoding:NSUnicodeStringEncoding];
-    NSDictionary *options = @{
-        NSDocumentTypeDocumentAttribute: NSHTMLTextDocumentType,
-        NSCharacterEncodingDocumentAttribute: @(NSUTF8StringEncoding)
-    };
-    NSAttributedString *attrString = [[NSAttributedString alloc] initWithData:data options:options documentAttributes:nil error:nil];
-    return attrString;
+  NSData *data = [html dataUsingEncoding:NSUnicodeStringEncoding];
+  NSDictionary *options = @{
+    NSDocumentTypeDocumentAttribute: NSHTMLTextDocumentType,
+    NSCharacterEncodingDocumentAttribute: @(NSUTF8StringEncoding)
+  };
+  
+  NSDictionary *attributes = @{
+    NSFontAttributeName: [UIFont systemFontOfSize:18.0]
+  };
+  
+  
+  NSMutableAttributedString *attrString = [[NSMutableAttributedString alloc] initWithData:data options:options documentAttributes:&attributes error:nil];
+      
+  return attrString.copy;
 }
 
 - (void)setText:(NSString *)text {

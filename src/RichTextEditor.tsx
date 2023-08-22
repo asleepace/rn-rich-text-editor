@@ -3,9 +3,10 @@ import ReactNative, {
   NativeModules,
   StyleProp,
   StyleSheet,
-  ViewStyle,
   UIManager,
-  requireNativeComponent,
+  View,
+  ViewStyle,
+  requireNativeComponent
 } from 'react-native';
 
 import { SampleText, styleText } from './utils';
@@ -26,11 +27,9 @@ export type RichTextEditor = {
 
 const RichTextEditor = React.forwardRef((props: RichTextEditorProps, ref) => {
 
-  console.log({ NativeModules, RCTRichTextManager, RCTRichTextView })
-
-  const onLayout = React.useCallback((event: any) => {
-    console.log('[RichTextEditor] on layout: ', {event});
-  }, [])
+  // const onLayout = React.useCallback((event: any) => {
+  //   console.log('[RichTextEditor] on layout: ', {event});
+  // }, [])
 
   const nativeRef = React.useRef<any>(null)
 
@@ -51,11 +50,11 @@ const RichTextEditor = React.forwardRef((props: RichTextEditorProps, ref) => {
   }, [nativeRef])
 
   const getHTML = React.useCallback(() => {
-    RCTRichTextManager.getHTML(getTag())
-  }, [nativeRef])
-
-  const getTag = React.useCallback(() => {
-    return ReactNative.findNodeHandle(nativeRef.current) // TODO: this is broken :(
+    UIManager.dispatchViewManagerCommand(
+      ReactNative.findNodeHandle(nativeRef.current),
+      UIManager.getViewManagerConfig('RCTRichText').Commands.getHTML,
+      []
+    )
   }, [nativeRef])
 
   const onSelection = React.useCallback((data: SyntheticEvent) => {
@@ -68,17 +67,18 @@ const RichTextEditor = React.forwardRef((props: RichTextEditorProps, ref) => {
   }), [insertTag, getHTML])
 
   return (
-    <RCTRichTextView
-      ref={nativeRef}
-      style={[styles.frame, props.style]}
-      onSelection={onSelection}
-      text={styleText(SampleText)}
-      onLayout={onLayout}
-      textStyle={{
-        fontSize: 16.0,
-        fontFamily: 'Roboto',
-      }}
-    />
+    <View style={props.style}>
+      <RCTRichTextView
+        ref={nativeRef}
+        style={styles.frame}
+        onSelection={onSelection}
+        text={styleText(SampleText)}
+        textStyle={{
+          fontSize: 16.0,
+          fontFamily: 'Roboto',
+        }}
+      />
+    </View>
   );
 })
 
@@ -89,14 +89,13 @@ const styles = StyleSheet.create({
     flex: 1,
     zIndex: 100,
   },
-  behind: {
-    position: 'absolute',
+  container :{
+    flex: 1,
+    zIndex: 100,
+    backgroundColor: 'white',
     left: 0,
     right: 0,
-    top: -10,
     bottom: 0,
-    backgroundColor: 'red',
-    zIndex: 99,
-    flex: 1,
-  },
+    position: 'absolute',
+  }
 });
