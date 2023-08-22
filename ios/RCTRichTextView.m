@@ -52,7 +52,7 @@ const UIViewAnimationOptions viewOptions = UIViewAnimationOptionAllowUserInterac
         openTags = [NSMutableArray new];
         nextTags = [NSMutableArray new];
         nextHTML = [NSMutableArray new];
-        maxHeight = 300.0f;
+        maxHeight = 600.0f;
         minHeight = 100.0f;
         lineHeight = 22.0f;
         self.delegate = self;
@@ -105,11 +105,13 @@ const UIViewAnimationOptions viewOptions = UIViewAnimationOptionAllowUserInterac
 - (void)setText:(NSString *)text {
     NSMutableAttributedString *attrString = [self stringFromHTML:text];
   
-  UIFont *font = [UIFont fontWithName:@"Palatino-Roman" size:14.0];
-  
-    NSDictionary *attrsDictionary = [NSDictionary dictionaryWithObject:font forKey:NSFontAttributeName];
+  //UIFont *font = [UIFont fontWithName:@"Palatino-Roman" size:14.0];
+  UIFont *font = [UIFont systemFontOfSize:14.0];
+  NSRange range = NSMakeRange(0, attrString.length);
+  NSDictionary *attrsDictionary = [NSDictionary dictionaryWithObject:font forKey:NSFontAttributeName];
     
-  [attrString addAttributes:attrsDictionary range:NSMakeRange(0, attrString.length)];
+  
+    [attrString addAttributes:attrsDictionary range:range];
   
     self.attributedText = attrString;
   

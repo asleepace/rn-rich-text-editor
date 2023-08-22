@@ -17,7 +17,9 @@ export function TextEditor() {
   return (
     <View style={styles.overlay}>
       <InputAccessoryView>
-        <RichTextEditor style={styles.editor} ref={editorRef} />
+        <View style={styles.editor}>
+          <RichTextEditor style={styles.editor} ref={editorRef} />
+        </View>
         <ScrollView style={styles.button} horizontal={true}>
           <Button title={"Bold"} onPress={() => insert("<b>")} />
           <Button title={"Italic"} onPress={() => insert("<i>")} />
@@ -30,18 +32,18 @@ export function TextEditor() {
           <Button title={"HTML"} onPress={getHTML} />
         </ScrollView>
       </InputAccessoryView>
-      <View style={{ flex: 1, position: 'absolute', bottom: 0, left: 0, right: 0, backgroundColor: 'white' }} />
+      <View style={styles.bottom} />
     </View>
   );
 }
 
 const styles = StyleSheet.create({
   editor: {
-    borderTopLeftRadius: 8,
-    borderTopRightRadius: 8,
+    borderTopLeftRadius: 16,
+    borderTopRightRadius: 16,
     backgroundColor: "white",
     fontFamily: 'Roboto',
-    height: 100,
+    minHeight: 120,
     padding: 8,
   },
   overlay: {
@@ -50,8 +52,16 @@ const styles = StyleSheet.create({
     backgroundColor: 'rgba(0,0,0,0.3)'
   },
   button :{
-    backgroundColor: 'white',
+    backgroundColor: '#EEE',
     flexDirection: 'row',
     padding: 8,
+  },
+  bottom: {
+    flex: 1, 
+    zIndex: 100, 
+    minHeight:100, 
+    position: 'absolute',
+     bottom: 0, left: 0, right: 0, 
+     backgroundColor: '#DDD'
   }
 });

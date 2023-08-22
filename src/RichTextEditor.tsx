@@ -4,7 +4,6 @@ import ReactNative, {
   StyleProp,
   StyleSheet,
   UIManager,
-  View,
   ViewStyle,
   requireNativeComponent
 } from 'react-native';
@@ -67,7 +66,6 @@ const RichTextEditor = React.forwardRef((props: RichTextEditorProps, ref) => {
   }), [insertTag, getHTML])
 
   return (
-    <View style={props.style}>
       <RCTRichTextView
         ref={nativeRef}
         style={styles.frame}
@@ -78,7 +76,6 @@ const RichTextEditor = React.forwardRef((props: RichTextEditorProps, ref) => {
           fontFamily: 'Roboto',
         }}
       />
-    </View>
   );
 })
 
@@ -87,15 +84,5 @@ export { RichTextEditor };
 const styles = StyleSheet.create({
   frame: {
     flex: 1,
-    zIndex: 100,
   },
-  container :{
-    flex: 1,
-    zIndex: 100,
-    backgroundColor: 'white',
-    left: 0,
-    right: 0,
-    bottom: 0,
-    position: 'absolute',
-  }
 });
