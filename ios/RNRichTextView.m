@@ -31,12 +31,14 @@ RCT_EXPORT_MODULE()
 //  return self;
 //}
 
+
 + (BOOL)requiresMainQueueSetup {
   return true;
 }
 
 - (void)initializeTextView {
   self.textView = [[UITextView alloc] initWithFrame:CGRectZero textContainer:nil];
+  [self.textView setDelegate:self];
   [self.textView setText:@"Hello, world!"];
   [self.textView setBackgroundColor:[UIColor clearColor]];
   [self.textView setFont:[UIFont systemFontOfSize:16.0 weight:UIFontWeightRegular]];
@@ -47,6 +49,10 @@ RCT_EXPORT_MODULE()
   // this will allow the text view to grow in height
   UILayoutGuide *safeArea = self.safeAreaLayoutGuide;
   self.textView.translatesAutoresizingMaskIntoConstraints = false;
+  
+  // this line might not be needed
+  // self.translatesAutoresizingMaskIntoConstraints = false;
+  
   [NSLayoutConstraint activateConstraints:@[
 //    [self.textView.topAnchor constraintEqualToAnchor:safeArea.topAnchor],
     [self.textView.leadingAnchor constraintEqualToAnchor:safeArea.leadingAnchor],
@@ -60,7 +66,18 @@ RCT_EXPORT_MODULE()
 }
 
 - (void)textViewDidChange:(UITextView *)textView {
-  [self setNeedsLayout];
+  RCTLogInfo(@"[RNRichTextView] textViewDidChange height: %f", self.textView.frame.size.height);
+  RCTLogInfo(@"[RNRichTextView] wrapperDidChange height: %f", self.frame.size.height);
+  
+  CGRect nextFrame = self.frame;
+  
+  nextFrame.size = CGSizeMake(nextFrame.size.width, fmax(nextFrame.size.height, self.textView.frame.size.height));
+  self.frame = nextFrame;
+    
+  [UIView animateWithDuration:0.1 animations:^{
+      [self layoutIfNeeded];
+  }];
+  RCTLogInfo(@"- - - - - - - - - - - - ");
 }
 
 /*

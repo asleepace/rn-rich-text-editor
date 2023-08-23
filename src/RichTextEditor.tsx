@@ -63,7 +63,10 @@ export const RichTextEditor = React.forwardRef((props: RichTextEditorProps, ref)
   return (
     <RNRichTextView
       ref={nativeRef}
-      style={{ flex: 1, backgroundColor: 'purple', color: 'white' }}
+      style={{ minHeight: 44, backgroundColor: 'purple', color: 'white' }}
+      onLayout={(event) => {
+        console.log('[RichTextEditor] on layout: ', event.nativeEvent)
+      }}
     />
   )
 })

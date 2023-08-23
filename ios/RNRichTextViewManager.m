@@ -21,6 +21,7 @@ RCT_EXPORT_MODULE()
   RNRichTextView *richTextView = [[RNRichTextView alloc] init];
   [richTextView initializeTextView];
   //richTextView.delegate = self;
+  
   return richTextView;
 }
 
