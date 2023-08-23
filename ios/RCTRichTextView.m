@@ -26,8 +26,7 @@
 
 @implementation RCTRichTextView
 
-@synthesize text, maxHeight, minHeight, lineHeight;
-
+@synthesize text, maxHeight, minHeight, lineHeight, onSizeChange;
 
 + (BOOL)requiresMainQueueSetup
 {
@@ -47,9 +46,8 @@ const UIViewAnimationOptions viewOptions = UIViewAnimationOptionAllowUserInterac
 
 - (id)init {
     printf("[RichTextEditor] init!\n");
-    if (self = [super initWithFrame:CGRectZero textContainer:nil]) {
+    if (self = [super init]) {
       self.scrollEnabled = false;
-//      self.translatesAutoresizingMaskIntoConstraints = false;
       
         openTags = [NSMutableArray new];
         nextTags = [NSMutableArray new];
@@ -63,20 +61,37 @@ const UIViewAnimationOptions viewOptions = UIViewAnimationOptionAllowUserInterac
     return self;
 }
 
+- (void)setBounds:(CGRect)bounds {
+  [super setBounds:bounds];
+  printf("[RV] setBounds called!\n");
+}
+
 
 // take from answer #2
 // https://stackoverflow.com/questions/16868117/uitextview-that-expands-to-text-using-auto-layout
 - (void)layoutSubviews {
   [super layoutSubviews];
+  printf("[RV] layoutSubviews called!\n");
   if (CGSizeEqualToSize(self.bounds.size, [self intrinsicContentSize])) {
     [self invalidateIntrinsicContentSize];
   }
 }
 
+- (CGSize)intrinsicContentSize
+{
+  printf("[RV] intrinsicContentSize called!\n");
+  CGSize intrinsicContentSize = self.contentSize;
+  intrinsicContentSize.width += (self.textContainerInset.left + self.textContainerInset.right ) / 2.0f;
+  intrinsicContentSize.height += (self.textContainerInset.top + self.textContainerInset.bottom) / 2.0f;
+  
+  self.onSizeChange(@{ @"height": @(intrinsicContentSize.height) });
+  
+  return intrinsicContentSize;
+}
 
-//- (BOOL)autoresizesSubviews {
-//    return true;
-//}
+- (BOOL)autoresizesSubviews {
+    return true;
+}
 
 //- (void)layoutSubviews {
 //    [super layoutSubviews];
@@ -387,14 +402,15 @@ const UIViewAnimationOptions viewOptions = UIViewAnimationOptionAllowUserInterac
 -(void)animateTextField:(BOOL)up
 {
     //RCTLogInfo(@"[RichTextEditor] animate text field called!");
-    const int movementDistance = -keyboardFrame.size.height; // tweak as needed
-    const float movementDuration = 0.3f; // tweak as needed
-    int movement = (up ? movementDistance : -movementDistance);
-    [UIView beginAnimations: @"animateTextField" context: nil];
-    [UIView setAnimationBeginsFromCurrentState: YES];
-    [UIView setAnimationDuration: movementDuration];
-    self.frame = CGRectOffset(self.frame, 0, movement);
-    [UIView commitAnimations];
+  printf("[RV] animate text view called!");
+  const int movementDistance = -keyboardFrame.size.height; // tweak as needed
+  const float movementDuration = 0.3f; // tweak as needed
+  int movement = (up ? movementDistance : -movementDistance);
+  [UIView beginAnimations: @"animateTextField" context: nil];
+  [UIView setAnimationBeginsFromCurrentState: YES];
+  [UIView setAnimationDuration: movementDuration];
+  self.frame = CGRectOffset(self.frame, 0, movement);
+  [UIView commitAnimations];
 }
 
 

@@ -41,7 +41,7 @@ const styles = StyleSheet.create({
   editor: {
     borderTopLeftRadius: 16,
     borderTopRightRadius: 16,
-    backgroundColor: "red",
+    backgroundColor: "white",
     fontFamily: 'Roboto',
     minHeight: 120,
     flexGrow: 1,
@@ -51,10 +51,10 @@ const styles = StyleSheet.create({
   overlay: {
     position: 'absolute',
     left: 0, right:0, top: 0, bottom: 0,
-    backgroundColor: 'rgba(0,0,0,0.3)'
+    backgroundColor: '#333'
   },
   button :{
-    backgroundColor: '#EEE',
+    backgroundColor: '#F2F2F7',
     flexDirection: 'row',
     padding: 8,
   },

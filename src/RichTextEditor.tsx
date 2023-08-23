@@ -64,9 +64,9 @@ const RichTextEditor = React.forwardRef((props: RichTextEditorProps, ref) => {
       <RCTRichTextView
         ref={nativeRef}
         style={styles.editor}
-        // onHeightChange={(event: any) => {
-        //   console.log('[RichTextEditor] on height change: ', {event})
-        // }}
+        onSizeChange={({ nativeEvent}) => {
+          console.log('[RichTextEditor] on height change: ', nativeEvent)
+        }}
         // onSelection={onSelection}
         text={styleText(SampleText)}
         textStyle={{

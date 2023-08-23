@@ -16,7 +16,7 @@ RCT_EXPORT_MODULE()
 RCT_EXPORT_VIEW_PROPERTY(height, NSNumber *)
 RCT_EXPORT_VIEW_PROPERTY(text, NSString *)
 RCT_EXPORT_VIEW_PROPERTY(onSelection, RCTBubblingEventBlock)
-RCT_EXPORT_VIEW_PROPERTY(onHeightChange, RCTBubblingEventBlock)
+RCT_EXPORT_VIEW_PROPERTY(onSizeChange, RCTBubblingEventBlock)
 
 - (UIView *)view {
   RCTRichTextView *richTextView = [[RCTRichTextView alloc] init];
@@ -64,6 +64,15 @@ RCT_EXPORT_METHOD(getHTML:(nonnull NSNumber *)reactTag)
 - (void)textViewDidChange:(UITextView *)textView {
   RCTLogInfo(@"[TM] textViewDidChange height: %f", textView.frame.size.height);
   RCTLogInfo(@"[TM] textViewDidChange content height: %f", textView.contentSize.height);
+  
+  CGFloat fixedWith = textView.frame.size.width;
+  CGSize newSize = [textView sizeThatFits:CGSizeMake(fixedWith, MAXFLOAT)];
+  CGRect newFrame = textView.frame;
+  newFrame.size = CGSizeMake(fmax(newSize.width, fixedWith), newSize.height);
+  textView.frame = newFrame;
+  
+  // self.onSizeChange(@{ @"height": @(newFrame.size.height) });
+    
   RCTLogInfo(@"- - - - - - - - - - - - -");
 }
 

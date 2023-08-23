@@ -7,13 +7,16 @@
 //
 
 #import <UIKit/UIKit.h>
-//#import <React/RCTComponent.h>
+#import <React/RCTBridge.h>
+#import <React/RCTComponent.h>
 //#import <React/RCTBridge.h>
 //#import <React/RCTLog.h>
 
 NS_ASSUME_NONNULL_BEGIN
 
 @interface RCTRichTextView : UITextView <UITextViewDelegate>
+
+@property (nonatomic, copy) RCTBubblingEventBlock onSizeChange;
 
 @property (nonatomic, copy) NSString *text;
 @property (assign) CGFloat maxHeight;
