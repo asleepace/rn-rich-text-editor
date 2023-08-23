@@ -9,10 +9,8 @@ import ReactNative, {
   requireNativeComponent
 } from 'react-native';
 
-import { SampleText, styleText } from './utils';
-
-const NATIVE_NAME = 'RCTRichTextView';
-const RCTRichTextView = requireNativeComponent(NATIVE_NAME);
+const NATIVE_NAME = 'RNRichTextView';
+const RNRichTextView = requireNativeComponent(NATIVE_NAME);
 
 interface RichTextEditorProps {
   style?: StyleProp<ViewStyle>;
@@ -25,15 +23,15 @@ export type RichTextEditor = {
   getHTML: () => void;
 }
 
-const RichTextEditor = React.forwardRef((props: RichTextEditorProps, ref) => {
+export const RichTextEditor = React.forwardRef((props: RichTextEditorProps, ref) => {
 
-  // const onLayout = React.useCallback((event: any) => {
-  //   console.log('[RichTextEditor] on layout: ', {event});
-  // }, [])
+  console.log('[RichTextEditor] native modules:', { NativeModules, RNRichTextView })
 
+  // initialize refs
   const heightRef = React.useRef(new Animated.Value(0))
   const nativeRef = React.useRef<any>(null)
 
+  // callback methods
   const insertTag = React.useCallback((tag: string) => {
     console.log('[RichTextEditor] insert tag called: ', tag)
     UIManager.dispatchViewManagerCommand(
@@ -62,43 +60,10 @@ const RichTextEditor = React.forwardRef((props: RichTextEditorProps, ref) => {
 
   console.log('[RichTextEditor] render:', heightRef.current)
 
-
   return (
-    <RCTRichTextView
+    <RNRichTextView
       ref={nativeRef}
-      style={{ flex: 1 }}
-      onLayout={(event) => {
-        console.log('[RichTextEditor] on layout: ', event.nativeEvent.layout.height)
-      }}
-
-      onSizeChange={({ nativeEvent}) => {
-        console.log('[RichTextEditor] on height change: ', nativeEvent)
-        if (!heightRef.current) return
-
-        // Animated.timing(heightRef.current, {
-        //   toValue: nativeEvent.height,
-        //   duration: 0,
-        //   useNativeDriver: false,
-        // }).start()
-      }}
-      // onSelection={onSelection}
-      text={styleText(SampleText)}
-      textStyle={{
-        fontSize: 16.0,
-        fontFamily: 'Roboto',
-      }}
+      style={{ flex: 1, backgroundColor: 'purple', color: 'white' }}
     />
   )
 })
-
-export { RichTextEditor };
-
-const styles = StyleSheet.create({
-  editor: {
-    backgroundColor: 'red',
-    fontSize: 18.0,
-    color: '#111',
-    flexGrow: 1,
-    flex: 1,
-  },
-});
