@@ -48,7 +48,6 @@ const UIViewAnimationOptions viewOptions = UIViewAnimationOptionAllowUserInterac
     printf("[RichTextEditor] init!\n");
     if (self = [super init]) {
       self.scrollEnabled = false;
-      
         openTags = [NSMutableArray new];
         nextTags = [NSMutableArray new];
         nextHTML = [NSMutableArray new];
@@ -59,6 +58,20 @@ const UIViewAnimationOptions viewOptions = UIViewAnimationOptionAllowUserInterac
         [self addKeyboardListener];
     }
     return self;
+}
+
+- (void)setAutolayoutItems {
+  UILayoutGuide *safeArea = self.superview.safeAreaLayoutGuide;
+  
+  if (!safeArea.leadingAnchor) return;
+  printf("[RV] safeArea: %f", safeArea.leadingAnchor);
+  self.translatesAutoresizingMaskIntoConstraints = false;
+  
+  [NSLayoutConstraint activateConstraints:@[
+    [self.leadingAnchor constraintEqualToAnchor:safeArea.leadingAnchor],
+    [self.bottomAnchor constraintEqualToAnchor:safeArea.bottomAnchor],
+    [self.trailingAnchor constraintEqualToAnchor:safeArea.trailingAnchor],
+  ]];
 }
 
 - (void)setBounds:(CGRect)bounds {
@@ -72,9 +85,9 @@ const UIViewAnimationOptions viewOptions = UIViewAnimationOptionAllowUserInterac
 - (void)layoutSubviews {
   [super layoutSubviews];
   printf("[RV] layoutSubviews called!\n");
-  if (CGSizeEqualToSize(self.bounds.size, [self intrinsicContentSize])) {
-    [self invalidateIntrinsicContentSize];
-  }
+//  if (CGSizeEqualToSize(self.bounds.size, [self intrinsicContentSize])) {
+//    [self invalidateIntrinsicContentSize];
+//  }
 }
 
 - (CGSize)intrinsicContentSize

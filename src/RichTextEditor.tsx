@@ -66,7 +66,11 @@ const RichTextEditor = React.forwardRef((props: RichTextEditorProps, ref) => {
   return (
     <RCTRichTextView
       ref={nativeRef}
-      style={styles.editor}
+      style={{ flex: 1 }}
+      onLayout={(event) => {
+        console.log('[RichTextEditor] on layout: ', event.nativeEvent.layout.height)
+      }}
+
       onSizeChange={({ nativeEvent}) => {
         console.log('[RichTextEditor] on height change: ', nativeEvent)
         if (!heightRef.current) return
@@ -91,7 +95,7 @@ export { RichTextEditor };
 
 const styles = StyleSheet.create({
   editor: {
-    backgroundColor: 'transparent',
+    backgroundColor: 'red',
     fontSize: 18.0,
     color: '#111',
     flexGrow: 1,
