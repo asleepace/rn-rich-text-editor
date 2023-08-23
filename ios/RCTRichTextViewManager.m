@@ -64,7 +64,6 @@ RCT_EXPORT_METHOD(getHTML:(nonnull NSNumber *)reactTag)
 - (void)textViewDidChange:(UITextView *)textView {
   RCTLogInfo(@"[TM] textViewDidChange height: %f", textView.frame.size.height);
   RCTLogInfo(@"[TM] textViewDidChange content height: %f", textView.contentSize.height);
-  
   CGFloat fixedWith = textView.frame.size.width;
   CGSize newSize = [textView sizeThatFits:CGSizeMake(fixedWith, MAXFLOAT)];
   CGRect newFrame = textView.frame;

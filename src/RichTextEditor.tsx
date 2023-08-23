@@ -1,5 +1,6 @@
 import React, { SyntheticEvent } from 'react';
 import ReactNative, {
+  Animated,
   NativeModules,
   StyleProp,
   StyleSheet,
@@ -30,6 +31,7 @@ const RichTextEditor = React.forwardRef((props: RichTextEditorProps, ref) => {
   //   console.log('[RichTextEditor] on layout: ', {event});
   // }, [])
 
+  const heightRef = React.useRef(new Animated.Value(0))
   const nativeRef = React.useRef<any>(null)
 
   const insertTag = React.useCallback((tag: string) => {
@@ -58,23 +60,31 @@ const RichTextEditor = React.forwardRef((props: RichTextEditorProps, ref) => {
     getHTML,
   }), [insertTag, getHTML])
 
-  console.log('[RichTextEditor] render:', nativeRef.current)
+  console.log('[RichTextEditor] render:', heightRef.current)
+
 
   return (
-      <RCTRichTextView
-        ref={nativeRef}
-        style={styles.editor}
-        onSizeChange={({ nativeEvent}) => {
-          console.log('[RichTextEditor] on height change: ', nativeEvent)
-        }}
-        // onSelection={onSelection}
-        text={styleText(SampleText)}
-        textStyle={{
-          fontSize: 16.0,
-          fontFamily: 'Roboto',
-        }}
-      />
-  );
+    <RCTRichTextView
+      ref={nativeRef}
+      style={styles.editor}
+      onSizeChange={({ nativeEvent}) => {
+        console.log('[RichTextEditor] on height change: ', nativeEvent)
+        if (!heightRef.current) return
+
+        // Animated.timing(heightRef.current, {
+        //   toValue: nativeEvent.height,
+        //   duration: 0,
+        //   useNativeDriver: false,
+        // }).start()
+      }}
+      // onSelection={onSelection}
+      text={styleText(SampleText)}
+      textStyle={{
+        fontSize: 16.0,
+        fontFamily: 'Roboto',
+      }}
+    />
+  )
 })
 
 export { RichTextEditor };

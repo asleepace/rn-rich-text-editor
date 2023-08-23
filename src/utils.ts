@@ -1,11 +1,4 @@
-export const SampleText = `
-<p>Hello, world!</p>
-<ul>
-  <li>One</li>
-  <li>Two</li>
-  <li>Three</li>
-</ul>
-`;
+export const SampleText = ``;
 
 export const styleText = (text: string): string => text ||
 
