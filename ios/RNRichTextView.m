@@ -85,6 +85,8 @@ RCT_EXPORT_MODULE()
   [self reportSize:self.textView];
 }
 
+// when setting an attributed string from HTML we need to strip away extra whitespaces and newlines added by the editor,
+// at some point we may need to track which were already there from the original post.
 - (NSAttributedString *)trim:(NSAttributedString *)originalString {
   NSMutableAttributedString *attributedString = [[NSMutableAttributedString alloc] initWithAttributedString:originalString];
   while ([attributedString.string length] > 0 && [[attributedString.string substringFromIndex:[attributedString.string length] - 1] rangeOfCharacterFromSet:NSCharacterSet.whitespaceAndNewlineCharacterSet].location != NSNotFound) {
