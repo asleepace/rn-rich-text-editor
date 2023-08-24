@@ -68,15 +68,19 @@ export const RichTextEditor = React.forwardRef((props: RichTextEditorProps, ref)
         setHeight(event.nativeEvent.height)
       }}
       html={`
+        <!doctype html>
         <html>
         <head>
           <style>
-            p {
-              font-family: Helvetica;
+            body {
+              font-family: -apple-system;
+              font-weight: 400;
               line-height: 24px;
-              font-weight: 600;
               font-size: 16px;
               color: black;
+            }
+            p {
+
             }
           </style>
         </head>

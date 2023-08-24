@@ -22,8 +22,8 @@
 
 RCT_EXPORT_MODULE()
 
-const NSStringDrawingOptions drawOptions = NSStringDrawingUsesLineFragmentOrigin | NSStringDrawingUsesFontLeading;
-const UIViewAnimationOptions viewOptions = UIViewAnimationOptionAllowUserInteraction | UIViewAnimationOptionCurveEaseInOut;
+//const NSStringDrawingOptions drawOptions = NSStringDrawingUsesLineFragmentOrigin | NSStringDrawingUsesFontLeading;
+//const UIViewAnimationOptions viewOptions = UIViewAnimationOptionAllowUserInteraction | UIViewAnimationOptionCurveEaseInOut;
 
 + (BOOL)requiresMainQueueSetup {
   return true;
@@ -81,8 +81,16 @@ const UIViewAnimationOptions viewOptions = UIViewAnimationOptionAllowUserInterac
   };
   
   NSMutableAttributedString *attrString = [[NSMutableAttributedString alloc] initWithData:data options:options documentAttributes:nil error:nil];
-  self.textView.attributedText = attrString;
+  self.textView.attributedText = [self trim:attrString];
   [self reportSize:self.textView];
+}
+
+- (NSAttributedString *)trim:(NSAttributedString *)originalString {
+  NSMutableAttributedString *attributedString = [[NSMutableAttributedString alloc] initWithAttributedString:originalString];
+  while ([attributedString.string length] > 0 && [[attributedString.string substringFromIndex:[attributedString.string length] - 1] rangeOfCharacterFromSet:NSCharacterSet.whitespaceAndNewlineCharacterSet].location != NSNotFound) {
+    [attributedString deleteCharactersInRange:NSMakeRange([attributedString length] - 1, 1)];
+  }
+  return attributedString;
 }
 
 #pragma mark - Attributed Text Styling
