@@ -7,16 +7,18 @@ import ReactNative, {
   UIManager,
   ViewStyle,
   requireNativeComponent,
-  View
+  View,
+  NativeSyntheticEvent
 } from 'react-native';
 
 const NATIVE_NAME = 'RNRichTextView';
-const RNRichTextView = requireNativeComponent(NATIVE_NAME);
+const RNRichTextView = requireNativeComponent<RichTextEditorProps>(NATIVE_NAME);
 
 interface RichTextEditorProps {
+  onSizeChange?: (event: NativeSyntheticEvent<{ height: number }>) => void;
   style?: StyleProp<ViewStyle>;
-  onSelection?: (data: any) => void;
   ref: React.RefObject<{}>;
+  html?: string
 }
 
 export type RichTextEditor = {
