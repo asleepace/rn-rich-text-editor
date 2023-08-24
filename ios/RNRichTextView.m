@@ -8,6 +8,9 @@
 #import "RNRichTextView.h"
 
 @interface RNRichTextView()
+{
+  CGSize lastReportedSize;
+}
 
 @property (strong, nonatomic) UITextView *textView;
 
@@ -25,18 +28,17 @@ RCT_EXPORT_MODULE()
 }
 
 - (void)initializeTextView {
+  
+  lastReportedSize = CGSizeZero;
+  
   self.textView = [[UITextView alloc] initWithFrame:CGRectZero textContainer:nil];
   [self.textView setDelegate:self];
-  [self setBackgroundColor:[UIColor brownColor]];
-//  [self.textView setBackgroundColor:[UIColor yellowColor]];
   [self addSubview:self.textView];
   [self bringSubviewToFront:self.textView];
   [self.textView setScrollEnabled:false];
   
-  
   // set up text editor styles
   [self styleAtrributedText];
-  [self.textView setFont:[UIFont systemFontOfSize:16.0 weight:UIFontWeightRegular]];
   
   // this will allow the text view to grow in height
   UILayoutGuide *safeArea = self.safeAreaLayoutGuide;
@@ -45,10 +47,13 @@ RCT_EXPORT_MODULE()
   // this line might not be needed
   // self.translatesAutoresizingMaskIntoConstraints = false;
   
+  // we can achieve different effects by choosing if we anchor the top or bottom,
+  // currently anchoring the top works better as there is a bit of delay when we
+  // resize the text.
   [NSLayoutConstraint activateConstraints:@[
-//    [self.textView.topAnchor constraintEqualToAnchor:safeArea.topAnchor],
+    [self.textView.topAnchor constraintEqualToAnchor:safeArea.topAnchor],
     [self.textView.leadingAnchor constraintEqualToAnchor:safeArea.leadingAnchor],
-    [self.textView.bottomAnchor constraintEqualToAnchor:safeArea.bottomAnchor],
+    //[self.textView.bottomAnchor constraintEqualToAnchor:safeArea.bottomAnchor],
     [self.textView.trailingAnchor constraintEqualToAnchor:safeArea.trailingAnchor],
   ]];
 }
@@ -57,32 +62,58 @@ RCT_EXPORT_MODULE()
   return true;
 }
 
+#pragma mark - Attributed Text Styling
+
 - (void)styleAtrributedText {
   NSMutableParagraphStyle *paragraphStyle = [[NSMutableParagraphStyle alloc] init];
-  paragraphStyle.headIndent = 15; // <--- indention if you need it
-  paragraphStyle.firstLineHeadIndent = 15;
-  paragraphStyle.lineSpacing = 7; // <--- magic line spacing here!
-  NSDictionary *attrsDictionary = @{ NSParagraphStyleAttributeName: paragraphStyle }; // <-- there are many more attrs, e.g NSFontAttributeName
+  paragraphStyle.headIndent = 0;
+  paragraphStyle.firstLineHeadIndent = 0;
+  //paragraphStyle.lineHeightMultiple = 20;
+  paragraphStyle.lineSpacing = 8;
+  NSDictionary *attrsDictionary = @{
+    NSParagraphStyleAttributeName: paragraphStyle,
+    NSFontAttributeName: [UIFont systemFontOfSize:16.0 weight:UIFontWeightRegular],
+  };
   self.textView.attributedText = [[NSAttributedString alloc] initWithString:@"Hello World over many lines!" attributes:attrsDictionary];
 }
 
-- (void)textViewDidChange:(UITextView *)textView {
-  CGRect nextFrame = self.frame;
-  CGFloat nextHeight = self.textView.frame.size.height + self.textView.contentSize.height;
-  self.onSizeChange(@{ @"height": @(nextHeight) });
-  nextFrame.size = CGSizeMake(nextFrame.size.width, nextHeight);
-  self.frame = nextFrame;
+#pragma mark - Dynamic Sizing
+
+- (void)reportSize:(UITextView *)textView {
+  CGRect updatedFrame = self.frame;
+  updatedFrame.size = CGSizeMake(updatedFrame.size.width, self.textView.frame.size.height);
   
-  [self.delegate didUpdate:self.frame.size on:self];
+  // check if the height has changed, if not return early.
+  if (lastReportedSize.height == updatedFrame.size.height) {
+    return;
+  }
+  
+  // update the container views frame
+  lastReportedSize = updatedFrame.size;
+  self.frame = updatedFrame;
+  
+  // report size changes to react-native
+  [self.delegate didUpdate:updatedFrame.size on:self];
+  
+  // report size changes to JS
+  self.onSizeChange(@{ @"height": @(updatedFrame.size.height) });
+  
+  // may help with animations
+  [UIView animateWithDuration:0.01 animations:^{
+    [self layoutIfNeeded];
+  }];
 }
 
-/*
- Only override drawRect: if you perform custom drawing.
- An empty implementation adversely affects performance during animation.
- */
-//- (void)drawRect:(CGRect)rect {
-//  RCTLogInfo(@"[RNRichTextView] drawing rect changed: %f", self.frame.size.height);
-//}
+#pragma mark - UITextView Delegate Methods
+
+// most important method for reporting size changes to react-native
+- (void)textViewDidChange:(UITextView *)textView {
+  [self reportSize:textView];
+}
+
+- (void)textViewDidEndEditing:(UITextView *)textView {
+  [self reportSize:textView];
+}
 
 
 @end

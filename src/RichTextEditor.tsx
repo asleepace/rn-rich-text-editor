@@ -63,7 +63,7 @@ export const RichTextEditor = React.forwardRef((props: RichTextEditorProps, ref)
   return (
     <RNRichTextView
       ref={nativeRef}
-      style={{ minHeight: 44.0, backgroundColor: 'purple', color: 'white' }}
+      style={{ minHeight: 44.0 }}
       onSizeChange={(event) => {
         setHeight(event.nativeEvent.height)
       }}
