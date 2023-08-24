@@ -8,43 +8,40 @@
 #import "RNRichTextView.h"
 
 @interface RNRichTextView()
-{
-  
-}
 
+@property (nonatomic, weak) id delegate;
 @property (strong, nonatomic) UITextView *textView;
 
 @end
 
 @implementation RNRichTextView
 
-@synthesize textView;
+@synthesize textView, onSizeChange;
 
 RCT_EXPORT_MODULE()
-
-//- (id)init {
-//  RCTLogInfo(@"[RNRichTextView] init called!");
-//  if (self = [super init]) {
-//    [self initializeTextView];
-//    
-//  }
-//  return self;
-//}
 
 
 + (BOOL)requiresMainQueueSetup {
   return true;
 }
 
+- (void)setDelegate:(id)delegate {
+  self.delegate = delegate;
+}
+
 - (void)initializeTextView {
   self.textView = [[UITextView alloc] initWithFrame:CGRectZero textContainer:nil];
   [self.textView setDelegate:self];
-  [self.textView setText:@"Hello, world!"];
-  [self.textView setBackgroundColor:[UIColor clearColor]];
-  [self.textView setFont:[UIFont systemFontOfSize:16.0 weight:UIFontWeightRegular]];
+  [self setBackgroundColor:[UIColor brownColor]];
+//  [self.textView setBackgroundColor:[UIColor yellowColor]];
   [self addSubview:self.textView];
   [self bringSubviewToFront:self.textView];
   [self.textView setScrollEnabled:false];
+  
+  
+  // set up text editor styles
+  [self styleAtrributedText];
+  [self.textView setFont:[UIFont systemFontOfSize:16.0 weight:UIFontWeightRegular]];
   
   // this will allow the text view to grow in height
   UILayoutGuide *safeArea = self.safeAreaLayoutGuide;
@@ -65,29 +62,32 @@ RCT_EXPORT_MODULE()
   return true;
 }
 
+- (void)styleAtrributedText {
+  NSMutableParagraphStyle *paragraphStyle = [[NSMutableParagraphStyle alloc] init];
+  paragraphStyle.headIndent = 15; // <--- indention if you need it
+  paragraphStyle.firstLineHeadIndent = 15;
+  paragraphStyle.lineSpacing = 7; // <--- magic line spacing here!
+  NSDictionary *attrsDictionary = @{ NSParagraphStyleAttributeName: paragraphStyle }; // <-- there are many more attrs, e.g NSFontAttributeName
+  self.textView.attributedText = [[NSAttributedString alloc] initWithString:@"Hello World over many lines!" attributes:attrsDictionary];
+}
+
 - (void)textViewDidChange:(UITextView *)textView {
-  RCTLogInfo(@"[RNRichTextView] textViewDidChange height: %f", self.textView.frame.size.height);
-  RCTLogInfo(@"[RNRichTextView] wrapperDidChange height: %f", self.frame.size.height);
-  
   CGRect nextFrame = self.frame;
-  
-  nextFrame.size = CGSizeMake(nextFrame.size.width, fmax(nextFrame.size.height, self.textView.frame.size.height));
+  CGFloat nextHeight = self.textView.frame.size.height;
+  self.onSizeChange(@{ @"height": @(nextHeight) });
+  nextFrame.size = CGSizeMake(nextFrame.size.width, nextHeight);
   self.frame = nextFrame;
-    
-  [UIView animateWithDuration:0.1 animations:^{
-      [self layoutIfNeeded];
-  }];
-  RCTLogInfo(@"- - - - - - - - - - - - ");
+  
+  [self.delegate didUpdate:self.textView.frame.size on:self];
 }
 
 /*
-// Only override drawRect: if you perform custom drawing.
-// An empty implementation adversely affects performance during animation.
-- (void)drawRect:(CGRect)rect {
-    // Drawing code
-}
-*/
-
+ Only override drawRect: if you perform custom drawing.
+ An empty implementation adversely affects performance during animation.
+ */
+//- (void)drawRect:(CGRect)rect {
+//  RCTLogInfo(@"[RNRichTextView] drawing rect changed: %f", self.frame.size.height);
+//}
 
 
 @end

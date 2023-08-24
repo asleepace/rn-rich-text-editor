@@ -6,7 +6,8 @@ import ReactNative, {
   StyleSheet,
   UIManager,
   ViewStyle,
-  requireNativeComponent
+  requireNativeComponent,
+  View
 } from 'react-native';
 
 const NATIVE_NAME = 'RNRichTextView';
@@ -25,10 +26,9 @@ export type RichTextEditor = {
 
 export const RichTextEditor = React.forwardRef((props: RichTextEditorProps, ref) => {
 
-  console.log('[RichTextEditor] native modules:', { NativeModules, RNRichTextView })
+  const [height, setHeight] = React.useState(44)
 
   // initialize refs
-  const heightRef = React.useRef(new Animated.Value(0))
   const nativeRef = React.useRef<any>(null)
 
   // callback methods
@@ -58,15 +58,18 @@ export const RichTextEditor = React.forwardRef((props: RichTextEditorProps, ref)
     getHTML,
   }), [insertTag, getHTML])
 
-  console.log('[RichTextEditor] render:', heightRef.current)
+  console.log('[RichTextEditor] render:', height)
 
   return (
     <RNRichTextView
       ref={nativeRef}
-      style={{ minHeight: 44, backgroundColor: 'purple', color: 'white' }}
-      onLayout={(event) => {
-        console.log('[RichTextEditor] on layout: ', event.nativeEvent)
+      style={{ minHeight: height, backgroundColor: 'purple', color: 'white' }}
+      onSizeChange={(event) => {
+        setHeight(event.nativeEvent.height)
       }}
+      // onLayout={(event) => {
+      //   console.log('[RichTextEditor] on layout: ', event.nativeEvent)
+      // }}
     />
   )
 })

@@ -18,10 +18,16 @@ NS_ASSUME_NONNULL_BEGIN
 
 @interface RNRichTextView : RCTView <RCTBridgeModule, UITextViewDelegate>
 
+@property (nonatomic, copy) RCTBubblingEventBlock onSizeChange;
 @property (nonatomic, copy) NSString *text;
 
+- (void)setDelegate:(id)delegate;
 - (void)initializeTextView;
 
+@end
+
+@protocol RichTextViewDelegate <NSObject>
+- (void)didUpdate:(CGSize)size on:(RNRichTextView *)view;
 @end
 
 NS_ASSUME_NONNULL_END
