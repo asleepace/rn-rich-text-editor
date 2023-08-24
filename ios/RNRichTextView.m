@@ -40,6 +40,11 @@ RCT_EXPORT_MODULE()
   [self bringSubviewToFront:self.textView];
   [self.textView setScrollEnabled:false];
   
+  // background colors
+  [self setBackgroundColor:[UIColor clearColor]];
+  [self.textView setBackgroundColor:[UIColor clearColor]];
+  [self.textView setTextColor:[UIColor blackColor]];
+  
   // set up text editor styles
   [self styleAtrributedText];
   
@@ -59,6 +64,9 @@ RCT_EXPORT_MODULE()
     //[self.textView.bottomAnchor constraintEqualToAnchor:safeArea.bottomAnchor],
     [self.textView.trailingAnchor constraintEqualToAnchor:safeArea.trailingAnchor],
   ]];
+  
+  // tell the text view to become a first response
+  [self.textView becomeFirstResponder];
 }
 
 - (BOOL)autoresizesSubviews {
@@ -142,6 +150,8 @@ RCT_EXPORT_MODULE()
 
 // most important method for reporting size changes to react-native
 - (void)textViewDidChange:(UITextView *)textView {
+  [self.textView sizeToFit];
+  [self.textView layoutIfNeeded];
   [self reportSize:textView];
 }
 

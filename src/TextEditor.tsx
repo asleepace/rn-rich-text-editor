@@ -1,5 +1,5 @@
 import React from 'react';
-import { Button, ScrollView, StyleSheet, View } from 'react-native';
+import { Button, InputAccessoryView, ScrollView, StyleSheet, View } from 'react-native';
 import { RichTextEditor } from './RichTextEditor';
 
 interface ButtonListProps {
@@ -28,22 +28,21 @@ export function TextEditor() {
   const editorRef = React.useRef<RichTextEditor>(null)
 
   const insert = React.useCallback((tag: string) => {
-    editorRef?.current?.insertTag(tag)
+    editorRef?.current?.insertTag?.(tag)
   }, [editorRef])
 
   const getHTML = React.useCallback(() => {
-    editorRef?.current?.getHTML()
+    editorRef?.current?.getHTML?.()
   }, [editorRef])
 
   return (
     <View style={styles.overlay}>
-      <View style={styles.editor} onLayout={(event) => {
-        const { height } = event.nativeEvent.layout
-        console.log({ height})
-      }}>
-         <RichTextEditor style={styles.editor} ref={editorRef} />
-      </View>
-      <ButtonList insert={insert} getHTML={getHTML} />
+      <InputAccessoryView>
+        <View style={styles.editor}>
+          <RichTextEditor ref={editorRef} />
+        </View>
+        <ButtonList insert={insert} getHTML={getHTML} />
+      </InputAccessoryView>
       <View style={styles.bottom} />
     </View>
   );
@@ -78,6 +77,7 @@ const styles = StyleSheet.create({
   },
   bottom: {
     // flex: 1, 
+    flexGrow: 1,
     minHeight:24, 
     backgroundColor: '#DDD'
   }

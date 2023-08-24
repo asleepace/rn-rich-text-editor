@@ -12,6 +12,7 @@
 		13B07FBC1A68108700A75B9A /* AppDelegate.mm in Sources */ = {isa = PBXBuildFile; fileRef = 13B07FB01A68108700A75B9A /* AppDelegate.mm */; };
 		13B07FBF1A68108700A75B9A /* Images.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 13B07FB51A68108700A75B9A /* Images.xcassets */; };
 		13B07FC11A68108700A75B9A /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 13B07FB71A68108700A75B9A /* main.m */; };
+		265FBC612A97088C00111F6E /* app_icon.png in Resources */ = {isa = PBXBuildFile; fileRef = 265FBC602A97088C00111F6E /* app_icon.png */; };
 		2663ECD22A8D763500BB460D /* RCTRichTextView.m in Sources */ = {isa = PBXBuildFile; fileRef = 2663ECD12A8D763500BB460D /* RCTRichTextView.m */; };
 		2663ECD52A8D76AD00BB460D /* RCTRichTextViewManager.m in Sources */ = {isa = PBXBuildFile; fileRef = 2663ECD42A8D76AD00BB460D /* RCTRichTextViewManager.m */; };
 		26AC92DB2A96BDB500B7BD6C /* RNRichTextView.m in Sources */ = {isa = PBXBuildFile; fileRef = 26AC92DA2A96BDB500B7BD6C /* RNRichTextView.m */; };
@@ -42,6 +43,7 @@
 		13B07FB71A68108700A75B9A /* main.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = main.m; path = RNRichTextEditor/main.m; sourceTree = "<group>"; };
 		19F6CBCC0A4E27FBF8BF4A61 /* libPods-RNRichTextEditor-RNRichTextEditorTests.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-RNRichTextEditor-RNRichTextEditorTests.a"; sourceTree = BUILT_PRODUCTS_DIR; };
 		265FBC5F2A96E3B000111F6E /* RichTextDelegate.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = RichTextDelegate.h; sourceTree = "<group>"; };
+		265FBC602A97088C00111F6E /* app_icon.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = app_icon.png; sourceTree = "<group>"; };
 		2663ECD02A8D763500BB460D /* RCTRichTextView.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = RCTRichTextView.h; sourceTree = "<group>"; };
 		2663ECD12A8D763500BB460D /* RCTRichTextView.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = RCTRichTextView.m; sourceTree = "<group>"; };
 		2663ECD32A8D76AD00BB460D /* RCTRichTextViewManager.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = RCTRichTextViewManager.h; sourceTree = "<group>"; };
@@ -104,6 +106,7 @@
 				13B07FAF1A68108700A75B9A /* AppDelegate.h */,
 				13B07FB01A68108700A75B9A /* AppDelegate.mm */,
 				13B07FB51A68108700A75B9A /* Images.xcassets */,
+				265FBC602A97088C00111F6E /* app_icon.png */,
 				13B07FB61A68108700A75B9A /* Info.plist */,
 				81AB9BB72411601600AC10FF /* LaunchScreen.storyboard */,
 				13B07FB71A68108700A75B9A /* main.m */,
@@ -280,6 +283,7 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				265FBC612A97088C00111F6E /* app_icon.png in Resources */,
 				81AB9BB82411601600AC10FF /* LaunchScreen.storyboard in Resources */,
 				13B07FBF1A68108700A75B9A /* Images.xcassets in Resources */,
 			);
