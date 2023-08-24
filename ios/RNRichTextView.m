@@ -127,6 +127,8 @@ RCT_EXPORT_MODULE()
 - (void)setAttributedString:(NSAttributedString *)attributedString {
   RCTLogInfo(@"[RNRichTextEditor] setting attributed string...");
   self.textView.attributedText = [self trim:attributedString];
+  [self.textView sizeToFit];
+  [self sizeToFit];
   [self reportSize:self.textView];
 }
 

@@ -76,13 +76,38 @@ export const RichTextEditor = React.forwardRef((props: any, ref) => {
               font-size: 16px;
               color: black;
             }
+
+            pre {
+              background-color: #F2F2F7;
+            }
+
+            code {
+              font-family: monospace;
+              font-size: 14px;
+              line-height: 24px;
+              background-color: #F2F2F7;
+              border-radius: 4px;
+              padding: 8px;
+            }
+
+            mark {
+              background-color: yellow;
+              border-radius: 4px;
+              padding: 4px;
+            }
+
             p {
 
             }
           </style>
         </head>
         <body>
-          <p>This is some pretty cool text which will <b>appear bold</b> and can have <em>underline</em></p>
+          <p>This is some pretty cool text which will <b>appear bold</b> and can have <em>underline</em> as well as <mark>marked text</mark> as well as <pre><code>const code = true;</pre></code></p>
+          <ul>
+            <li>Can instantiate with HTML, Markdown, or plain text</li>
+            <li>Can export back to HTML</li>
+            <li>Native editing support</li>
+          </ul>
         </body>
         </html>
       `}
