@@ -41,6 +41,7 @@
 		13B07FB61A68108700A75B9A /* Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; name = Info.plist; path = RNRichTextEditor/Info.plist; sourceTree = "<group>"; };
 		13B07FB71A68108700A75B9A /* main.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = main.m; path = RNRichTextEditor/main.m; sourceTree = "<group>"; };
 		19F6CBCC0A4E27FBF8BF4A61 /* libPods-RNRichTextEditor-RNRichTextEditorTests.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-RNRichTextEditor-RNRichTextEditorTests.a"; sourceTree = BUILT_PRODUCTS_DIR; };
+		265FBC5F2A96E3B000111F6E /* RichTextDelegate.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = RichTextDelegate.h; sourceTree = "<group>"; };
 		2663ECD02A8D763500BB460D /* RCTRichTextView.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = RCTRichTextView.h; sourceTree = "<group>"; };
 		2663ECD12A8D763500BB460D /* RCTRichTextView.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = RCTRichTextView.m; sourceTree = "<group>"; };
 		2663ECD32A8D76AD00BB460D /* RCTRichTextViewManager.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = RCTRichTextViewManager.h; sourceTree = "<group>"; };
@@ -124,6 +125,7 @@
 		26AC92DD2A96BDD100B7BD6C /* RNRichTextView */ = {
 			isa = PBXGroup;
 			children = (
+				265FBC5F2A96E3B000111F6E /* RichTextDelegate.h */,
 				26AC92D92A96BDB500B7BD6C /* RNRichTextView.h */,
 				26AC92DE2A96C05B00B7BD6C /* RNRichTextViewManager.h */,
 				26AC92DA2A96BDB500B7BD6C /* RNRichTextView.m */,

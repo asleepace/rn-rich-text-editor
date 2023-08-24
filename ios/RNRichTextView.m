@@ -9,7 +9,6 @@
 
 @interface RNRichTextView()
 
-@property (nonatomic, weak) id delegate;
 @property (strong, nonatomic) UITextView *textView;
 
 @end
@@ -23,10 +22,6 @@ RCT_EXPORT_MODULE()
 
 + (BOOL)requiresMainQueueSetup {
   return true;
-}
-
-- (void)setDelegate:(id)delegate {
-  self.delegate = delegate;
 }
 
 - (void)initializeTextView {
@@ -73,12 +68,12 @@ RCT_EXPORT_MODULE()
 
 - (void)textViewDidChange:(UITextView *)textView {
   CGRect nextFrame = self.frame;
-  CGFloat nextHeight = self.textView.frame.size.height;
+  CGFloat nextHeight = self.textView.frame.size.height + self.textView.contentSize.height;
   self.onSizeChange(@{ @"height": @(nextHeight) });
   nextFrame.size = CGSizeMake(nextFrame.size.width, nextHeight);
   self.frame = nextFrame;
   
-  [self.delegate didUpdate:self.textView.frame.size on:self];
+  [self.delegate didUpdate:self.frame.size on:self];
 }
 
 /*

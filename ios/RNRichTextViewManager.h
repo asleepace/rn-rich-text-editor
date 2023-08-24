@@ -6,6 +6,7 @@
 //
 
 #import "RNRichTextView.h"
+#import "RichTextDelegate.h"
 #import <Foundation/Foundation.h>
 #import <React/RCTViewManager.h>
 #import <React/RCTUIManager.h>
@@ -13,7 +14,7 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
-@interface RNRichTextViewManager : RCTViewManager <RCTBridgeModule, UITextViewDelegate, RichTextViewDelegate>
+@interface RNRichTextViewManager : RCTViewManager <RCTBridgeModule, RichTextViewDelegate>
 
 @end
 

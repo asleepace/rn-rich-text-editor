@@ -21,7 +21,7 @@ RCT_EXPORT_VIEW_PROPERTY(onSizeChange, RCTBubblingEventBlock)
 - (UIView *)view {
   RNRichTextView *richTextView = [[RNRichTextView alloc] init];
   [richTextView initializeTextView];
-  [richTextView setDelegate:self];
+  richTextView.delegate = self;
   return richTextView;
 }
 
@@ -31,10 +31,11 @@ RCT_EXPORT_VIEW_PROPERTY(onSizeChange, RCTBubblingEventBlock)
 
 #pragma mark - Delegate Methods
 
-- (void)didUpdate:(CGSize)size on:(RNRichTextView *)view {
-  RCTLogInfo(@"[RNRichTextViewManager] didUpdate: (%f, %f)", size.width, size.height);
-  
-  // [self.bridge.uiManager setIntrinsicContentSize:size forView:view];
+// when the content size changes in the text view we need to notify react-native of
+// the changes to allow the view to grow.
+- (void)didUpdate:(CGSize)size on:(nonnull RNRichTextView *)view {
+  RCTLogInfo(@"[RNRichTextManager] didUpdate height: %f", size.height);
+  [self.bridge.uiManager setIntrinsicContentSize:size forView:view];
 }
 
 @end

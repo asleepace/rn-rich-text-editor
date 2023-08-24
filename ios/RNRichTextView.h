@@ -5,6 +5,7 @@
 //  Created by Colin Teahan on 8/23/23.
 //
 
+#import "RichTextDelegate.h"
 #import <UIKit/UIFont.h>
 #import <QuartzCore/QuartzCore.h>
 #import <CoreText/CTStringAttributes.h>
@@ -19,15 +20,11 @@ NS_ASSUME_NONNULL_BEGIN
 @interface RNRichTextView : RCTView <RCTBridgeModule, UITextViewDelegate>
 
 @property (nonatomic, copy) RCTBubblingEventBlock onSizeChange;
+@property (nonatomic, weak) id<RichTextViewDelegate> delegate;
 @property (nonatomic, copy) NSString *text;
 
-- (void)setDelegate:(id)delegate;
 - (void)initializeTextView;
 
-@end
-
-@protocol RichTextViewDelegate <NSObject>
-- (void)didUpdate:(CGSize)size on:(RNRichTextView *)view;
 @end
 
 NS_ASSUME_NONNULL_END
