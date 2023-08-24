@@ -13,8 +13,6 @@
 		13B07FBF1A68108700A75B9A /* Images.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 13B07FB51A68108700A75B9A /* Images.xcassets */; };
 		13B07FC11A68108700A75B9A /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 13B07FB71A68108700A75B9A /* main.m */; };
 		265FBC612A97088C00111F6E /* app_icon.png in Resources */ = {isa = PBXBuildFile; fileRef = 265FBC602A97088C00111F6E /* app_icon.png */; };
-		2663ECD22A8D763500BB460D /* RCTRichTextView.m in Sources */ = {isa = PBXBuildFile; fileRef = 2663ECD12A8D763500BB460D /* RCTRichTextView.m */; };
-		2663ECD52A8D76AD00BB460D /* RCTRichTextViewManager.m in Sources */ = {isa = PBXBuildFile; fileRef = 2663ECD42A8D76AD00BB460D /* RCTRichTextViewManager.m */; };
 		26AC92DB2A96BDB500B7BD6C /* RNRichTextView.m in Sources */ = {isa = PBXBuildFile; fileRef = 26AC92DA2A96BDB500B7BD6C /* RNRichTextView.m */; };
 		26AC92E02A96C05B00B7BD6C /* RNRichTextViewManager.m in Sources */ = {isa = PBXBuildFile; fileRef = 26AC92DF2A96C05B00B7BD6C /* RNRichTextViewManager.m */; };
 		7699B88040F8A987B510C191 /* libPods-RNRichTextEditor-RNRichTextEditorTests.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 19F6CBCC0A4E27FBF8BF4A61 /* libPods-RNRichTextEditor-RNRichTextEditorTests.a */; };
@@ -44,10 +42,6 @@
 		19F6CBCC0A4E27FBF8BF4A61 /* libPods-RNRichTextEditor-RNRichTextEditorTests.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-RNRichTextEditor-RNRichTextEditorTests.a"; sourceTree = BUILT_PRODUCTS_DIR; };
 		265FBC5F2A96E3B000111F6E /* RichTextDelegate.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = RichTextDelegate.h; sourceTree = "<group>"; };
 		265FBC602A97088C00111F6E /* app_icon.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = app_icon.png; sourceTree = "<group>"; };
-		2663ECD02A8D763500BB460D /* RCTRichTextView.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = RCTRichTextView.h; sourceTree = "<group>"; };
-		2663ECD12A8D763500BB460D /* RCTRichTextView.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = RCTRichTextView.m; sourceTree = "<group>"; };
-		2663ECD32A8D76AD00BB460D /* RCTRichTextViewManager.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = RCTRichTextViewManager.h; sourceTree = "<group>"; };
-		2663ECD42A8D76AD00BB460D /* RCTRichTextViewManager.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = RCTRichTextViewManager.m; sourceTree = "<group>"; };
 		26AC92D92A96BDB500B7BD6C /* RNRichTextView.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = RNRichTextView.h; sourceTree = "<group>"; };
 		26AC92DA2A96BDB500B7BD6C /* RNRichTextView.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = RNRichTextView.m; sourceTree = "<group>"; };
 		26AC92DE2A96C05B00B7BD6C /* RNRichTextViewManager.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = RNRichTextViewManager.h; sourceTree = "<group>"; };
@@ -102,7 +96,6 @@
 			isa = PBXGroup;
 			children = (
 				26AC92DD2A96BDD100B7BD6C /* RNRichTextView */,
-				26AC92DC2A96BDB900B7BD6C /* RCTRichTextView */,
 				13B07FAF1A68108700A75B9A /* AppDelegate.h */,
 				13B07FB01A68108700A75B9A /* AppDelegate.mm */,
 				13B07FB51A68108700A75B9A /* Images.xcassets */,
@@ -112,17 +105,6 @@
 				13B07FB71A68108700A75B9A /* main.m */,
 			);
 			name = RNRichTextEditor;
-			sourceTree = "<group>";
-		};
-		26AC92DC2A96BDB900B7BD6C /* RCTRichTextView */ = {
-			isa = PBXGroup;
-			children = (
-				2663ECD32A8D76AD00BB460D /* RCTRichTextViewManager.h */,
-				2663ECD42A8D76AD00BB460D /* RCTRichTextViewManager.m */,
-				2663ECD02A8D763500BB460D /* RCTRichTextView.h */,
-				2663ECD12A8D763500BB460D /* RCTRichTextView.m */,
-			);
-			name = RCTRichTextView;
 			sourceTree = "<group>";
 		};
 		26AC92DD2A96BDD100B7BD6C /* RNRichTextView */ = {
@@ -456,9 +438,7 @@
 			files = (
 				13B07FBC1A68108700A75B9A /* AppDelegate.mm in Sources */,
 				13B07FC11A68108700A75B9A /* main.m in Sources */,
-				2663ECD52A8D76AD00BB460D /* RCTRichTextViewManager.m in Sources */,
 				26AC92E02A96C05B00B7BD6C /* RNRichTextViewManager.m in Sources */,
-				2663ECD22A8D763500BB460D /* RCTRichTextView.m in Sources */,
 				26AC92DB2A96BDB500B7BD6C /* RNRichTextView.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

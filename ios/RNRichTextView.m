@@ -10,8 +10,6 @@
 @interface RNRichTextView()
 {
   CGSize lastReportedSize;
-  NSAttributedString *attributedString;
-  
   // added from previous class
   __block NSMutableString *htmlString;
   NSMutableArray *openTags;
@@ -22,13 +20,14 @@
   NSMutableDictionary *selectedAttr;
 }
 
+@property (strong, nonatomic) NSAttributedString *attributedString;
 @property (strong, nonatomic) UITextView *textView;
 
 @end
 
 @implementation RNRichTextView
 
-@synthesize textView, onSizeChange, html;
+@synthesize textView, onSizeChange, html, attributedString = _attributedString;
 
 RCT_EXPORT_MODULE()
 
@@ -101,14 +100,15 @@ RCT_EXPORT_MODULE()
     NSFontAttributeName: [UIFont systemFontOfSize:16.0]
   };
   
-  attributedString = [[NSMutableAttributedString alloc] initWithData:data options:options documentAttributes:nil error:nil];
-  self.textView.attributedText = [self trim:attributedString];
+  self.attributedString = [[NSMutableAttributedString alloc] initWithData:data options:options documentAttributes:nil error:nil];
+//  self.textView.attributedText = [self trim:attributedString];
   [self reportSize:self.textView];
 }
 
 // when setting an attributed string from HTML we need to strip away extra whitespaces and newlines added by the editor,
 // at some point we may need to track which were already there from the original post.
 - (NSAttributedString *)trim:(NSAttributedString *)originalString {
+  RCTLogInfo(@"[RNRichTextView] trimming characters...");
   NSMutableAttributedString *attributedString = [[NSMutableAttributedString alloc] initWithAttributedString:originalString];
   while ([attributedString.string length] > 0 && [[attributedString.string substringFromIndex:[attributedString.string length] - 1] rangeOfCharacterFromSet:NSCharacterSet.whitespaceAndNewlineCharacterSet].location != NSNotFound) {
     [attributedString deleteCharactersInRange:NSMakeRange([attributedString length] - 1, 1)];
@@ -116,7 +116,26 @@ RCT_EXPORT_MODULE()
   return attributedString;
 }
 
+//- (void)setAttributedString:(NSAttributedString *)attributedString {
+//  self.attributedString = attributedString;
+//  self.textView.attributedText = self.attributedString;
+//}
+
+
 #pragma mark - Attributed Text Styling
+
+- (void)setAttributedString:(NSAttributedString *)attributedString {
+  RCTLogInfo(@"[RNRichTextEditor] setting attributed string...");
+  self.textView.attributedText = [self trim:attributedString];
+  [self reportSize:self.textView];
+}
+
+- (NSAttributedString *)attributedString {
+  NSAttributedString *current = self.textView.attributedText;
+  RCTLogInfo(@"[RNRichTextEditor] getting attributed string: %@", current.string);
+  return current;
+}
+
 
 - (void)styleAtrributedText {
   NSMutableParagraphStyle *paragraphStyle = [[NSMutableParagraphStyle alloc] init];
@@ -131,16 +150,21 @@ RCT_EXPORT_MODULE()
   self.textView.attributedText = [[NSAttributedString alloc] initWithString:@"Hello World over many lines!" attributes:attrsDictionary];
 }
 
+
 #pragma mark - Dynamic Sizing
 
+
 - (void)reportSize:(UITextView *)textView {
+  [self.textView sizeToFit];
+  [self.textView layoutIfNeeded];
+  
   CGRect updatedFrame = self.frame;
   updatedFrame.size = CGSizeMake(updatedFrame.size.width, self.textView.frame.size.height);
   
   // check if the height has changed, if not return early.
-  //if (lastReportedSize.height == updatedFrame.size.height) {
-  //  return;
-  //}
+  if (lastReportedSize.height == updatedFrame.size.height) {
+    return;
+  }
   
   // update the container views frame
   lastReportedSize = updatedFrame.size;
@@ -162,13 +186,25 @@ RCT_EXPORT_MODULE()
 
 // most important method for reporting size changes to react-native
 - (void)textViewDidChange:(UITextView *)textView {
-  [self.textView sizeToFit];
-  [self.textView layoutIfNeeded];
   [self reportSize:textView];
 }
 
 - (void)textViewDidEndEditing:(UITextView *)textView {
   [self reportSize:textView];
+}
+
+- (void)textViewDidChangeSelection:(UITextView *)textView {
+  UITextPosition* beginning = textView.beginningOfDocument;
+  UITextRange* selectedRange = textView.selectedTextRange;
+  UITextPosition* selectionStart = selectedRange.start;
+  UITextPosition* selectionEnd = selectedRange.end;
+  const NSInteger location = [textView offsetFromPosition:beginning toPosition:selectionStart];
+  const NSInteger length = [textView offsetFromPosition:selectionStart toPosition:selectionEnd];
+  if (length == 0) return;
+  //RCTLogInfo(@"[RichTextEditor] location: %lu length: %lu", location, length);
+  NSRange range = NSMakeRange(location, length);
+  [self getAttributesInRange:range];
+  //self.onSelection(selectedAttr);
 }
 
 //- (void)textViewDidChangeSelection:(UITextView *)textView {
@@ -178,18 +214,54 @@ RCT_EXPORT_MODULE()
 
 #pragma mark - Inserting HTML Tags
 
+- (void)getAttributesInRange:(NSRange)range {
+  selectedAttr = [NSMutableDictionary new];
+  [selectedAttr setObject:@(true) forKey:@"isBold"];
+  [selectedAttr setObject:@(true) forKey:@"isItalic"];
+  [selectedAttr setObject:@(true) forKey:@"isStrikethrough"];
+  [selectedAttr setObject:@(true) forKey:@"isSuperscript"];
+  [selectedAttr setObject:@(true) forKey:@"isSubscript"];
+  [selectedAttr setObject:@(true) forKey:@"isCode"];
+  [selectedAttr setObject:@(true) forKey:@"isMarked"];
+  
+  RCTLogInfo(@"[RNRichTextView] getAttributesInRange: %@", self.attributedString);
+  
+  [self.attributedString enumerateAttributesInRange:range options:NSAttributedStringEnumerationLongestEffectiveRangeNotRequired usingBlock:
+     ^(NSDictionary<NSAttributedStringKey,id> * _Nonnull attrs, NSRange range, BOOL * _Nonnull stop) {
+    UIFont *font = [attrs objectForKey:NSFontAttributeName];
+    UIFontDescriptor *fontDescriptor = font.fontDescriptor;
+    UIFontDescriptorSymbolicTraits traits = fontDescriptor.symbolicTraits;
+    if (![self isFontBold:traits]) [self->selectedAttr setObject:@(false) forKey:@"isBold"];
+    if (![self isFontItalic:traits]) [self->selectedAttr setObject:@(false) forKey:@"isItalic"];
+    if (![self isFontStrikethrough:attrs]) [self->selectedAttr setObject:@(false) forKey:@"isStrikethrough"];
+    if (![self isFontSubscript:attrs]) [self->selectedAttr setObject:@(false) forKey:@"isSubscript"];
+    if (![self isFontSuperscript:attrs]) [self->selectedAttr setObject:@(false) forKey:@"isSuperscript"];
+    if (![self isFontInserted:attrs]) [self->selectedAttr setObject:@(false) forKey:@"isInserted"];
+        
+    // these two should be rendered seperatly
+    if (![self isFontCode:attrs]) [self->selectedAttr setObject:@(false) forKey:@"isCode"];
+    if (![self isFontMarked:attrs]) [self->selectedAttr setObject:@(false) forKey:@"isMarked"];
+  }];
+}
+
+
 - (void)insertTag:(NSString *)tag {
   NSRange range = self.textView.selectedRange;
-  NSAttributedString *firstHalf = [attributedString attributedSubstringFromRange:NSMakeRange(0, range.location)];
-  NSAttributedString *midHalf = [attributedString attributedSubstringFromRange:range];
+  RCTLogInfo(@"[RNRichTextView] insertTag: %@ range: %lu length: %lu", tag, range.location, range.length);
+  RCTLogInfo(@"[RNRichTextView] attributedString: %@", self.attributedString);
+  NSAttributedString *firstHalf = [self.attributedString attributedSubstringFromRange:NSMakeRange(0, range.location)];
+  RCTLogInfo(@"[RNRichTextView] firstHalf: %@", firstHalf);
+  NSAttributedString *midHalf = [self.attributedString attributedSubstringFromRange:range];
+  RCTLogInfo(@"[RNRichTextView] midHalf: %@", midHalf);
   NSInteger selection = range.location + range.length;
-  NSInteger endlength = attributedString.length - selection;
-  NSAttributedString *lastHalf  = [attributedString attributedSubstringFromRange:NSMakeRange(selection, endlength)];
+  NSInteger endlength = self.attributedString.length - selection;
+  NSAttributedString *lastHalf  = [self.attributedString attributedSubstringFromRange:NSMakeRange(selection, endlength)];
   NSMutableAttributedString *combinedString = [NSMutableAttributedString new];
   [combinedString appendAttributedString:firstHalf];
   [combinedString appendAttributedString:[self addAttribute:midHalf fromTag:tag]];
   [combinedString appendAttributedString:lastHalf];
-  attributedString = combinedString.copy;
+  self.attributedString = combinedString.copy;
+  self.textView.attributedText = self.attributedString;
 }
 
 - (NSAttributedString *)addAttribute:(NSAttributedString *)string fromTag:(NSString *)tag {
@@ -281,10 +353,10 @@ RCT_EXPORT_MODULE()
 
 - (NSString *)generateHTML {
   htmlString = [NSMutableString stringWithString:@"<p>"];
-  NSRange range = NSMakeRange(0, attributedString.length);
-  [attributedString enumerateAttributesInRange:range options:NSAttributedStringEnumerationLongestEffectiveRangeNotRequired usingBlock:
+  NSRange range = NSMakeRange(0, self.attributedString.length);
+  [self.attributedString enumerateAttributesInRange:range options:NSAttributedStringEnumerationLongestEffectiveRangeNotRequired usingBlock:
     ^(NSDictionary<NSAttributedStringKey,id> * _Nonnull attrs, NSRange range, BOOL * _Nonnull stop) {
-      NSString *text = [attributedString.string substringWithRange:range];
+      NSString *text = [self.attributedString.string substringWithRange:range];
       //RCTLogInfo(@"[RichTextEditor] '%@'", text);
       NSString *currentTags = [self getTagForAttribute:attrs]; // call this before closeOpenTags!
       NSString *closingTags = [self closeOpenTags];

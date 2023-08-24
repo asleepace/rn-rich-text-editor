@@ -57,8 +57,6 @@ export const RichTextEditor = React.forwardRef((props: any, ref) => {
     getHTML,
   }), [insertTag, getHTML])
 
-  console.log('[RichTextEditor] render:', height)
-
   return (
     <RNRichTextView
       ref={nativeRef}
