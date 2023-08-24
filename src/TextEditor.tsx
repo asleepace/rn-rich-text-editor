@@ -77,7 +77,7 @@ const styles = StyleSheet.create({
   },
   bottom: {
     // flex: 1, 
-    flexGrow: 1,
+    // flexGrow: 1,
     minHeight:24, 
     backgroundColor: '#DDD'
   }

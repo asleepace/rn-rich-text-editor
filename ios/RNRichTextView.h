@@ -27,6 +27,8 @@ NS_ASSUME_NONNULL_BEGIN
 @property (nonatomic, copy) NSString *html;
 
 - (void)initializeTextView;
+- (void)insertTag:(NSString *)tag;
+- (NSString *)generateHTML;
 
 @end
 

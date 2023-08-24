@@ -11,6 +11,15 @@
 {
   CGSize lastReportedSize;
   NSAttributedString *attributedString;
+  
+  // added from previous class
+  __block NSMutableString *htmlString;
+  NSMutableArray *openTags;
+  NSMutableArray *nextTags;
+  NSMutableArray *nextHTML;
+  CGRect originalFrame;
+  CGRect keyboardFrame;
+  NSMutableDictionary *selectedAttr;
 }
 
 @property (strong, nonatomic) UITextView *textView;
@@ -33,6 +42,9 @@ RCT_EXPORT_MODULE()
 - (void)initializeTextView {
   
   lastReportedSize = CGSizeZero;
+  openTags = [NSMutableArray new];
+  nextTags = [NSMutableArray new];
+  nextHTML = [NSMutableArray new];
   
   self.textView = [[UITextView alloc] initWithFrame:CGRectZero textContainer:nil];
   [self.textView setDelegate:self];
@@ -159,111 +171,203 @@ RCT_EXPORT_MODULE()
   [self reportSize:textView];
 }
 
-- (void)textViewDidChangeSelection:(UITextView *)textView {
-  NSAttributedString *subString = [textView.attributedText attributedSubstringFromRange:textView.selectedRange];
-  RCTLogInfo(@"[RNRichTextView] textViewDidChangeSelection: %@", subString);
-}
+//- (void)textViewDidChangeSelection:(UITextView *)textView {
+//  NSAttributedString *subString = [textView.attributedText attributedSubstringFromRange:textView.selectedRange];
+//  RCTLogInfo(@"[RNRichTextView] textViewDidChangeSelection: %@", subString);
+//}
 
 #pragma mark - Inserting HTML Tags
-//
-//- (void)insertTag:(NSString *)tag {
-//  NSRange range = self.textView.selectedRange;
-//  NSAttributedString *firstHalf = [attributedString attributedSubstringFromRange:NSMakeRange(0, range.location)];
-//  NSAttributedString *midHalf = [attributedString attributedSubstringFromRange:range];
-//  NSInteger selection = range.location + range.length;
-//  NSInteger endlength = attributedString.length - selection;
-//  NSAttributedString *lastHalf  = [attributedString attributedSubstringFromRange:NSMakeRange(selection, endlength)];
-//  NSMutableAttributedString *combinedString = [NSMutableAttributedString new];
-//  [combinedString appendAttributedString:firstHalf];
-//  [combinedString appendAttributedString:[self addAttribute:midHalf fromTag:tag]];
-//  [combinedString appendAttributedString:lastHalf];
-//  attributedString = combinedString.copy;
-//}
-//
-//- (NSAttributedString *)addAttribute:(NSAttributedString *)string fromTag:(NSString *)tag {
-//    NSMutableAttributedString *mut = [[NSMutableAttributedString alloc] initWithAttributedString:string];
-//    [string enumerateAttributesInRange:NSMakeRange(0, string.length) options:NSAttributedStringEnumerationLongestEffectiveRangeNotRequired usingBlock:^(NSDictionary<NSAttributedStringKey,id> * _Nonnull attrs, NSRange range, BOOL * _Nonnull stop) {
-//        UIFont *font = [attrs objectForKey:NSFontAttributeName];
-//        UIFontDescriptorSymbolicTraits sym = font.fontDescriptor.symbolicTraits;
-//        
-//        if ([tag isEqualToString:@"<b>"]) sym = [self toggle:UIFontDescriptorTraitBold key:@"isBold" on:sym];
-//        else if ([tag isEqualToString:@"<i>"]) sym = [self toggle:UIFontDescriptorTraitItalic key:@"isItalic" on:sym];
-//        else if ([tag isEqualToString:@"<del>"]) attrs = [self strikethrough:attrs];
-//        else if ([tag isEqualToString:@"<sup>"]) attrs = [self subOrSup:attrs tag:@"isSuperscript" value:@1];
-//        else if ([tag isEqualToString:@"<sub>"]) attrs = [self subOrSup:attrs tag:@"isSubscript" value:@-1];
-//        else if ([tag isEqualToString:@"<ins>"]) attrs = [self subOrSup:attrs tag:@"isInserted" value:@1];
-//        else if ([tag isEqualToString:@"<code>"]) attrs = @{};
-//        
-//        UIFontDescriptor *fd =  [font.fontDescriptor fontDescriptorWithSymbolicTraits:sym];
-//        UIFont *updatedFont = [UIFont fontWithDescriptor:fd size:0.0];
-//        NSMutableDictionary *newAttr = [NSMutableDictionary new];
-//        [newAttr addEntriesFromDictionary:attrs];
-//        [newAttr addEntriesFromDictionary:@{ NSFontAttributeName: updatedFont }];
-//        [mut setAttributes:newAttr range:range];
-//    }];
-//    return mut;
-//}
-//
-//- (UIFontDescriptorSymbolicTraits)toggle:(uint32_t)attr key:(NSString *)key on:(UIFontDescriptorSymbolicTraits)traits {
-//    if ([[selectedAttr objectForKey:key] isEqualToNumber:@(true)] && (traits & attr))
-//        traits ^= attr;
-//    else
-//        traits |= attr;
-//    return traits;
-//}
-//
-//- (NSDictionary *)strikethrough:(NSDictionary *)attr {
-//    NSMutableDictionary *mutable = attr.mutableCopy;
-//    if ([selectedAttr[@"isStrikethrough"] isEqualToNumber:@(true)] && [mutable objectForKey:@"NSStrikethrough"])
-//        [mutable removeObjectForKey:@"NSStrikethrough"];
-//    else
-//        [mutable setObject:@2 forKey:@"NSStrikethrough"];
-//    return mutable.copy;
-//}
-//
-//- (NSDictionary *)subOrSup:(NSDictionary *)attr tag:(NSString *)tag value:(NSNumber *)num {
-//    NSMutableDictionary *mutable = attr.mutableCopy;
-//    //RCTLogInfo(@"[RichTextEditor] sub or sup: %@ tag: %@", selectedAttr[attr], attr);
-//    if ([selectedAttr[tag] isEqualToNumber:@(true)] && [mutable objectForKey:@"NSSuperScript"])
-//        [mutable removeObjectForKey:@"NSSuperScript"];
-//    else
-//        [mutable setObject:num forKey:@"NSSuperScript"];
-//    return mutable.copy;
-//}
-//
-//
-//- (BOOL)isFontBold:(UIFontDescriptorSymbolicTraits)traits {
-//    return (traits & UIFontDescriptorTraitBold) != 0;
-//}
-//
-//- (BOOL)isFontItalic:(UIFontDescriptorSymbolicTraits)traits {
-//    return (traits & UIFontDescriptorTraitItalic) != 0;
-//}
-//
-//- (BOOL)isFontStrikethrough:(NSDictionary *)attr {
-//    return !![attr objectForKey:@"NSStrikethrough"];
-//}
-//
-//- (BOOL)isFontCode:(NSDictionary *)attr {
-//    UIFont *font = [attr objectForKey:NSFontAttributeName];
-//    return [font.familyName isEqualToString:@"Courier"] && !![attr objectForKey:@"NSBackgroundColor"];
-//}
-//
-//- (BOOL)isFontMarked:(NSDictionary *)attr {
-//    return !![attr objectForKey:@"NSBackgroundColor"];
-//}
-//
-//- (BOOL)isFontSuperscript:(NSDictionary *)attr {
-//    return [[attr objectForKey:@"NSSuperScript"] intValue] > 0;
-//}
-//
-//- (BOOL)isFontSubscript:(NSDictionary *)attr {
-//    return [[attr objectForKey:@"NSSuperScript"] intValue] < 0;
-//}
-//
-//- (BOOL)isFontInserted:(NSDictionary *)attr {
-//    return !![attr objectForKey:@"NSUnderline"];
-//}
+
+- (void)insertTag:(NSString *)tag {
+  NSRange range = self.textView.selectedRange;
+  NSAttributedString *firstHalf = [attributedString attributedSubstringFromRange:NSMakeRange(0, range.location)];
+  NSAttributedString *midHalf = [attributedString attributedSubstringFromRange:range];
+  NSInteger selection = range.location + range.length;
+  NSInteger endlength = attributedString.length - selection;
+  NSAttributedString *lastHalf  = [attributedString attributedSubstringFromRange:NSMakeRange(selection, endlength)];
+  NSMutableAttributedString *combinedString = [NSMutableAttributedString new];
+  [combinedString appendAttributedString:firstHalf];
+  [combinedString appendAttributedString:[self addAttribute:midHalf fromTag:tag]];
+  [combinedString appendAttributedString:lastHalf];
+  attributedString = combinedString.copy;
+}
+
+- (NSAttributedString *)addAttribute:(NSAttributedString *)string fromTag:(NSString *)tag {
+    NSMutableAttributedString *mut = [[NSMutableAttributedString alloc] initWithAttributedString:string];
+    [string enumerateAttributesInRange:NSMakeRange(0, string.length) options:NSAttributedStringEnumerationLongestEffectiveRangeNotRequired usingBlock:^(NSDictionary<NSAttributedStringKey,id> * _Nonnull attrs, NSRange range, BOOL * _Nonnull stop) {
+        UIFont *font = [attrs objectForKey:NSFontAttributeName];
+        UIFontDescriptorSymbolicTraits sym = font.fontDescriptor.symbolicTraits;
+        
+        if ([tag isEqualToString:@"<b>"]) sym = [self toggle:UIFontDescriptorTraitBold key:@"isBold" on:sym];
+        else if ([tag isEqualToString:@"<i>"]) sym = [self toggle:UIFontDescriptorTraitItalic key:@"isItalic" on:sym];
+        else if ([tag isEqualToString:@"<del>"]) attrs = [self strikethrough:attrs];
+        else if ([tag isEqualToString:@"<sup>"]) attrs = [self subOrSup:attrs tag:@"isSuperscript" value:@1];
+        else if ([tag isEqualToString:@"<sub>"]) attrs = [self subOrSup:attrs tag:@"isSubscript" value:@-1];
+        else if ([tag isEqualToString:@"<ins>"]) attrs = [self subOrSup:attrs tag:@"isInserted" value:@1];
+        else if ([tag isEqualToString:@"<code>"]) attrs = @{};
+        
+        UIFontDescriptor *fd =  [font.fontDescriptor fontDescriptorWithSymbolicTraits:sym];
+        UIFont *updatedFont = [UIFont fontWithDescriptor:fd size:0.0];
+        NSMutableDictionary *newAttr = [NSMutableDictionary new];
+        [newAttr addEntriesFromDictionary:attrs];
+        [newAttr addEntriesFromDictionary:@{ NSFontAttributeName: updatedFont }];
+        [mut setAttributes:newAttr range:range];
+    }];
+    return mut;
+}
+
+- (UIFontDescriptorSymbolicTraits)toggle:(uint32_t)attr key:(NSString *)key on:(UIFontDescriptorSymbolicTraits)traits {
+    if ([[selectedAttr objectForKey:key] isEqualToNumber:@(true)] && (traits & attr))
+        traits ^= attr;
+    else
+        traits |= attr;
+    return traits;
+}
+
+- (NSDictionary *)strikethrough:(NSDictionary *)attr {
+    NSMutableDictionary *mutable = attr.mutableCopy;
+    if ([selectedAttr[@"isStrikethrough"] isEqualToNumber:@(true)] && [mutable objectForKey:@"NSStrikethrough"])
+        [mutable removeObjectForKey:@"NSStrikethrough"];
+    else
+        [mutable setObject:@2 forKey:@"NSStrikethrough"];
+    return mutable.copy;
+}
+
+- (NSDictionary *)subOrSup:(NSDictionary *)attr tag:(NSString *)tag value:(NSNumber *)num {
+    NSMutableDictionary *mutable = attr.mutableCopy;
+    //RCTLogInfo(@"[RichTextEditor] sub or sup: %@ tag: %@", selectedAttr[attr], attr);
+    if ([selectedAttr[tag] isEqualToNumber:@(true)] && [mutable objectForKey:@"NSSuperScript"])
+        [mutable removeObjectForKey:@"NSSuperScript"];
+    else
+        [mutable setObject:num forKey:@"NSSuperScript"];
+    return mutable.copy;
+}
+
+
+- (BOOL)isFontBold:(UIFontDescriptorSymbolicTraits)traits {
+    return (traits & UIFontDescriptorTraitBold) != 0;
+}
+
+- (BOOL)isFontItalic:(UIFontDescriptorSymbolicTraits)traits {
+    return (traits & UIFontDescriptorTraitItalic) != 0;
+}
+
+- (BOOL)isFontStrikethrough:(NSDictionary *)attr {
+    return !![attr objectForKey:@"NSStrikethrough"];
+}
+
+- (BOOL)isFontCode:(NSDictionary *)attr {
+    UIFont *font = [attr objectForKey:NSFontAttributeName];
+    return [font.familyName isEqualToString:@"Courier"] && !![attr objectForKey:@"NSBackgroundColor"];
+}
+
+- (BOOL)isFontMarked:(NSDictionary *)attr {
+    return !![attr objectForKey:@"NSBackgroundColor"];
+}
+
+- (BOOL)isFontSuperscript:(NSDictionary *)attr {
+    return [[attr objectForKey:@"NSSuperScript"] intValue] > 0;
+}
+
+- (BOOL)isFontSubscript:(NSDictionary *)attr {
+    return [[attr objectForKey:@"NSSuperScript"] intValue] < 0;
+}
+
+- (BOOL)isFontInserted:(NSDictionary *)attr {
+    return !![attr objectForKey:@"NSUnderline"];
+}
+
+#pragma mark - Generate HTML
+
+- (NSString *)generateHTML {
+  htmlString = [NSMutableString stringWithString:@"<p>"];
+  NSRange range = NSMakeRange(0, attributedString.length);
+  [attributedString enumerateAttributesInRange:range options:NSAttributedStringEnumerationLongestEffectiveRangeNotRequired usingBlock:
+    ^(NSDictionary<NSAttributedStringKey,id> * _Nonnull attrs, NSRange range, BOOL * _Nonnull stop) {
+      NSString *text = [attributedString.string substringWithRange:range];
+      //RCTLogInfo(@"[RichTextEditor] '%@'", text);
+      NSString *currentTags = [self getTagForAttribute:attrs]; // call this before closeOpenTags!
+      NSString *closingTags = [self closeOpenTags];
+      [htmlString appendString:closingTags];
+      [htmlString appendString:currentTags];
+      [htmlString appendString:text];
+      nextHTML = [NSMutableArray new]; // next html applies only to the current element
+      nextTags = [NSMutableArray new]; // next tags only apply to the current element
+  }];
+  //RCTLogInfo(@"[RichTextEditor] open tags: %@", openTags);
+  [htmlString appendString:[self closeOpenTags]];
+  [htmlString appendString:@"</p>"];
+  //RCTLogInfo(@"[RichTextEditor] generated html: %@", htmlString);
+  return htmlString.copy;
+}
+
+// This methods returns an array of html tags that is present on the current attributed text
+// which will then be added to our generated html output. Since there can already be open tags
+// we want to prevent multiple instances of the same tag being open at once, so even if a trait
+// is present, we first check if it has already been opened before adding to the html array.
+
+- (NSString *)getTagForAttribute:(NSDictionary *)attributes {
+    UIFont *font = [attributes objectForKey:NSFontAttributeName];
+    UIFontDescriptor *fontDescriptor = font.fontDescriptor;
+    UIFontDescriptorSymbolicTraits traits = fontDescriptor.symbolicTraits;
+    if ([self isFontBold:traits]) [self addTag:@"<b>"];
+    if ([self isFontItalic:traits]) [self addTag:@"<i>"];
+    if ([self isFontStrikethrough:attributes]) [self addTag:@"<del>"];
+    if ([self isFontSubscript:attributes]) [self addTag:@"<sub>"];
+    if ([self isFontSuperscript:attributes]) [self addTag:@"<sup>"];
+    if ([self isFontInserted:attributes]) [self addTag:@"<ins>"];
+    
+    // these two should be rendered seperatly
+    if ([self isFontCode:attributes]) [self addTag:@"<code>"];
+    else if ([self isFontMarked:attributes]) [self addTag:@"<mark>"];
+    
+    return [nextHTML componentsJoinedByString:@""];
+}
+
+// This method checks to see if any open tags need to be closed after iterating to the next element,
+// if the next element is missing a tag that is currently open, then we need to close that tag before
+// moving on. We compare the next elements atttributes to the current open tags, if the next elements
+// tags are missing, then we add the closing tag and remove that tag from openTags.
+
+- (NSString *)closeOpenTags {
+    NSMutableArray *closingTags = [NSMutableArray new];
+    NSArray *openTagsFrozenCopy = [openTags copy];
+    for (NSString *openedTag in [openTagsFrozenCopy reverseObjectEnumerator]) {
+        if (!isFound(openedTag, nextTags)) {
+            [closingTags addObject:closeTag(openedTag)];
+            [openTags removeObject:openedTag];
+        }
+    }
+    return [closingTags componentsJoinedByString:@""];
+}
+
+
+// This helper methods converts a given tag into the cooresponding mathcing tag
+// for example it will convert the tag <strong> to </strong>
+NSString * closeTag(NSString *tag) {
+    return [NSString stringWithFormat:@"</%@",[tag substringFromIndex:1]];
+}
+
+// Add Tag is called each time an attribute is found on the current string segment, this will always add
+// the tag to nextTags (which is used to detect when to close tags) it then checks the openTags array to
+// make sure the tag isn't already open. If it is not open, this then adds the tag to openTags as well as
+// the current strings nextHTML array (which is used to generated the html).
+
+- (void)addTag:(NSString *)tag {
+    [nextTags addObject:tag];
+    if (isFound(tag, openTags)) return;
+    [openTags addObject:tag];
+    [nextHTML addObject:tag];
+}
+
+// This helper method checks if a given string exists on a given array, and returns
+// true if found or false if not found.
+BOOL isFound(NSString *item, NSArray *array) {
+    for (NSString *tag in array) {
+        if ([item isEqualToString:tag])
+            return true;
+    } return false;
+}
 
 
 @end
