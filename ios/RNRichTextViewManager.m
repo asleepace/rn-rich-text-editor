@@ -11,10 +11,10 @@
 @implementation RNRichTextViewManager
 
 RCT_EXPORT_MODULE()
+RCT_EXPORT_VIEW_PROPERTY(html, NSString *)
 RCT_EXPORT_VIEW_PROPERTY(onSizeChange, RCTBubblingEventBlock)
 
 //RCT_EXPORT_VIEW_PROPERTY(height, NSNumber *)
-//RCT_EXPORT_VIEW_PROPERTY(text, NSString *)
 //RCT_EXPORT_VIEW_PROPERTY(onSelection, RCTBubblingEventBlock)
 //RCT_EXPORT_VIEW_PROPERTY(onSizeChange, RCTBubblingEventBlock)
 

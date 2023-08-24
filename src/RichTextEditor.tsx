@@ -67,6 +67,24 @@ export const RichTextEditor = React.forwardRef((props: RichTextEditorProps, ref)
       onSizeChange={(event) => {
         setHeight(event.nativeEvent.height)
       }}
+      html={`
+        <html>
+        <head>
+          <style>
+            p {
+              font-family: Helvetica;
+              line-height: 24px;
+              font-weight: 600;
+              font-size: 16px;
+              color: black;
+            }
+          </style>
+        </head>
+        <body>
+          <p>This is some pretty cool text which will <b>appear bold</b> and can have <em>underline</em></p>
+        </body>
+        </html>
+      `}
       // onLayout={(event) => {
       //   console.log('[RichTextEditor] on layout: ', event.nativeEvent)
       // }}

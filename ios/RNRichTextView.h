@@ -21,7 +21,10 @@ NS_ASSUME_NONNULL_BEGIN
 
 @property (nonatomic, copy) RCTBubblingEventBlock onSizeChange;
 @property (nonatomic, weak) id<RichTextViewDelegate> delegate;
-@property (nonatomic, copy) NSString *text;
+
+@property (nonatomic, copy) NSString *plainText;
+@property (nonatomic, copy) NSString *markdown;
+@property (nonatomic, copy) NSString *html;
 
 - (void)initializeTextView;
 

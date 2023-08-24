@@ -18,10 +18,12 @@
 
 @implementation RNRichTextView
 
-@synthesize textView, onSizeChange;
+@synthesize textView, onSizeChange, html;
 
 RCT_EXPORT_MODULE()
 
+const NSStringDrawingOptions drawOptions = NSStringDrawingUsesLineFragmentOrigin | NSStringDrawingUsesFontLeading;
+const UIViewAnimationOptions viewOptions = UIViewAnimationOptionAllowUserInteraction | UIViewAnimationOptionCurveEaseInOut;
 
 + (BOOL)requiresMainQueueSetup {
   return true;
@@ -60,6 +62,27 @@ RCT_EXPORT_MODULE()
 
 - (BOOL)autoresizesSubviews {
   return true;
+}
+
+#pragma mark - Set Text Based on HTML
+
+- (void)setHtml:(NSString *)html {
+  RCTLogInfo(@"[RNRichTextView] setting html: \n%@", html);
+  NSData *data = [html dataUsingEncoding:NSUnicodeStringEncoding];
+  NSMutableParagraphStyle *paragraphStyle = [[NSMutableParagraphStyle alloc] init];
+  paragraphStyle.headIndent = 0;
+  paragraphStyle.firstLineHeadIndent = 0;
+  paragraphStyle.lineSpacing = 8;
+  NSDictionary *options = @{
+    NSParagraphStyleAttributeName: paragraphStyle,
+    NSDocumentTypeDocumentAttribute: NSHTMLTextDocumentType,
+    NSCharacterEncodingDocumentAttribute: @(NSUTF8StringEncoding),
+    NSFontAttributeName: [UIFont systemFontOfSize:16.0]
+  };
+  
+  NSMutableAttributedString *attrString = [[NSMutableAttributedString alloc] initWithData:data options:options documentAttributes:nil error:nil];
+  self.textView.attributedText = attrString;
+  [self reportSize:self.textView];
 }
 
 #pragma mark - Attributed Text Styling
