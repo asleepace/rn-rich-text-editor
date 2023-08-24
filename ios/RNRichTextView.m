@@ -80,6 +80,18 @@ RCT_EXPORT_MODULE()
   [self.textView becomeFirstResponder];
 }
 
+- (void)setPlaceholder {
+  self.textView.textColor = [UIColor lightGrayColor];
+  self.textView.text = @"Enter anything here...";
+}
+
+- (void)clearPlaceholder {
+  if ([self.textView.text isEqualToString:@"Enter anything here..."]) {
+    self.textView.text = nil;
+    self.textView.textColor = [UIColor blackColor];
+  }
+}
+
 - (BOOL)autoresizesSubviews {
   return true;
 }
@@ -101,7 +113,6 @@ RCT_EXPORT_MODULE()
   };
   
   self.attributedString = [[NSMutableAttributedString alloc] initWithData:data options:options documentAttributes:nil error:nil];
-//  self.textView.attributedText = [self trim:attributedString];
   [self reportSize:self.textView];
 }
 
@@ -127,8 +138,6 @@ RCT_EXPORT_MODULE()
 - (void)setAttributedString:(NSAttributedString *)attributedString {
   RCTLogInfo(@"[RNRichTextEditor] setting attributed string...");
   self.textView.attributedText = [self trim:attributedString];
-  [self.textView sizeToFit];
-  [self sizeToFit];
   [self reportSize:self.textView];
 }
 
@@ -192,7 +201,12 @@ RCT_EXPORT_MODULE()
 }
 
 - (void)textViewDidEndEditing:(UITextView *)textView {
+  [self setPlaceholder];
   [self reportSize:textView];
+}
+
+- (void)textViewDidBeginEditing:(UITextView *)textView {
+  [self clearPlaceholder];
 }
 
 - (void)textViewDidChangeSelection:(UITextView *)textView {

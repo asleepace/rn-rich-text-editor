@@ -102,12 +102,15 @@ export const RichTextEditor = React.forwardRef((props: any, ref) => {
           </style>
         </head>
         <body>
+          <h1>Native Rich Text Editor</h1>
           <p>This is some pretty cool text which will <b>appear bold</b> and can have <em>underline</em> as well as <mark>marked text</mark> as well as <pre><code>const code = true;</pre></code></p>
+          <b>Supported Styles:</b>
           <ul>
-            <li>Can instantiate with HTML, Markdown, or plain text</li>
-            <li>Can export back to HTML</li>
-            <li>Native editing support</li>
+            <li>Plain text</li>
+            <li>Markdown</li>
+            <li>HTML</li>
           </ul>
+          <p>Written in <strike>React</strike> native!</p>
         </body>
         </html>
       `}
