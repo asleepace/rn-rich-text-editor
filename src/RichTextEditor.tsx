@@ -32,22 +32,6 @@ export type RichTextEditor = {
 export const RichTextEditor = React.forwardRef((props: any, ref) => {
 
   const nativeRef = React.useRef(null)
-  const [height, setHeight] = React.useState(44)
-  const [didResize, setDidResize] = React.useState(false)
-
-  const shouldResize = React.useCallback(() => {
-    if (!nativeRef.current) return
-    if (didResize) return
-    const current = ReactNative.findNodeHandle(nativeRef.current)
-    NativeModules.RNRichTextViewManager.resize(current)
-    console.log('[JW] resize called!')
-  }, [nativeRef.current, didResize, setDidResize])
-
-  // initialize refs
-  useEffect(() => {
-    if (didResize) return
-    setTimeout(shouldResize, 100)
-  }, [shouldResize, didResize])
 
   // callback methods
   const insertTag = React.useCallback((tag: string) => {
@@ -88,7 +72,7 @@ export const RichTextEditor = React.forwardRef((props: any, ref) => {
       editable={true}
       style={{ minHeight: 64.0, backgroundColor: 'white' }}
       onSizeChange={(event) => {
-        setHeight(event.nativeEvent.height)
+        console.log('[RichTextEditor] on size change: ', event.nativeEvent)
       }}
       html={`
         <!doctype html>

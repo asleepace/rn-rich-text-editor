@@ -106,7 +106,11 @@ RCT_EXPORT_MODULE()
   return true;
 }
 
+
+
 #pragma mark - Custom Properties
+
+
 
 
 - (void)setEditable:(BOOL)editable {
@@ -123,7 +127,9 @@ RCT_EXPORT_MODULE()
 }
 
 
+
 #pragma mark - Set Text Based on HTML
+
 
 
 - (void)setHtml:(NSString *)html {
@@ -186,8 +192,13 @@ RCT_EXPORT_MODULE()
 }
 
 
+
 #pragma mark - Dynamic Sizing
 
+
+
+// this method will call the reportSize method with the current textView, and will trigger after  the
+// next run loop has occurred.
 - (void)resize {
   dispatch_async(dispatch_get_main_queue(), ^{
     [self reportSize:self.textView];
@@ -216,13 +227,13 @@ RCT_EXPORT_MODULE()
   
   // report size changes to JS
   // self.onSizeChange(@{ @"height": @(updatedFrame.size.height) });
-  
-  // may help with animations
-  [self sizeToFit];
-  [self layoutIfNeeded];
 }
 
+
+
 #pragma mark - UITextView Delegate Methods
+
+
 
 // most important method for reporting size changes to react-native
 - (void)textViewDidChange:(UITextView *)textView {
@@ -257,7 +268,11 @@ RCT_EXPORT_MODULE()
 //  RCTLogInfo(@"[RNRichTextView] textViewDidChangeSelection: %@", subString);
 //}
 
+
+
 #pragma mark - Inserting HTML Tags
+
+
 
 - (void)getAttributesInRange:(NSRange)range {
   selectedAttr = [NSMutableDictionary new];
@@ -334,11 +349,12 @@ RCT_EXPORT_MODULE()
 }
 
 - (UIFontDescriptorSymbolicTraits)toggle:(uint32_t)attr key:(NSString *)key on:(UIFontDescriptorSymbolicTraits)traits {
-    if ([[selectedAttr objectForKey:key] isEqualToNumber:@(true)] && (traits & attr))
-        traits ^= attr;
-    else
-        traits |= attr;
-    return traits;
+  if ([[selectedAttr objectForKey:key] isEqualToNumber:@(true)] && (traits & attr)) {
+    traits ^= attr;
+  } else {
+    traits |= attr;
+  }
+  return traits;
 }
 
 - (NSDictionary *)strikethrough:(NSDictionary *)attr {
@@ -394,7 +410,11 @@ RCT_EXPORT_MODULE()
     return !![attr objectForKey:@"NSUnderline"];
 }
 
+
+
 #pragma mark - Generate HTML
+
+
 
 - (NSString *)generateHTML {
   htmlString = [NSMutableString stringWithString:@"<p>"];
