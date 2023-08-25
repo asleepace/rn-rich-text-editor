@@ -14,6 +14,11 @@ import ReactNative, {
 const NATIVE_NAME = 'RNRichTextView';
 const RNRichTextView = requireNativeComponent<RichTextEditor>(NATIVE_NAME);
 
+export type RichTextFont = {
+  fontFamily: string;
+  
+}
+
 export type RichTextEditorRef = {
   insertTag(tag: string): void;
   showKeyboard(): void;
@@ -27,6 +32,18 @@ export type RichTextEditor = {
   ref: React.RefObject<{}>;
   editable?: boolean;
   html?: string
+}
+
+export type RichTextAttriubtes = {
+  isBold: boolean;
+  isItalic: boolean;
+  isUnderline: boolean;
+  isStrikeThrough: boolean;
+  isSubscript: boolean;
+  isSuperscript: boolean;
+  isMonospace: boolean;
+  isMarked: boolean;
+  isCode: boolean;
 }
 
 export const RichTextEditor = React.forwardRef((props: any, ref) => {
@@ -60,11 +77,6 @@ export const RichTextEditor = React.forwardRef((props: any, ref) => {
     getHTML,
   }), [insertTag, getHTML])
 
-  // React.useEffect(() => {
-  //   setTimeout(() => {
-  //     resize()
-  //   }, 100)
-  // }, [resize])
 
   return (
     <RNRichTextView
@@ -74,14 +86,56 @@ export const RichTextEditor = React.forwardRef((props: any, ref) => {
       onSizeChange={(event) => {
         console.log('[RichTextEditor] on size change: ', event.nativeEvent)
       }}
+      onChangeText={(event) => {
+        console.log('[RichTextEditor] on change text: ', event.nativeEvent)
+      }}
+      customStyle={`
+        body {
+          font-family: Baskerville, Capitals, Arial, -apple-system;
+          font-weight: 400;
+          line-height: 24px;
+          font-size: 16px;
+          color: black;
+        }
+
+        pre {
+          background-color: #F2F2F7;
+        }
+
+        code {
+          font-family: monospace;
+          font-size: 14px;
+          line-height: 24px;
+          background-color: #F2F2F7;
+          border-radius: 4px;
+          padding: 8px;
+        }
+
+        mark {
+          background-color: yellow;
+          border-radius: 4px;
+          padding: 4px;
+        }
+
+        img {
+          width: auto;
+          height: 120px;
+          border-radius: 8px;
+          border: 1px solid black;
+          aspect-fit: cover;
+        }
+
+        p {
+
+        }
+      `}
       html={`
         <!doctype html>
         <html>
         <head>
           <style>
             body {
-
-              font-family: -apple-system;
+              font-family: Baskerville, Capitals, Arial, -apple-system;
               font-weight: 400;
               line-height: 24px;
               font-size: 16px;
@@ -121,6 +175,7 @@ export const RichTextEditor = React.forwardRef((props: any, ref) => {
           </style>
         </head>
         <body>
+          
         </body>
         </html>
       `}

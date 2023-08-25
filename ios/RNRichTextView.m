@@ -6,7 +6,7 @@
 //
 
 #import "RNRichTextView.h"
-#import <WebKit/WKWebView.h>
+#import "RNStylist.h"
 
 @interface RNRichTextView()
 {
@@ -25,11 +25,13 @@
 @property (strong, nonatomic) NSAttributedString *attributedString;
 @property (strong, nonatomic) UITextView *textView;
 
+@property (strong, nonatomic) RNStylist *stylist;
+
 @end
 
 @implementation RNRichTextView
 
-@synthesize textView, editable, onSizeChange, html, attributedString = _attributedString;
+@synthesize textView, editable, onSizeChange, onChangeText, html, attributedString = _attributedString;
 
 RCT_EXPORT_MODULE()
 
@@ -112,7 +114,16 @@ RCT_EXPORT_MODULE()
 #pragma mark - Custom Properties
 
 
+- (void)setCustomStyle:(NSString *)customStyle {
+  RCTLogInfo(@"[RNRichTextView] setCustomStyle: %@", customStyle);
+  self.stylist = [[RNStylist alloc] initWithStyle:customStyle];
+  self.textView.typingAttributes = [self.stylist attributesForTag:@""];
+}
 
+
+- (void)didSetProps:(NSArray<NSString *> *)changedProps {
+  RCTLogInfo(@"[RNRichTextView] didSetProps: %@", changedProps);
+}
 
 - (void)setEditable:(BOOL)editable {
   RCTLogInfo(@"[RNRichTextView] setEditable: %@", editable ? @"true" : @"false");
@@ -144,7 +155,7 @@ RCT_EXPORT_MODULE()
     NSParagraphStyleAttributeName: paragraphStyle,
     NSDocumentTypeDocumentAttribute: NSHTMLTextDocumentType,
     NSCharacterEncodingDocumentAttribute: @(NSUTF8StringEncoding),
-    NSFontAttributeName: [UIFont systemFontOfSize:16.0]
+    NSFontAttributeName: [UIFont fontWithName:@"Baskerville" size:16.0],
   };
   
   // see the setter method for more details on this method
@@ -189,7 +200,8 @@ RCT_EXPORT_MODULE()
   paragraphStyle.lineSpacing = 8;
   NSDictionary *attrsDictionary = @{
     NSParagraphStyleAttributeName: paragraphStyle,
-    NSFontAttributeName: [UIFont systemFontOfSize:16.0 weight:UIFontWeightRegular],
+//    NSFontAttributeName: [UIFont fontWithName:@"Baskerville" size:16.0],
+//    NSFontAttributeName: [UIFont systemFontOfSize:16.0 weight:UIFontWeightRegular],
   };
   self.textView.attributedText = [[NSAttributedString alloc] initWithString:@"Hello World over many lines!" attributes:attrsDictionary];
 }
@@ -241,6 +253,7 @@ RCT_EXPORT_MODULE()
 // most important method for reporting size changes to react-native
 - (void)textViewDidChange:(UITextView *)textView {
   [self reportSize:textView];
+  [self notifyChangeListeners];
 }
 
 - (void)textViewDidEndEditing:(UITextView *)textView {
@@ -252,6 +265,18 @@ RCT_EXPORT_MODULE()
   if (textView.attributedText.length > 0) {
     [self clearPlaceholder];
   }
+}
+
+- (void)checkCurrentMention {
+  
+  
+  
+}
+
+- (void)notifyChangeListeners {
+  NSString *currentText = self.textView.attributedText.string;
+  //NSString *currentHtml = [self generateHTML];
+  self.onChangeText(@{ @"text": currentText ? currentText : @"" });
 }
 
 - (void)textViewDidChangeSelection:(UITextView *)textView {
@@ -312,22 +337,25 @@ RCT_EXPORT_MODULE()
 
 - (void)setTypingAttributesFromTag:(NSString *)tag {
   RCTLogInfo(@"[RNRichTextView] attribute insertion detected at back of string...");
-  NSDictionary<NSAttributedStringKey, id> *currentTypingAttributes = self.textView.typingAttributes;
-  RCTLogInfo(@"[RNRichTextView] current attributes: %@", currentTypingAttributes);
-  UIFont *font = [currentTypingAttributes objectForKey:NSFontAttributeName];
-  UIFontDescriptorSymbolicTraits sym = font.fontDescriptor.symbolicTraits;
+//  NSDictionary<NSAttributedStringKey, id> *currentTypingAttributes = self.textView.typingAttributes;
+//  RCTLogInfo(@"[RNRichTextView] current attributes: %@", currentTypingAttributes);
+//  UIFont *font = [currentTypingAttributes objectForKey:NSFontAttributeName];
+//  UIFontDescriptorSymbolicTraits sym = font.fontDescriptor.symbolicTraits;
+//  
+//  if ([tag isEqual:@"<b>"])
+//    sym ^= UIFontDescriptorTraitBold;
+//  if ([tag isEqual:@"<i>"])
+//    sym ^= UIFontDescriptorTraitItalic;
+//  
+//  UIFontDescriptor *fd =  [font.fontDescriptor fontDescriptorWithSymbolicTraits:sym];
+//  UIFont *updatedFont = [UIFont fontWithDescriptor:fd size:0.0];
+//  NSMutableDictionary *newAttr = [NSMutableDictionary new];
+//  [newAttr addEntriesFromDictionary:currentTypingAttributes];
+//  [newAttr addEntriesFromDictionary:@{ NSFontAttributeName: updatedFont }];
   
-  if ([tag isEqual:@"<b>"])
-    sym ^= UIFontDescriptorTraitBold;
-  if ([tag isEqual:@"<i>"])
-    sym ^= UIFontDescriptorTraitItalic;
-  
-  UIFontDescriptor *fd =  [font.fontDescriptor fontDescriptorWithSymbolicTraits:sym];
-  UIFont *updatedFont = [UIFont fontWithDescriptor:fd size:0.0];
-  NSMutableDictionary *newAttr = [NSMutableDictionary new];
-  [newAttr addEntriesFromDictionary:currentTypingAttributes];
-  [newAttr addEntriesFromDictionary:@{ NSFontAttributeName: updatedFont }];
-  self.textView.typingAttributes = newAttr;
+  NSDictionary *attributes = [self.stylist attributesForTag:tag];
+  RCTLogInfo(@"[RNRichTextView] attributes: %@", attributes);
+  self.textView.typingAttributes = attributes;
 }
 
 

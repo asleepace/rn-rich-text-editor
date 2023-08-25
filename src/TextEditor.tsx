@@ -1,6 +1,6 @@
 import React from 'react';
 import { Button, InputAccessoryView, ScrollView, StyleSheet, View } from 'react-native';
-import { RichTextEditor } from './RichTextEditor';
+import { RichTextEditor, RichTextEditorRef } from './RichTextEditor';
 
 interface ButtonListProps {
   insert: (tag: string) => void;
@@ -26,14 +26,15 @@ function ButtonList({ insert, getHTML }: ButtonListProps) {
 
 export function TextEditor() {
 
-  const editorRef = React.useRef<RichTextEditor>(null)
+  const editorRef = React.useRef<RichTextEditorRef>(null)
 
   const insert = React.useCallback((tag: string) => {
-    editorRef?.current?.insertTag?.(tag)
+    editorRef.current?.insertTag?.(tag)
   }, [editorRef])
 
   const getHTML = React.useCallback(() => {
-    editorRef?.current?.getHTML?.()
+    const html = editorRef.current?.getHTML?.()
+    console.log({ html })
   }, [editorRef])
 
   return (
