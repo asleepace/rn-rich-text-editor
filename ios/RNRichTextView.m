@@ -31,7 +31,7 @@
 
 @implementation RNRichTextView
 
-@synthesize textView, editable, onSizeChange, onChangeText, html, attributedString = _attributedString;
+@synthesize textView, editable, onSizeChange, onChangeText, customStyle, html, attributedString = _attributedString;
 
 RCT_EXPORT_MODULE()
 
@@ -70,7 +70,7 @@ RCT_EXPORT_MODULE()
     [self.textView setTextColor:[UIColor blackColor]];
     
     // set up text editor styles
-    [self styleAtrributedText];
+    // [self styleAtrributedText];
     
     // this will allow the text view to grow in height
     UILayoutGuide *safeArea = self.safeAreaLayoutGuide;
@@ -145,8 +145,11 @@ RCT_EXPORT_MODULE()
 
 
 - (void)setHtml:(NSString *)html {
-  RCTLogInfo(@"[RNRichTextView] setting html: \n%@", html);
-  NSData *data = [html dataUsingEncoding:NSUnicodeStringEncoding];
+  NSString *htmlString = [self.stylist createHtmlDocument:html];
+  RCTLogInfo(@"[RNRichTextView] setting html: \n%@ \n %@", html, htmlString);
+  
+  
+  NSData *data = [htmlString dataUsingEncoding:NSUnicodeStringEncoding];
   NSMutableParagraphStyle *paragraphStyle = [[NSMutableParagraphStyle alloc] init];
   paragraphStyle.headIndent = 0;
   paragraphStyle.firstLineHeadIndent = 0;
@@ -195,19 +198,19 @@ RCT_EXPORT_MODULE()
 }
 
 
-- (void)styleAtrributedText {
-  NSMutableParagraphStyle *paragraphStyle = [[NSMutableParagraphStyle alloc] init];
-  paragraphStyle.headIndent = 0;
-  paragraphStyle.firstLineHeadIndent = 0;
-  //paragraphStyle.lineHeightMultiple = 20;
-  paragraphStyle.lineSpacing = 8;
-  NSDictionary *attrsDictionary = @{
-    NSParagraphStyleAttributeName: paragraphStyle,
-//    NSFontAttributeName: [UIFont fontWithName:@"Baskerville" size:16.0],
-//    NSFontAttributeName: [UIFont systemFontOfSize:16.0 weight:UIFontWeightRegular],
-  };
-  self.textView.attributedText = [[NSAttributedString alloc] initWithString:@"Hello World over many lines!" attributes:attrsDictionary];
-}
+//- (void)styleAtrributedText {
+//  NSMutableParagraphStyle *paragraphStyle = [[NSMutableParagraphStyle alloc] init];
+//  paragraphStyle.headIndent = 0;
+//  paragraphStyle.firstLineHeadIndent = 0;
+//  //paragraphStyle.lineHeightMultiple = 20;
+//  paragraphStyle.lineSpacing = 8;
+//  NSDictionary *attrsDictionary = @{
+//    NSParagraphStyleAttributeName: paragraphStyle,
+////    NSFontAttributeName: [UIFont fontWithName:@"Baskerville" size:16.0],
+////    NSFontAttributeName: [UIFont systemFontOfSize:16.0 weight:UIFontWeightRegular],
+//  };
+//  self.textView.attributedText = [[NSAttributedString alloc] initWithString:@"Hello World over many lines!" attributes:attrsDictionary];
+//}
 
 
 
@@ -504,7 +507,7 @@ RCT_EXPORT_MODULE()
   //RCTLogInfo(@"[RichTextEditor] open tags: %@", openTags);
   [htmlString appendString:[self closeOpenTags]];
   [htmlString appendString:@"</p>"];
-  //RCTLogInfo(@"[RichTextEditor] generated html: %@", htmlString);
+  RCTLogInfo(@"[RichTextEditor] generated html: \n%@", htmlString);
   return htmlString.copy;
 }
 

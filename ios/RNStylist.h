@@ -13,6 +13,9 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (id)initWithStyle:(NSString *)css;
 - (NSDictionary *)attributesForTag:(NSString *)tag;
+- (NSString *)createHtmlDocument:(NSString *)body;
+
+NSString *createHtmlString(NSString *body, NSString *styles);
 
 @end
 

@@ -128,7 +128,11 @@ export const RichTextEditor = React.forwardRef((props: any, ref) => {
         }
 
         p {
-
+          font-family: -apple-system;
+          font-weight: 400;
+          line-height: 24px;
+          font-size: 16px;
+          color: black;
         }
       `}
       html={`<p>hello world</p>`}

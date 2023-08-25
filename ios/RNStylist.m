@@ -55,4 +55,10 @@ NSString *createHtmlString(NSString *body, NSString *styles) {
   return document;
 }
 
+- (NSString *)createHtmlDocument:(NSString *)body {
+  NSString *document = [NSString stringWithFormat:@"<!doctype html>\n<html>\n<head>\n<style>\n%@\n</style>\n</head>\n<body>\n%@\n</body>\n</html>", self.css, body];
+  printf("[RNStyle] createHtmlDocument: \n%s\n", [document cStringUsingEncoding:NSUTF8StringEncoding]);
+  return document;
+}
+
 @end
