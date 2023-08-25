@@ -32,6 +32,23 @@ RCT_EXPORT_VIEW_PROPERTY(onSizeChange, RCTBubblingEventBlock)
 
 #pragma mark - Exposed Methods
 
+
+RCT_EXPORT_METHOD(showKeyboard:(nonnull NSNumber *)reactTag) {
+  [self.bridge.uiManager addUIBlock:^(__unused RCTUIManager *uiManager, NSDictionary<NSNumber *, RNRichTextView *> *viewRegistry) {
+    RNRichTextView *view = viewRegistry[reactTag];
+    if ([view isKindOfClass:[RNRichTextView class]]) return;
+    [view showKeyboard];
+  }];
+}
+
+RCT_EXPORT_METHOD(hideKeyboard:(nonnull NSNumber *)reactTag) {
+  [self.bridge.uiManager addUIBlock:^(__unused RCTUIManager *uiManager, NSDictionary<NSNumber *, RNRichTextView *> *viewRegistry) {
+    RNRichTextView *view = viewRegistry[reactTag];
+    if ([view isKindOfClass:[RNRichTextView class]]) return;
+    [view hideKeyboard];
+  }];
+}
+
 // returns the generated HTML output from the string
 RCT_EXPORT_METHOD(resize:(nonnull NSNumber *)reactTag)
 {

@@ -28,6 +28,8 @@ NS_ASSUME_NONNULL_BEGIN
 
 @property (nonatomic, copy) NSNumber *editable;
 
+- (void)showKeyboard;
+- (void)hideKeyboard;
 - (void)resize;
 
 - (void)initializeTextView;

@@ -102,6 +102,14 @@ RCT_EXPORT_MODULE()
 
 #pragma mark - Custom Properties
 
+- (void)hideKeyboard {
+  [self.textView resignFirstResponder];
+}
+
+- (void)showKeyboard {
+  [self.textView becomeFirstResponder];
+}
+
 
 - (void)setCustomProperties {
   //BOOL isEditable = [self.editable isEqualToValue:@1];
