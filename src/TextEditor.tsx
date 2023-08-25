@@ -16,6 +16,7 @@ function ButtonList({ insert, getHTML }: ButtonListProps) {
       <Button title={"Superscript"} onPress={() => insert("<sup>")} />
       <Button title={"Subscript"} onPress={() => insert("<sub>")} />
       <Button title={"Insert"} onPress={() => insert("<ins>")} />
+      <Button title={"Underline"} onPress={() => insert("<u>")} />
       <Button title={"Mark"} onPress={() => insert("<mark>")} />
       <Button title={"Code"} onPress={() => insert("<code>")} />
       <Button title={"HTML"} onPress={getHTML} />

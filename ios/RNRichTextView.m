@@ -6,6 +6,7 @@
 //
 
 #import "RNRichTextView.h"
+#import <WebKit/WKWebView.h>
 
 @interface RNRichTextView()
 {
@@ -27,7 +28,7 @@
 
 @implementation RNRichTextView
 
-@synthesize textView, onSizeChange, html, attributedString = _attributedString;
+@synthesize textView, editable, onSizeChange, html, attributedString = _attributedString;
 
 RCT_EXPORT_MODULE()
 
@@ -76,8 +77,11 @@ RCT_EXPORT_MODULE()
     [self.textView.trailingAnchor constraintEqualToAnchor:safeArea.trailingAnchor],
   ]];
   
-  // tell the text view to become a first response
-  [self.textView becomeFirstResponder];
+  // set custom properties
+  [self setCustomProperties];
+  
+  WKWebView *webView = [[WKWebView alloc] init];
+  [self addSubview:webView];
 }
 
 - (void)setPlaceholder {
@@ -96,6 +100,16 @@ RCT_EXPORT_MODULE()
   return true;
 }
 
+#pragma mark - Custom Properties
+
+
+- (void)setCustomProperties {
+  //BOOL isEditable = [self.editable isEqualToValue:@1];
+  //RCTLogInfo(@"[RNRichTextView] setting editable content: %@", isEditable ? @"true" : @"false");
+  //self.textView.editable = isEditable;
+}
+
+
 #pragma mark - Set Text Based on HTML
 
 - (void)setHtml:(NSString *)html {
@@ -112,8 +126,8 @@ RCT_EXPORT_MODULE()
     NSFontAttributeName: [UIFont systemFontOfSize:16.0]
   };
   
+  // see the setter method for more details on this method
   self.attributedString = [[NSMutableAttributedString alloc] initWithData:data options:options documentAttributes:nil error:nil];
-  [self reportSize:self.textView];
 }
 
 // when setting an attributed string from HTML we need to strip away extra whitespaces and newlines added by the editor,
@@ -127,13 +141,9 @@ RCT_EXPORT_MODULE()
   return attributedString;
 }
 
-//- (void)setAttributedString:(NSAttributedString *)attributedString {
-//  self.attributedString = attributedString;
-//  self.textView.attributedText = self.attributedString;
-//}
-
 
 #pragma mark - Attributed Text Styling
+
 
 - (void)setAttributedString:(NSAttributedString *)attributedString {
   RCTLogInfo(@"[RNRichTextEditor] setting attributed string...");
@@ -164,6 +174,10 @@ RCT_EXPORT_MODULE()
 
 #pragma mark - Dynamic Sizing
 
+- (void)resize {
+  [self reportSize:self.textView];
+}
+
 
 - (void)reportSize:(UITextView *)textView {
   [self.textView sizeToFit];
@@ -188,9 +202,8 @@ RCT_EXPORT_MODULE()
   // self.onSizeChange(@{ @"height": @(updatedFrame.size.height) });
   
   // may help with animations
-  [UIView animateWithDuration:0.01 animations:^{
-    [self layoutIfNeeded];
-  }];
+  [self sizeToFit];
+  [self layoutIfNeeded];
 }
 
 #pragma mark - UITextView Delegate Methods
@@ -456,6 +469,5 @@ BOOL isFound(NSString *item, NSArray *array) {
             return true;
     } return false;
 }
-
 
 @end

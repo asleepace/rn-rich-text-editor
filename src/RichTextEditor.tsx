@@ -1,4 +1,4 @@
-import React, { SyntheticEvent } from 'react';
+import React, { SyntheticEvent, useEffect } from 'react';
 import ReactNative, {
   Animated,
   NativeModules,
@@ -14,21 +14,36 @@ import ReactNative, {
 const NATIVE_NAME = 'RNRichTextView';
 const RNRichTextView = requireNativeComponent<RichTextEditor>(NATIVE_NAME);
 
+
 export type RichTextEditor = {
   insertTag?: (tag: string) => void;
   getHTML?: () => void;
   onSizeChange?: (event: NativeSyntheticEvent<{ height: number }>) => void;
   style?: StyleProp<ViewStyle>;
   ref: React.RefObject<{}>;
+  editable?: boolean;
   html?: string
 }
 
 export const RichTextEditor = React.forwardRef((props: any, ref) => {
 
+  const nativeRef = React.useRef<any>(null)
   const [height, setHeight] = React.useState(44)
+  const [didResize, setDidResize] = React.useState(false)
+
+  const shouldResize = React.useCallback(() => {
+    if (!nativeRef.current) return
+    if (didResize) return
+    const current = ReactNative.findNodeHandle(nativeRef.current)
+    NativeModules.RNRichTextViewManager.resize(current)
+    console.log('[JW] resize called!')
+  }, [nativeRef.current, didResize, setDidResize])
 
   // initialize refs
-  const nativeRef = React.useRef<any>(null)
+  useEffect(() => {
+    if (didResize) return
+    setTimeout(shouldResize, 100)
+  }, [shouldResize, didResize])
 
   // callback methods
   const insertTag = React.useCallback((tag: string) => {
@@ -57,9 +72,16 @@ export const RichTextEditor = React.forwardRef((props: any, ref) => {
     getHTML,
   }), [insertTag, getHTML])
 
+  // React.useEffect(() => {
+  //   setTimeout(() => {
+  //     resize()
+  //   }, 100)
+  // }, [resize])
+
   return (
     <RNRichTextView
       ref={nativeRef}
+      editable={true}
       style={{ minHeight: 64.0, backgroundColor: 'white' }}
       onSizeChange={(event) => {
         setHeight(event.nativeEvent.height)
@@ -70,6 +92,7 @@ export const RichTextEditor = React.forwardRef((props: any, ref) => {
         <head>
           <style>
             body {
+
               font-family: -apple-system;
               font-weight: 400;
               line-height: 24px;
@@ -96,6 +119,14 @@ export const RichTextEditor = React.forwardRef((props: any, ref) => {
               padding: 4px;
             }
 
+            img {
+              width: auto;
+              height: 120px;
+              border-radius: 8px;
+              border: 1px solid black;
+              aspect-fit: cover;
+            }
+
             p {
 
             }
@@ -103,14 +134,27 @@ export const RichTextEditor = React.forwardRef((props: any, ref) => {
         </head>
         <body>
           <h1>Native Rich Text Editor</h1>
-          <p>This is some pretty cool text which will <b>appear bold</b> and can have <em>underline</em> as well as <mark>marked text</mark> as well as <pre><code>const code = true;</pre></code></p>
+          <p>This is some pretty cool text which will <b>appear bold</b> and can have <u>underline</u> as well as <mark>marked text</mark> as well as:</p>
+          <pre><code>const code = true;</code></pre>
+          <br />
           <b>Supported Styles:</b>
+          <br />
           <ul>
             <li>Plain text</li>
             <li>Markdown</li>
             <li>HTML</li>
           </ul>
+          <br>
           <p>Written in <strike>React</strike> native!</p>
+          <br />
+          <p style="text-align: center;">
+            <img src="https://m.media-amazon.com/images/I/517QJJQCGvL.png" />
+          </p>
+          <br />
+          <i>Yup, that's an <u>inline image</u>!</i>
+          <br />
+          <b style="color:powderblue;">@asleepace</b>
+          <br />
         </body>
         </html>
       `}
