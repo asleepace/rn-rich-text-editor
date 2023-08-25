@@ -246,7 +246,9 @@ RCT_EXPORT_MODULE()
 }
 
 - (void)textViewDidBeginEditing:(UITextView *)textView {
-  [self clearPlaceholder];
+  if (textView.attributedText.length > 0) {
+    [self clearPlaceholder];
+  }
 }
 
 - (void)textViewDidChangeSelection:(UITextView *)textView {
@@ -317,11 +319,17 @@ RCT_EXPORT_MODULE()
   NSInteger endlength = self.attributedString.length - selection;
   NSAttributedString *lastHalf  = [self.attributedString attributedSubstringFromRange:NSMakeRange(selection, endlength)];
   NSMutableAttributedString *combinedString = [NSMutableAttributedString new];
+  RCTLogInfo(@"[RNRichTextView] lastHalf: \"%@\" (%lu)", lastHalf, lastHalf.length);
+
   [combinedString appendAttributedString:firstHalf];
   [combinedString appendAttributedString:[self addAttribute:midHalf fromTag:tag]];
-  [combinedString appendAttributedString:lastHalf];
+  
+  if (lastHalf.length > 0) {
+    [combinedString appendAttributedString:lastHalf];
+  }
   self.attributedString = combinedString.copy;
   self.textView.attributedText = self.attributedString;
+  self.textView.selectedRange = range;
 }
 
 - (NSAttributedString *)addAttribute:(NSAttributedString *)string fromTag:(NSString *)tag {

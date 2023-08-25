@@ -121,28 +121,6 @@ export const RichTextEditor = React.forwardRef((props: any, ref) => {
           </style>
         </head>
         <body>
-          <h1>Native Rich Text Editor</h1>
-          <p>This is some pretty cool text which will <b>appear bold</b> and can have <u>underline</u> as well as <mark>marked text</mark> as well as:</p>
-          <pre><code>const code = true;</code></pre>
-          <br />
-          <b>Supported Styles:</b>
-          <br />
-          <ul>
-            <li>Plain text</li>
-            <li>Markdown</li>
-            <li>HTML</li>
-          </ul>
-          <br>
-          <p>Written in <strike>React</strike> native!</p>
-          <br />
-          <p style="text-align: center;">
-            <img src="https://m.media-amazon.com/images/I/517QJJQCGvL.png" />
-          </p>
-          <br />
-          <i>Yup, that's an <u>inline image</u>!</i>
-          <br />
-          <b style="color:powderblue;">@asleepace</b>
-          <br />
         </body>
         </html>
       `}
