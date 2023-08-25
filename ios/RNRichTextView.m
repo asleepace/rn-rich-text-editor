@@ -310,25 +310,33 @@ RCT_EXPORT_MODULE()
 }
 
 
+- (void)setTypingAttributesFromTag:(NSString *)tag {
+  RCTLogInfo(@"[RNRichTextView] attribute insertion detected at back of string...");
+  NSDictionary<NSAttributedStringKey, id> *currentTypingAttributes = self.textView.typingAttributes;
+  RCTLogInfo(@"[RNRichTextView] current attributes: %@", currentTypingAttributes);
+  UIFont *font = [currentTypingAttributes objectForKey:NSFontAttributeName];
+  UIFontDescriptorSymbolicTraits sym = font.fontDescriptor.symbolicTraits;
+  
+  if ([tag isEqual:@"<b>"])
+    sym ^= UIFontDescriptorTraitBold;
+  if ([tag isEqual:@"<i>"])
+    sym ^= UIFontDescriptorTraitItalic;
+  
+  UIFontDescriptor *fd =  [font.fontDescriptor fontDescriptorWithSymbolicTraits:sym];
+  UIFont *updatedFont = [UIFont fontWithDescriptor:fd size:0.0];
+  NSMutableDictionary *newAttr = [NSMutableDictionary new];
+  [newAttr addEntriesFromDictionary:currentTypingAttributes];
+  [newAttr addEntriesFromDictionary:@{ NSFontAttributeName: updatedFont }];
+  self.textView.typingAttributes = newAttr;
+}
+
+
 - (void)insertTag:(NSString *)tag {
   NSRange range = self.textView.selectedRange;
   RCTLogInfo(@"[RNRichTextView] insertTag: %@ range: %lu length: %lu", tag, range.location, range.length);
   
   if (range.length == 0) {
-    RCTLogInfo(@"[RNRichTextView] attribute insertion detected at back of string...");
-    NSDictionary<NSAttributedStringKey, id> *currentTypingAttributes = self.textView.typingAttributes;
-    RCTLogInfo(@"[RNRichTextView] current attributes: %@", currentTypingAttributes);
-    UIFont *font = [currentTypingAttributes objectForKey:NSFontAttributeName];
-    UIFontDescriptorSymbolicTraits sym = font.fontDescriptor.symbolicTraits;
-    
-    sym ^= UIFontDescriptorTraitBold;
-    
-    UIFontDescriptor *fd =  [font.fontDescriptor fontDescriptorWithSymbolicTraits:sym];
-    UIFont *updatedFont = [UIFont fontWithDescriptor:fd size:0.0];
-    NSMutableDictionary *newAttr = [NSMutableDictionary new];
-    [newAttr addEntriesFromDictionary:currentTypingAttributes];
-    [newAttr addEntriesFromDictionary:@{ NSFontAttributeName: updatedFont }];
-    self.textView.typingAttributes = newAttr;
+    [self setTypingAttributesFromTag:tag];
     return;
   }
 
