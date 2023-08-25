@@ -11,7 +11,7 @@
 @implementation RNRichTextViewManager
 
 RCT_EXPORT_MODULE()
-RCT_EXPORT_VIEW_PROPERTY(editable, NSNumber *)
+RCT_EXPORT_VIEW_PROPERTY(editable, BOOL)
 RCT_EXPORT_VIEW_PROPERTY(html, NSString *)
 RCT_EXPORT_VIEW_PROPERTY(onSizeChange, RCTBubblingEventBlock)
 
@@ -22,7 +22,7 @@ RCT_EXPORT_VIEW_PROPERTY(onSizeChange, RCTBubblingEventBlock)
 - (UIView *)view {
   RNRichTextView *richTextView = [[RNRichTextView alloc] init];
   richTextView.delegate = self;
-  [richTextView initializeTextView];
+//  [richTextView initializeTextView];
   return richTextView;
 }
 

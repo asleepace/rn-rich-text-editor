@@ -39,49 +39,55 @@ RCT_EXPORT_MODULE()
   return true;
 }
 
-- (void)initializeTextView {
+- (dispatch_queue_t)methodQueue {
+  return dispatch_get_main_queue();
+}
+
+- (id)init {
   
-  lastReportedSize = CGSizeZero;
-  openTags = [NSMutableArray new];
-  nextTags = [NSMutableArray new];
-  nextHTML = [NSMutableArray new];
+  if (self = [super init]) {
+    
+    RCTLogInfo(@"[RNRichTextView] init called!");
+    
+    lastReportedSize = CGSizeZero;
+    openTags = [NSMutableArray new];
+    nextTags = [NSMutableArray new];
+    nextHTML = [NSMutableArray new];
+    
+    // initialize with scroll set to false and frame set to zero
+    self.textView = [[UITextView alloc] initWithFrame:CGRectZero textContainer:nil];
+    [self.textView setDelegate:self];
+    [self addSubview:self.textView];
+    [self bringSubviewToFront:self.textView];
+    [self.textView setScrollEnabled:false];
+    
+    // background colors
+    [self setBackgroundColor:[UIColor clearColor]];
+    [self.textView setBackgroundColor:[UIColor clearColor]];
+    [self.textView setTextColor:[UIColor blackColor]];
+    
+    // set up text editor styles
+    [self styleAtrributedText];
+    
+    // this will allow the text view to grow in height
+    UILayoutGuide *safeArea = self.safeAreaLayoutGuide;
+    self.textView.translatesAutoresizingMaskIntoConstraints = false;
+    
+    // this line might not be needed
+    // self.translatesAutoresizingMaskIntoConstraints = false;
+    
+    // we can achieve different effects by choosing if we anchor the top or bottom,
+    // currently anchoring the top works better as there is a bit of delay when we
+    // resize the text.
+    [NSLayoutConstraint activateConstraints:@[
+      [self.textView.topAnchor constraintEqualToAnchor:safeArea.topAnchor],
+      [self.textView.leadingAnchor constraintEqualToAnchor:safeArea.leadingAnchor],
+      //[self.textView.bottomAnchor constraintEqualToAnchor:safeArea.bottomAnchor],
+      [self.textView.trailingAnchor constraintEqualToAnchor:safeArea.trailingAnchor],
+    ]];
+  }
   
-  self.textView = [[UITextView alloc] initWithFrame:CGRectZero textContainer:nil];
-  [self.textView setDelegate:self];
-  [self addSubview:self.textView];
-  [self bringSubviewToFront:self.textView];
-  [self.textView setScrollEnabled:false];
-  
-  // background colors
-  [self setBackgroundColor:[UIColor clearColor]];
-  [self.textView setBackgroundColor:[UIColor clearColor]];
-  [self.textView setTextColor:[UIColor blackColor]];
-  
-  // set up text editor styles
-  [self styleAtrributedText];
-  
-  // this will allow the text view to grow in height
-  UILayoutGuide *safeArea = self.safeAreaLayoutGuide;
-  self.textView.translatesAutoresizingMaskIntoConstraints = false;
-  
-  // this line might not be needed
-  // self.translatesAutoresizingMaskIntoConstraints = false;
-  
-  // we can achieve different effects by choosing if we anchor the top or bottom,
-  // currently anchoring the top works better as there is a bit of delay when we
-  // resize the text.
-  [NSLayoutConstraint activateConstraints:@[
-    [self.textView.topAnchor constraintEqualToAnchor:safeArea.topAnchor],
-    [self.textView.leadingAnchor constraintEqualToAnchor:safeArea.leadingAnchor],
-    //[self.textView.bottomAnchor constraintEqualToAnchor:safeArea.bottomAnchor],
-    [self.textView.trailingAnchor constraintEqualToAnchor:safeArea.trailingAnchor],
-  ]];
-  
-  // set custom properties
-  [self setCustomProperties];
-  
-  WKWebView *webView = [[WKWebView alloc] init];
-  [self addSubview:webView];
+  return self;
 }
 
 - (void)setPlaceholder {
@@ -102,6 +108,12 @@ RCT_EXPORT_MODULE()
 
 #pragma mark - Custom Properties
 
+
+- (void)setEditable:(BOOL)editable {
+  RCTLogInfo(@"[RNRichTextView] setEditable: %@", editable ? @"true" : @"false");
+  [self.textView setEditable:editable];
+}
+
 - (void)hideKeyboard {
   [self.textView resignFirstResponder];
 }
@@ -111,14 +123,8 @@ RCT_EXPORT_MODULE()
 }
 
 
-- (void)setCustomProperties {
-  //BOOL isEditable = [self.editable isEqualToValue:@1];
-  //RCTLogInfo(@"[RNRichTextView] setting editable content: %@", isEditable ? @"true" : @"false");
-  //self.textView.editable = isEditable;
-}
-
-
 #pragma mark - Set Text Based on HTML
+
 
 - (void)setHtml:(NSString *)html {
   RCTLogInfo(@"[RNRichTextView] setting html: \n%@", html);
@@ -156,7 +162,7 @@ RCT_EXPORT_MODULE()
 - (void)setAttributedString:(NSAttributedString *)attributedString {
   RCTLogInfo(@"[RNRichTextEditor] setting attributed string...");
   self.textView.attributedText = [self trim:attributedString];
-  [self reportSize:self.textView];
+  [self resize];
 }
 
 - (NSAttributedString *)attributedString {
@@ -183,7 +189,9 @@ RCT_EXPORT_MODULE()
 #pragma mark - Dynamic Sizing
 
 - (void)resize {
-  [self reportSize:self.textView];
+  dispatch_async(dispatch_get_main_queue(), ^{
+    [self reportSize:self.textView];
+  });
 }
 
 

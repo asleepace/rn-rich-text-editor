@@ -14,10 +14,14 @@ import ReactNative, {
 const NATIVE_NAME = 'RNRichTextView';
 const RNRichTextView = requireNativeComponent<RichTextEditor>(NATIVE_NAME);
 
+export type RichTextEditorRef = {
+  insertTag(tag: string): void;
+  showKeyboard(): void;
+  hideKeyboard(): void;
+  getHTML(): string;
+}
 
 export type RichTextEditor = {
-  insertTag?: (tag: string) => void;
-  getHTML?: () => void;
   onSizeChange?: (event: NativeSyntheticEvent<{ height: number }>) => void;
   style?: StyleProp<ViewStyle>;
   ref: React.RefObject<{}>;
@@ -27,7 +31,7 @@ export type RichTextEditor = {
 
 export const RichTextEditor = React.forwardRef((props: any, ref) => {
 
-  const nativeRef = React.useRef<any>(null)
+  const nativeRef = React.useRef(null)
   const [height, setHeight] = React.useState(44)
   const [didResize, setDidResize] = React.useState(false)
 

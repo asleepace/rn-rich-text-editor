@@ -26,13 +26,12 @@ NS_ASSUME_NONNULL_BEGIN
 @property (nonatomic, copy) NSString *markdown;
 @property (nonatomic, copy) NSString *html;
 
-@property (nonatomic, copy) NSNumber *editable;
+@property (nonatomic, assign) BOOL editable;
 
 - (void)showKeyboard;
 - (void)hideKeyboard;
 - (void)resize;
 
-- (void)initializeTextView;
 - (void)insertTag:(NSString *)tag;
 - (NSString *)generateHTML;
 

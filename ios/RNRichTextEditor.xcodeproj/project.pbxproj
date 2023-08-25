@@ -112,8 +112,8 @@
 			children = (
 				265FBC5F2A96E3B000111F6E /* RichTextDelegate.h */,
 				26AC92D92A96BDB500B7BD6C /* RNRichTextView.h */,
-				26AC92DE2A96C05B00B7BD6C /* RNRichTextViewManager.h */,
 				26AC92DA2A96BDB500B7BD6C /* RNRichTextView.m */,
+				26AC92DE2A96C05B00B7BD6C /* RNRichTextViewManager.h */,
 				26AC92DF2A96C05B00B7BD6C /* RNRichTextViewManager.m */,
 			);
 			name = RNRichTextView;
