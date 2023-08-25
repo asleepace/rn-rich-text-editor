@@ -28,8 +28,10 @@ export type RichTextEditorRef = {
 
 export type RichTextEditor = {
   onSizeChange?: (event: NativeSyntheticEvent<{ height: number }>) => void;
+  onChangeText?: (event: NativeSyntheticEvent<{ text: string }>) => void;
   style?: StyleProp<ViewStyle>;
   ref: React.RefObject<{}>;
+  customStyle?: string;
   editable?: boolean;
   html?: string
 }
@@ -91,7 +93,7 @@ export const RichTextEditor = React.forwardRef((props: any, ref) => {
       }}
       customStyle={`
         body {
-          font-family: Baskerville, Capitals, Arial, -apple-system;
+          font-family: -apple-system;
           font-weight: 400;
           line-height: 24px;
           font-size: 16px;
@@ -129,56 +131,7 @@ export const RichTextEditor = React.forwardRef((props: any, ref) => {
 
         }
       `}
-      html={`
-        <!doctype html>
-        <html>
-        <head>
-          <style>
-            body {
-              font-family: Baskerville, Capitals, Arial, -apple-system;
-              font-weight: 400;
-              line-height: 24px;
-              font-size: 16px;
-              color: black;
-            }
-
-            pre {
-              background-color: #F2F2F7;
-            }
-
-            code {
-              font-family: monospace;
-              font-size: 14px;
-              line-height: 24px;
-              background-color: #F2F2F7;
-              border-radius: 4px;
-              padding: 8px;
-            }
-
-            mark {
-              background-color: yellow;
-              border-radius: 4px;
-              padding: 4px;
-            }
-
-            img {
-              width: auto;
-              height: 120px;
-              border-radius: 8px;
-              border: 1px solid black;
-              aspect-fit: cover;
-            }
-
-            p {
-
-            }
-          </style>
-        </head>
-        <body>
-          
-        </body>
-        </html>
-      `}
+      html={`<p>hello world</p>`}
       // onLayout={(event) => {
       //   console.log('[RichTextEditor] on layout: ', event.nativeEvent)
       // }}

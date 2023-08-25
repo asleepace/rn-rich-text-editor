@@ -155,12 +155,15 @@ RCT_EXPORT_MODULE()
     NSParagraphStyleAttributeName: paragraphStyle,
     NSDocumentTypeDocumentAttribute: NSHTMLTextDocumentType,
     NSCharacterEncodingDocumentAttribute: @(NSUTF8StringEncoding),
-    NSFontAttributeName: [UIFont fontWithName:@"Baskerville" size:16.0],
+//    NSFontAttributeName: [UIFont fontWithName:@"Baskerville" size:16.0],
   };
   
   // see the setter method for more details on this method
   NSAttributedString *stringFromHTML = [[NSMutableAttributedString alloc] initWithData:data options:options documentAttributes:nil error:nil];
   self.attributedString = [self trim:stringFromHTML];
+  NSDictionary *attributes = [self.stylist attributesForTag:@"<p>"];
+  RCTLogInfo(@"[RNRichTextView] setHTML attributes: %@", attributes);
+  self.textView.typingAttributes = attributes;
 }
 
 // when setting an attributed string from HTML we need to strip away extra whitespaces and newlines added by the editor,
@@ -265,12 +268,6 @@ RCT_EXPORT_MODULE()
   if (textView.attributedText.length > 0) {
     [self clearPlaceholder];
   }
-}
-
-- (void)checkCurrentMention {
-  
-  
-  
 }
 
 - (void)notifyChangeListeners {
