@@ -21,6 +21,7 @@
   NSMutableDictionary *selectedAttr;
 }
 
+@property (nonatomic, copy) NSDictionary<NSAttributedStringKey, id> *typingAttributes;
 @property (strong, nonatomic) NSAttributedString *attributedString;
 @property (strong, nonatomic) UITextView *textView;
 
@@ -147,7 +148,8 @@ RCT_EXPORT_MODULE()
   };
   
   // see the setter method for more details on this method
-  self.attributedString = [[NSMutableAttributedString alloc] initWithData:data options:options documentAttributes:nil error:nil];
+  NSAttributedString *stringFromHTML = [[NSMutableAttributedString alloc] initWithData:data options:options documentAttributes:nil error:nil];
+  self.attributedString = [self trim:stringFromHTML];
 }
 
 // when setting an attributed string from HTML we need to strip away extra whitespaces and newlines added by the editor,
@@ -167,7 +169,8 @@ RCT_EXPORT_MODULE()
 
 - (void)setAttributedString:(NSAttributedString *)attributedString {
   RCTLogInfo(@"[RNRichTextEditor] setting attributed string...");
-  self.textView.attributedText = [self trim:attributedString];
+  self.textView.attributedText = attributedString;
+  // self.textView.attributedText = [self trim:attributedString];
   [self resize];
 }
 
@@ -310,6 +313,26 @@ RCT_EXPORT_MODULE()
 - (void)insertTag:(NSString *)tag {
   NSRange range = self.textView.selectedRange;
   RCTLogInfo(@"[RNRichTextView] insertTag: %@ range: %lu length: %lu", tag, range.location, range.length);
+  
+  if (range.length == 0) {
+    RCTLogInfo(@"[RNRichTextView] attribute insertion detected at back of string...");
+    NSDictionary<NSAttributedStringKey, id> *currentTypingAttributes = self.textView.typingAttributes;
+    RCTLogInfo(@"[RNRichTextView] current attributes: %@", currentTypingAttributes);
+    UIFont *font = [currentTypingAttributes objectForKey:NSFontAttributeName];
+    UIFontDescriptorSymbolicTraits sym = font.fontDescriptor.symbolicTraits;
+    
+    sym ^= UIFontDescriptorTraitBold;
+    
+    UIFontDescriptor *fd =  [font.fontDescriptor fontDescriptorWithSymbolicTraits:sym];
+    UIFont *updatedFont = [UIFont fontWithDescriptor:fd size:0.0];
+    NSMutableDictionary *newAttr = [NSMutableDictionary new];
+    [newAttr addEntriesFromDictionary:currentTypingAttributes];
+    [newAttr addEntriesFromDictionary:@{ NSFontAttributeName: updatedFont }];
+    self.textView.typingAttributes = newAttr;
+    return;
+  }
+
+  
   RCTLogInfo(@"[RNRichTextView] attributedString: %@", self.attributedString);
   NSAttributedString *firstHalf = [self.attributedString attributedSubstringFromRange:NSMakeRange(0, range.location)];
   RCTLogInfo(@"[RNRichTextView] firstHalf: %@", firstHalf);
@@ -328,30 +351,36 @@ RCT_EXPORT_MODULE()
     [combinedString appendAttributedString:lastHalf];
   }
   self.attributedString = combinedString.copy;
-  self.textView.attributedText = self.attributedString;
+  //self.textView.attributedText = self.attributedString;
   self.textView.selectedRange = range;
 }
 
 - (NSAttributedString *)addAttribute:(NSAttributedString *)string fromTag:(NSString *)tag {
     NSMutableAttributedString *mut = [[NSMutableAttributedString alloc] initWithAttributedString:string];
     [string enumerateAttributesInRange:NSMakeRange(0, string.length) options:NSAttributedStringEnumerationLongestEffectiveRangeNotRequired usingBlock:^(NSDictionary<NSAttributedStringKey,id> * _Nonnull attrs, NSRange range, BOOL * _Nonnull stop) {
-        UIFont *font = [attrs objectForKey:NSFontAttributeName];
-        UIFontDescriptorSymbolicTraits sym = font.fontDescriptor.symbolicTraits;
+      UIFont *font = [attrs objectForKey:NSFontAttributeName];
+      UIFontDescriptorSymbolicTraits sym = font.fontDescriptor.symbolicTraits;
         
-        if ([tag isEqualToString:@"<b>"]) sym = [self toggle:UIFontDescriptorTraitBold key:@"isBold" on:sym];
-        else if ([tag isEqualToString:@"<i>"]) sym = [self toggle:UIFontDescriptorTraitItalic key:@"isItalic" on:sym];
-        else if ([tag isEqualToString:@"<del>"]) attrs = [self strikethrough:attrs];
-        else if ([tag isEqualToString:@"<sup>"]) attrs = [self subOrSup:attrs tag:@"isSuperscript" value:@1];
-        else if ([tag isEqualToString:@"<sub>"]) attrs = [self subOrSup:attrs tag:@"isSubscript" value:@-1];
-        else if ([tag isEqualToString:@"<ins>"]) attrs = [self subOrSup:attrs tag:@"isInserted" value:@1];
-        else if ([tag isEqualToString:@"<code>"]) attrs = @{};
+      if ([tag isEqualToString:@"<b>"]) sym = [self toggle:UIFontDescriptorTraitBold key:@"isBold" on:sym];
+      else if ([tag isEqualToString:@"<i>"]) sym = [self toggle:UIFontDescriptorTraitItalic key:@"isItalic" on:sym];
+      else if ([tag isEqualToString:@"<del>"]) attrs = [self strikethrough:attrs];
+      else if ([tag isEqualToString:@"<sup>"]) attrs = [self subOrSup:attrs tag:@"isSuperscript" value:@1];
+      else if ([tag isEqualToString:@"<sub>"]) attrs = [self subOrSup:attrs tag:@"isSubscript" value:@-1];
+      else if ([tag isEqualToString:@"<ins>"]) attrs = [self subOrSup:attrs tag:@"isInserted" value:@1];
+      else if ([tag isEqualToString:@"<code>"]) attrs = @{};
         
-        UIFontDescriptor *fd =  [font.fontDescriptor fontDescriptorWithSymbolicTraits:sym];
-        UIFont *updatedFont = [UIFont fontWithDescriptor:fd size:0.0];
-        NSMutableDictionary *newAttr = [NSMutableDictionary new];
-        [newAttr addEntriesFromDictionary:attrs];
-        [newAttr addEntriesFromDictionary:@{ NSFontAttributeName: updatedFont }];
-        [mut setAttributes:newAttr range:range];
+      UIFontDescriptor *fd =  [font.fontDescriptor fontDescriptorWithSymbolicTraits:sym];
+      UIFont *updatedFont = [UIFont fontWithDescriptor:fd size:0.0];
+      NSMutableDictionary *newAttr = [NSMutableDictionary new];
+      [newAttr addEntriesFromDictionary:attrs];
+      [newAttr addEntriesFromDictionary:@{ NSFontAttributeName: updatedFont }];
+      [mut setAttributes:newAttr range:range];
+      // TODO: Update font here?
+      RCTLogInfo(@"[RNRichTextView] setting font attributes");
+//      self.typingAttributes = @{
+//        NSFontAttributeName: updatedFont
+//      };
+      
     }];
     return mut;
 }
