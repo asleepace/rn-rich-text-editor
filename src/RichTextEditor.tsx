@@ -127,6 +127,15 @@ export const RichTextEditor = React.forwardRef((props: any, ref) => {
           aspect-fit: cover;
         }
 
+        b {
+          color: red;
+        }
+
+        pdlt-mention {
+          color: powderblue;
+          font-weight: bold;
+        }
+
         p {
           font-family: -apple-system;
           font-weight: 400;
@@ -135,7 +144,7 @@ export const RichTextEditor = React.forwardRef((props: any, ref) => {
           color: black;
         }
       `}
-      html={`<p>hello world</p>`}
+      html={`<p>hello world <pdlt-mention spellcheck="false">@asleepace</pdlt-mention> this is normal</p>`}
       // onLayout={(event) => {
       //   console.log('[RichTextEditor] on layout: ', event.nativeEvent)
       // }}

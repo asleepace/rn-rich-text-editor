@@ -10,15 +10,15 @@ interface ButtonListProps {
 function ButtonList({ insert, getHTML }: ButtonListProps) {
   return (
     <ScrollView style={styles.button} horizontal={true}>
-      <Button title={"Bold"} onPress={() => insert("<b>")} />
-      <Button title={"Italic"} onPress={() => insert("<i>")} />
-      <Button title={"Strikethrough"} onPress={() => insert("<del>")} />
-      <Button title={"Superscript"} onPress={() => insert("<sup>")} />
-      <Button title={"Subscript"} onPress={() => insert("<sub>")} />
-      <Button title={"Insert"} onPress={() => insert("<ins>")} />
-      <Button title={"Underline"} onPress={() => insert("<u>")} />
-      <Button title={"Mark"} onPress={() => insert("<mark>")} />
-      <Button title={"Code"} onPress={() => insert("<code>")} />
+      <Button title={"B"} onPress={() => insert("<b>")} />
+      <Button title={"I"} onPress={() => insert("<i>")} />
+      <Button title={"U"} onPress={() => insert("<u>")} />
+      <Button title={"S"} onPress={() => insert("<del>")} />
+      <Button title={"x²"} onPress={() => insert("<sup>")} />
+      <Button title={"x₂"} onPress={() => insert("<sub>")} />
+      <Button title={"[]"} onPress={() => insert("<ins>")} />
+      <Button title={"H"} onPress={() => insert("<mark>")} />
+      <Button title={"</>"} onPress={() => insert("<code>")} />
       <Button title={"HTML"} onPress={getHTML} />
     </ScrollView>
   )

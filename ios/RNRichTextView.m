@@ -335,6 +335,9 @@ RCT_EXPORT_MODULE()
 }
 
 
+#pragma mark - Toggling Styles
+
+
 - (void)setTypingAttributesFromTag:(NSString *)tag {
   RCTLogInfo(@"[RNRichTextView] attribute insertion detected at back of string...");
 //  NSDictionary<NSAttributedStringKey, id> *currentTypingAttributes = self.textView.typingAttributes;
@@ -353,9 +356,43 @@ RCT_EXPORT_MODULE()
 //  [newAttr addEntriesFromDictionary:currentTypingAttributes];
 //  [newAttr addEntriesFromDictionary:@{ NSFontAttributeName: updatedFont }];
   
+  NSDictionary *currentAttributes = self.textView.typingAttributes;
+  UIFont *currentFont = [currentAttributes objectForKey:NSFontAttributeName];
+  UIFontDescriptorSymbolicTraits currentSymbolicTraits = currentFont.fontDescriptor.symbolicTraits;
+    
   NSDictionary *attributes = [self.stylist attributesForTag:tag];
+  UIFont *font = [attributes objectForKey:NSFontAttributeName];
+  UIFontDescriptorSymbolicTraits symbolicTraits = font.fontDescriptor.symbolicTraits;
+     
+  UIFontDescriptorSymbolicTraits newTraits = currentSymbolicTraits ^ symbolicTraits;
+  UIFontDescriptor *fd =  [font.fontDescriptor fontDescriptorWithSymbolicTraits:newTraits];
+  UIFont *updatedFont = [UIFont fontWithDescriptor:fd size:0.0];
+  NSMutableDictionary *newAttr = [NSMutableDictionary new];
+  [newAttr addEntriesFromDictionary:attributes];
+  [newAttr addEntriesFromDictionary:@{ NSFontAttributeName: updatedFont }];
+  
+  // toggle strikethrough
+  [self toggleAttribute:@"NSStrikethrough" current:&newAttr next:&currentAttributes];
+  [self toggleAttribute:@"NSUnderline"     current:&newAttr next:&currentAttributes];
+  [self toggleAttribute:@"NSSuperScript"   current:&newAttr next:&currentAttributes];
+  [self toggleAttribute:@"NSSuperScript"   current:&newAttr next:&currentAttributes];
+  
+  
+//  NSInteger cStrike = [currentAttributes[@"NSStrikethrough"] integerValue];
+//  NSInteger nStrike = [attributes[@"NSStrikethrough"] integerValue];
+//  [newAttr setObject:@(cStrike ^ nStrike) forKey:@"NSStrikethrough"];
+  
   RCTLogInfo(@"[RNRichTextView] attributes: %@", attributes);
-  self.textView.typingAttributes = attributes;
+  self.textView.typingAttributes = newAttr;
+}
+
+
+- (void)toggleAttribute:(NSString *)key current:(NSMutableDictionary **)curr next:(NSDictionary **)next {
+  NSInteger oldAttribute = [[*curr objectForKey:key] integerValue];
+  NSInteger newAttribute = [[*next objectForKey:key] integerValue];
+  NSNumber *toggledAttribute = @(oldAttribute ^ newAttribute);
+  [*curr setObject:toggledAttribute forKey:key];
+  RCTLogInfo(@"[RNRichTextView] oldAttribute: %lu newAttribute: %lu toggledValue: %lu", oldAttribute, newAttribute, [toggledAttribute integerValue]);
 }
 
 
