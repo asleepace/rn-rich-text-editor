@@ -377,6 +377,13 @@ RCT_EXPORT_MODULE()
   [self toggleAttribute:@"NSSuperScript"   current:&newAttr next:&currentAttributes];
   [self toggleAttribute:@"NSSuperScript"   current:&newAttr next:&currentAttributes];
   
+  RCTLogInfo(@"[RNRichTextView] curr NSBackgroundColor: %@", currentAttributes[@"NSBackgroundColor"]);
+  RCTLogInfo(@"[RNRichTextView] next NSBackgroundColor: %@", currentAttributes[@"NSBackgroundColor"]);
+  
+  if ([currentAttributes[@"NSBackgroundColor"] isEqual:newAttr[@"NSBackgroundColor"]]) {
+    [newAttr setObject:UIColor.clearColor forKey:@"NSBackgroundColor"];
+  }
+  
   
 //  NSInteger cStrike = [currentAttributes[@"NSStrikethrough"] integerValue];
 //  NSInteger nStrike = [attributes[@"NSStrikethrough"] integerValue];
