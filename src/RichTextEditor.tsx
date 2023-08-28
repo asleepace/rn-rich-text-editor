@@ -128,7 +128,7 @@ export const RichTextEditor = React.forwardRef((props: any, ref) => {
         }
 
         b {
-          color: red;
+          color: black;
         }
 
         pdlt-mention {
@@ -143,8 +143,15 @@ export const RichTextEditor = React.forwardRef((props: any, ref) => {
           font-size: 16px;
           color: black;
         }
+
+        poem {
+          font-family: Chalkduster;
+          text-align: center;
+        }
       `}
-      html={`<p>hello world <pdlt-mention spellcheck="false">@asleepace</pdlt-mention> this is normal</p>`}
+      html={`
+        <p>Hello, world!</p>
+      `}
       // onLayout={(event) => {
       //   console.log('[RichTextEditor] on layout: ', event.nativeEvent)
       // }}

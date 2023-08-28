@@ -390,9 +390,7 @@ RCT_EXPORT_MODULE()
 - (void)toggleAttribute:(NSString *)key current:(NSMutableDictionary **)curr next:(NSDictionary **)next {
   NSInteger oldAttribute = [[*curr objectForKey:key] integerValue];
   NSInteger newAttribute = [[*next objectForKey:key] integerValue];
-  NSNumber *toggledAttribute = @(oldAttribute ^ newAttribute);
-  [*curr setObject:toggledAttribute forKey:key];
-  RCTLogInfo(@"[RNRichTextView] oldAttribute: %lu newAttribute: %lu toggledValue: %lu", oldAttribute, newAttribute, [toggledAttribute integerValue]);
+  [*curr setObject:@(oldAttribute ^ newAttribute) forKey:key];
 }
 
 
