@@ -11,6 +11,8 @@ NS_ASSUME_NONNULL_BEGIN
 
 @interface RNStylist : NSObject
 
+@property (strong, nonatomic) NSDictionary *normal;
+
 - (id)initWithStyle:(NSString *)css;
 - (NSDictionary *)attributesForTag:(NSString *)tag;
 - (NSString *)createHtmlDocument:(NSString *)body;

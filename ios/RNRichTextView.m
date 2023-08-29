@@ -377,13 +377,19 @@ RCT_EXPORT_MODULE()
   [self toggleAttribute:@"NSSuperScript"   current:&newAttr next:&currentAttributes];
   [self toggleAttribute:@"NSSuperScript"   current:&newAttr next:&currentAttributes];
   
-  RCTLogInfo(@"[RNRichTextView] curr NSBackgroundColor: %@", currentAttributes[@"NSBackgroundColor"]);
-  RCTLogInfo(@"[RNRichTextView] next NSBackgroundColor: %@", currentAttributes[@"NSBackgroundColor"]);
-  
+  // reset the background color if the current and new attributes have the same backgroundColor,
+  // then we set the background color to clear (transparent).
   if ([currentAttributes[@"NSBackgroundColor"] isEqual:newAttr[@"NSBackgroundColor"]]) {
     [newAttr setObject:UIColor.clearColor forKey:@"NSBackgroundColor"];
   }
   
+  // reset the point size back to the normal point size if both are the same, there should be a
+  // more optimized version of this method at some point (no pun intended)
+  RCTLogInfo(@"[RNRichTextView] currPointSize: %lf", currentFont.pointSize);
+  RCTLogInfo(@"[RNRichTextView] nextPointSize: %lf", updatedFont.pointSize);
+  if (currentFont.pointSize == updatedFont.pointSize) {
+    
+  }
   
 //  NSInteger cStrike = [currentAttributes[@"NSStrikethrough"] integerValue];
 //  NSInteger nStrike = [attributes[@"NSStrikethrough"] integerValue];
