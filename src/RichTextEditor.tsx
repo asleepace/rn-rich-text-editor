@@ -144,14 +144,20 @@ export const RichTextEditor = React.forwardRef((props: any, ref) => {
           color: black;
         }
 
+        del {
+          background-color: red;
+        }
+
+        ins { 
+          background-color: green;
+        }
+
         poem {
           font-family: Chalkduster;
           text-align: center;
         }
       `}
-      html={`
-        <p>Hello, world!</p>
-      `}
+      html={`<p>This is a circle x<sup>2</sup> - y<sup>2</sup> = 1</p>`}
       // onLayout={(event) => {
       //   console.log('[RichTextEditor] on layout: ', event.nativeEvent)
       // }}

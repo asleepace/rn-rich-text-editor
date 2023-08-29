@@ -20,6 +20,7 @@
 
 @implementation RNStylist
 
+//@synthesize defaultFontSize;
 
 - (id)initWithStyle:(NSString *)css {
   if (self = [super init]) {
@@ -28,8 +29,27 @@
   return self;
 }
 
+- (CGFloat)getDefaultFontSize {
+  if (_defaultFontSize) return _defaultFontSize;
+  NSDictionary *pTagAttributes = [self attributesForTag:@"<p>"];
+  UIFont *currentFont = [pTagAttributes objectForKey:NSFontAttributeName];
+  [self setDefaultFontSize:currentFont.pointSize];
+  return currentFont.pointSize;
+}
+
+- (void)setDefaultFontSize:(CGFloat)defaultFontSize {
+  _defaultFontSize = defaultFontSize;
+}
+
+- (NSString *)getClosingTag:(NSString *)openTag {
+  return [NSString stringWithFormat:@"</%@", [openTag substringFromIndex:1]];
+}
+
 - (NSDictionary *)attributesForTag:(NSString *)tag {
-  NSString *tagsString = [NSString stringWithFormat:@"%@example", tag];
+  printf("[RNStyle] getting attributes for tag: %@", tag);
+  if (tag.length == 0) return [self attributesForTag:@"<p>"];
+  NSString *closingTag = [self getClosingTag:tag];
+  NSString *tagsString = [NSString stringWithFormat:@"%@example%@", tag, closingTag];
   NSString *html = createHtmlString(tagsString, self.css);
   NSData *data = [html dataUsingEncoding:NSUnicodeStringEncoding];
   NSParagraphStyle *paragraphStyle = createParagraphStyle();

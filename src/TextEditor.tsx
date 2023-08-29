@@ -29,6 +29,7 @@ export function TextEditor() {
   const editorRef = React.useRef<RichTextEditorRef>(null)
 
   const insert = React.useCallback((tag: string) => {
+    console.log('[TextEditor] insert tag called: ', tag)
     editorRef.current?.insertTag?.(tag)
   }, [editorRef])
 

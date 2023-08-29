@@ -7,6 +7,7 @@
 
 #import "RNRichTextView.h"
 #import "RNStylist.h"
+#import "RNStyle.h"
 
 @interface RNRichTextView()
 {
@@ -63,6 +64,7 @@ RCT_EXPORT_MODULE()
     [self addSubview:self.textView];
     [self bringSubviewToFront:self.textView];
     [self.textView setScrollEnabled:false];
+    [self.textView setAllowsEditingTextAttributes:true];
     
     // background colors
     [self setBackgroundColor:[UIColor clearColor]];
@@ -117,7 +119,7 @@ RCT_EXPORT_MODULE()
 - (void)setCustomStyle:(NSString *)customStyle {
   RCTLogInfo(@"[RNRichTextView] setCustomStyle: %@", customStyle);
   self.stylist = [[RNStylist alloc] initWithStyle:customStyle];
-  self.textView.typingAttributes = [self.stylist attributesForTag:@""];
+  self.textView.typingAttributes = [self.stylist attributesForTag:@"<p>"]; // TODO: test which tag to insert
 }
 
 
@@ -147,8 +149,6 @@ RCT_EXPORT_MODULE()
 - (void)setHtml:(NSString *)html {
   NSString *htmlString = [self.stylist createHtmlDocument:html];
   RCTLogInfo(@"[RNRichTextView] setting html: \n%@ \n %@", html, htmlString);
-  
-  
   NSData *data = [htmlString dataUsingEncoding:NSUnicodeStringEncoding];
   NSMutableParagraphStyle *paragraphStyle = [[NSMutableParagraphStyle alloc] init];
   paragraphStyle.headIndent = 0;
@@ -158,7 +158,6 @@ RCT_EXPORT_MODULE()
     NSParagraphStyleAttributeName: paragraphStyle,
     NSDocumentTypeDocumentAttribute: NSHTMLTextDocumentType,
     NSCharacterEncodingDocumentAttribute: @(NSUTF8StringEncoding),
-//    NSFontAttributeName: [UIFont fontWithName:@"Baskerville" size:16.0],
   };
   
   // see the setter method for more details on this method
@@ -166,7 +165,7 @@ RCT_EXPORT_MODULE()
   self.attributedString = [self trim:stringFromHTML];
   NSDictionary *attributes = [self.stylist attributesForTag:@"<p>"];
   RCTLogInfo(@"[RNRichTextView] setHTML attributes: %@", attributes);
-  self.textView.typingAttributes = attributes;
+  [self.textView setTypingAttributes:attributes];
 }
 
 // when setting an attributed string from HTML we need to strip away extra whitespaces and newlines added by the editor,
@@ -181,13 +180,14 @@ RCT_EXPORT_MODULE()
 }
 
 
+
 #pragma mark - Attributed Text Styling
+
 
 
 - (void)setAttributedString:(NSAttributedString *)attributedString {
   RCTLogInfo(@"[RNRichTextEditor] setting attributed string...");
   self.textView.attributedText = attributedString;
-  // self.textView.attributedText = [self trim:attributedString];
   [self resize];
 }
 
@@ -197,20 +197,6 @@ RCT_EXPORT_MODULE()
   return current;
 }
 
-
-//- (void)styleAtrributedText {
-//  NSMutableParagraphStyle *paragraphStyle = [[NSMutableParagraphStyle alloc] init];
-//  paragraphStyle.headIndent = 0;
-//  paragraphStyle.firstLineHeadIndent = 0;
-//  //paragraphStyle.lineHeightMultiple = 20;
-//  paragraphStyle.lineSpacing = 8;
-//  NSDictionary *attrsDictionary = @{
-//    NSParagraphStyleAttributeName: paragraphStyle,
-////    NSFontAttributeName: [UIFont fontWithName:@"Baskerville" size:16.0],
-////    NSFontAttributeName: [UIFont systemFontOfSize:16.0 weight:UIFontWeightRegular],
-//  };
-//  self.textView.attributedText = [[NSAttributedString alloc] initWithString:@"Hello World over many lines!" attributes:attrsDictionary];
-//}
 
 
 
@@ -255,11 +241,12 @@ RCT_EXPORT_MODULE()
 #pragma mark - UITextView Delegate Methods
 
 
-
 // most important method for reporting size changes to react-native
 - (void)textViewDidChange:(UITextView *)textView {
   [self reportSize:textView];
   [self notifyChangeListeners];
+  RNStyle *style = [RNStyle styleFrom:self.textView.typingAttributes];
+  RCTLogInfo(@"[RNRichTextView] typing attributes: %@", [style toDictionary]);
 }
 
 - (void)textViewDidEndEditing:(UITextView *)textView {
@@ -273,13 +260,9 @@ RCT_EXPORT_MODULE()
   }
 }
 
-- (void)notifyChangeListeners {
-  NSString *currentText = self.textView.attributedText.string;
-  //NSString *currentHtml = [self generateHTML];
-  self.onChangeText(@{ @"text": currentText ? currentText : @"" });
-}
-
 - (void)textViewDidChangeSelection:(UITextView *)textView {
+  RNStyle *style = [RNStyle styleFrom:self.textView.typingAttributes];
+  RCTLogInfo(@"[RNRichTextView] typing attributes: %@", [style toDictionary]);
   UITextPosition* beginning = textView.beginningOfDocument;
   UITextRange* selectedRange = textView.selectedTextRange;
   UITextPosition* selectionStart = selectedRange.start;
@@ -293,11 +276,10 @@ RCT_EXPORT_MODULE()
   //self.onSelection(selectedAttr);
 }
 
-//- (void)textViewDidChangeSelection:(UITextView *)textView {
-//  NSAttributedString *subString = [textView.attributedText attributedSubstringFromRange:textView.selectedRange];
-//  RCTLogInfo(@"[RNRichTextView] textViewDidChangeSelection: %@", subString);
-//}
-
+- (void)notifyChangeListeners {
+  NSString *currentText = self.textView.attributedText.string;
+  self.onChangeText(@{ @"text": currentText ? currentText : @"" });
+}
 
 
 #pragma mark - Inserting HTML Tags
@@ -313,6 +295,8 @@ RCT_EXPORT_MODULE()
   [selectedAttr setObject:@(true) forKey:@"isSubscript"];
   [selectedAttr setObject:@(true) forKey:@"isCode"];
   [selectedAttr setObject:@(true) forKey:@"isMarked"];
+  [selectedAttr setObject:@(true) forKey:@"isInserted"];
+  [selectedAttr setObject:@(true) forKey:@"isDeleted"];
   
   RCTLogInfo(@"[RNRichTextView] getAttributesInRange: %@", self.attributedString);
   
@@ -340,21 +324,6 @@ RCT_EXPORT_MODULE()
 
 - (void)setTypingAttributesFromTag:(NSString *)tag {
   RCTLogInfo(@"[RNRichTextView] attribute insertion detected at back of string...");
-//  NSDictionary<NSAttributedStringKey, id> *currentTypingAttributes = self.textView.typingAttributes;
-//  RCTLogInfo(@"[RNRichTextView] current attributes: %@", currentTypingAttributes);
-//  UIFont *font = [currentTypingAttributes objectForKey:NSFontAttributeName];
-//  UIFontDescriptorSymbolicTraits sym = font.fontDescriptor.symbolicTraits;
-//  
-//  if ([tag isEqual:@"<b>"])
-//    sym ^= UIFontDescriptorTraitBold;
-//  if ([tag isEqual:@"<i>"])
-//    sym ^= UIFontDescriptorTraitItalic;
-//  
-//  UIFontDescriptor *fd =  [font.fontDescriptor fontDescriptorWithSymbolicTraits:sym];
-//  UIFont *updatedFont = [UIFont fontWithDescriptor:fd size:0.0];
-//  NSMutableDictionary *newAttr = [NSMutableDictionary new];
-//  [newAttr addEntriesFromDictionary:currentTypingAttributes];
-//  [newAttr addEntriesFromDictionary:@{ NSFontAttributeName: updatedFont }];
   
   NSDictionary *currentAttributes = self.textView.typingAttributes;
   UIFont *currentFont = [currentAttributes objectForKey:NSFontAttributeName];
@@ -380,23 +349,23 @@ RCT_EXPORT_MODULE()
   // reset the background color if the current and new attributes have the same backgroundColor,
   // then we set the background color to clear (transparent).
   if ([currentAttributes[@"NSBackgroundColor"] isEqual:newAttr[@"NSBackgroundColor"]]) {
+    RCTLogInfo(@"[RNRichTextView] resetting backgroundColor!");
     [newAttr setObject:UIColor.clearColor forKey:@"NSBackgroundColor"];
   }
   
   // reset the point size back to the normal point size if both are the same, there should be a
   // more optimized version of this method at some point (no pun intended)
-  RCTLogInfo(@"[RNRichTextView] currPointSize: %lf", currentFont.pointSize);
-  RCTLogInfo(@"[RNRichTextView] nextPointSize: %lf", updatedFont.pointSize);
-  if (currentFont.pointSize == updatedFont.pointSize) {
-    
+  if ([currentFont isEqual:updatedFont]) {
+    RCTLogInfo(@"[RNRichTextView] resetting font!");
+    UIFont *resizeFont = [newAttr objectForKey:NSFontAttributeName];
+    UIFont *updatedFont = [UIFont fontWithDescriptor:resizeFont.fontDescriptor size: self.stylist.defaultFontSize];
+    [newAttr addEntriesFromDictionary:@{ NSFontAttributeName: updatedFont }];
   }
-  
-//  NSInteger cStrike = [currentAttributes[@"NSStrikethrough"] integerValue];
-//  NSInteger nStrike = [attributes[@"NSStrikethrough"] integerValue];
-//  [newAttr setObject:@(cStrike ^ nStrike) forKey:@"NSStrikethrough"];
   
   RCTLogInfo(@"[RNRichTextView] attributes: %@", attributes);
   self.textView.typingAttributes = newAttr;
+  RNStyle *s = [RNStyle styleFrom:newAttr];
+  RCTLogInfo(@"[RNRichTextView] new s: %@", [s toDictionary]);
 }
 
 
@@ -537,6 +506,15 @@ RCT_EXPORT_MODULE()
 
 
 
+- (NSString *)generateHTMLRaw {
+  NSError *error = nil;
+  NSAttributedString *attributedString = self.attributedString;
+  NSData *htmlData = [self.attributedString dataFromRange:NSMakeRange(0, self.attributedString.length) documentAttributes:@{ NSDocumentTypeDocumentAttribute: NSHTMLTextDocumentType } error:&error];
+  NSString *htmlString = [[NSString alloc] initWithData:htmlData encoding:NSUTF8StringEncoding];
+  RCTLogInfo(@"[RNRichText] generate html: %@", htmlString);
+  return htmlString;
+}
+ 
 - (NSString *)generateHTML {
   htmlString = [NSMutableString stringWithString:@"<p>"];
   NSRange range = NSMakeRange(0, self.attributedString.length);
@@ -546,6 +524,7 @@ RCT_EXPORT_MODULE()
       //RCTLogInfo(@"[RichTextEditor] '%@'", text);
       NSString *currentTags = [self getTagForAttribute:attrs]; // call this before closeOpenTags!
       NSString *closingTags = [self closeOpenTags];
+    RCTLogInfo(@"[RNRichText] currentTags: %@ closingTags: %@", currentTags, closingTags);
       [htmlString appendString:closingTags];
       [htmlString appendString:currentTags];
       [htmlString appendString:text];

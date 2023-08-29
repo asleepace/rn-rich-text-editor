@@ -12,6 +12,7 @@ NS_ASSUME_NONNULL_BEGIN
 @interface RNStylist : NSObject
 
 @property (strong, nonatomic) NSDictionary *normal;
+@property (assign, nonatomic) CGFloat defaultFontSize;
 
 - (id)initWithStyle:(NSString *)css;
 - (NSDictionary *)attributesForTag:(NSString *)tag;
