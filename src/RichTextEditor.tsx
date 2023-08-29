@@ -1,4 +1,4 @@
-import React, { SyntheticEvent } from 'react';
+import React, { SyntheticEvent, useEffect } from 'react';
 import ReactNative, {
   Animated,
   NativeModules,
@@ -6,34 +6,53 @@ import ReactNative, {
   StyleSheet,
   UIManager,
   ViewStyle,
-  requireNativeComponent
+  requireNativeComponent,
+  View,
+  NativeSyntheticEvent
 } from 'react-native';
 
-import { SampleText, styleText } from './utils';
+const NATIVE_NAME = 'RNRichTextView';
+const RNRichTextView = requireNativeComponent<RichTextEditor>(NATIVE_NAME);
 
-const NATIVE_NAME = 'RCTRichTextView';
-const RCTRichTextView = requireNativeComponent(NATIVE_NAME);
+export type RichTextFont = {
+  fontFamily: string;
+  
+}
 
-interface RichTextEditorProps {
-  style?: StyleProp<ViewStyle>;
-  onSelection?: (data: any) => void;
-  ref: React.RefObject<{}>;
+export type RichTextEditorRef = {
+  insertTag(tag: string): void;
+  showKeyboard(): void;
+  hideKeyboard(): void;
+  getHTML(): string;
 }
 
 export type RichTextEditor = {
-  insertTag: (tag: string) => void;
-  getHTML: () => void;
+  onSizeChange?: (event: NativeSyntheticEvent<{ height: number }>) => void;
+  onChangeText?: (event: NativeSyntheticEvent<{ text: string }>) => void;
+  style?: StyleProp<ViewStyle>;
+  ref: React.RefObject<{}>;
+  customStyle?: string;
+  editable?: boolean;
+  html?: string
 }
 
-const RichTextEditor = React.forwardRef((props: RichTextEditorProps, ref) => {
+export type RichTextAttriubtes = {
+  isBold: boolean;
+  isItalic: boolean;
+  isUnderline: boolean;
+  isStrikeThrough: boolean;
+  isSubscript: boolean;
+  isSuperscript: boolean;
+  isMonospace: boolean;
+  isMarked: boolean;
+  isCode: boolean;
+}
 
-  // const onLayout = React.useCallback((event: any) => {
-  //   console.log('[RichTextEditor] on layout: ', {event});
-  // }, [])
+export const RichTextEditor = React.forwardRef((props: any, ref) => {
 
-  const heightRef = React.useRef(new Animated.Value(0))
-  const nativeRef = React.useRef<any>(null)
+  const nativeRef = React.useRef(null)
 
+  // callback methods
   const insertTag = React.useCallback((tag: string) => {
     console.log('[RichTextEditor] insert tag called: ', tag)
     UIManager.dispatchViewManagerCommand(
@@ -60,45 +79,88 @@ const RichTextEditor = React.forwardRef((props: RichTextEditorProps, ref) => {
     getHTML,
   }), [insertTag, getHTML])
 
-  console.log('[RichTextEditor] render:', heightRef.current)
-
 
   return (
-    <RCTRichTextView
+    <RNRichTextView
       ref={nativeRef}
-      style={{ flex: 1 }}
-      onLayout={(event) => {
-        console.log('[RichTextEditor] on layout: ', event.nativeEvent.layout.height)
+      editable={true}
+      style={{ minHeight: 64.0, backgroundColor: 'white' }}
+      onSizeChange={(event) => {
+        console.log('[RichTextEditor] on size change: ', event.nativeEvent)
       }}
+      onChangeText={(event) => {
+        console.log('[RichTextEditor] on change text: ', event.nativeEvent)
+      }}
+      customStyle={`
+        body {
+          font-family: -apple-system;
+          font-weight: 400;
+          line-height: 24px;
+          font-size: 16px;
+          color: black;
+        }
 
-      onSizeChange={({ nativeEvent}) => {
-        console.log('[RichTextEditor] on height change: ', nativeEvent)
-        if (!heightRef.current) return
+        pre {
+          background-color: #F2F2F7;
+        }
 
-        // Animated.timing(heightRef.current, {
-        //   toValue: nativeEvent.height,
-        //   duration: 0,
-        //   useNativeDriver: false,
-        // }).start()
-      }}
-      // onSelection={onSelection}
-      text={styleText(SampleText)}
-      textStyle={{
-        fontSize: 16.0,
-        fontFamily: 'Roboto',
-      }}
+        code {
+          font-family: monospace;
+          font-size: 14px;
+          line-height: 24px;
+          background-color: #F2F2F7;
+          border-radius: 4px;
+          padding: 8px;
+        }
+
+        mark {
+          background-color: yellow;
+          border-radius: 4px;
+          padding: 4px;
+        }
+
+        img {
+          width: auto;
+          height: 120px;
+          border-radius: 8px;
+          border: 1px solid black;
+          aspect-fit: cover;
+        }
+
+        b {
+          color: black;
+        }
+
+        pdlt-mention {
+          color: powderblue;
+          font-weight: bold;
+        }
+
+        p {
+          font-family: -apple-system;
+          font-weight: 400;
+          line-height: 24px;
+          font-size: 16px;
+          color: black;
+        }
+
+        del {
+          background-color: red;
+        }
+
+        ins { 
+          background-color: green;
+        }
+
+        poem {
+          font-family: Chalkduster;
+          text-align: center;
+        }
+      `}
+      html={`<p>This is a circle x<sup>2</sup> - y<sup>2</sup> = 1</p>`}
+      // onLayout={(event) => {
+      //   console.log('[RichTextEditor] on layout: ', event.nativeEvent)
+      // }}
     />
   )
 })
-
-export { RichTextEditor };
-
-const styles = StyleSheet.create({
-  editor: {
-    backgroundColor: 'red',
-    fontSize: 18.0,
-    color: '#111',
-    flexGrow: 1,
-    flex: 1,
-  },
-});
