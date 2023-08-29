@@ -13,6 +13,9 @@
 
 @interface RNStyle : NSObject
 
+// all properties
+@property (strong, nonatomic) NSDictionary *attributes;
+
 // base font family, size, etc.
 @property (strong, nonatomic) UIFont *font;
 @property (assign, nonatomic) UIFontDescriptorSymbolicTraits traits;

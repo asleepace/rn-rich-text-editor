@@ -6,11 +6,9 @@
 //
 
 #import "RNStyle.h"
+#import <React/RCTLog.h>
 
 @interface RNStyle()
-{
-  NSDictionary *attributes;
-}
 
 @end
 
@@ -31,14 +29,18 @@ const NSString *kCodefamily = @"Courier";
 
 - (id)initWithFontAttributes:(NSDictionary *)fontAttributes {
   if (self = [super init]) {
-    attributes = fontAttributes;
-    [self setPropertiesFromTraits];
+    self.attributes = fontAttributes;
   }
   return self;
 }
 
+
+#pragma mark - Getters
+
+- (UIFont *)
+
+
 - (void)setPropertiesFromTraits {
-  UIFont *font = [attributes objectForKey:NSFontAttributeName];
   self.font = [attributes objectForKey:NSFontAttributeName];
   _traits = self.font.fontDescriptor.symbolicTraits;
 }
@@ -87,6 +89,29 @@ const NSString *kCodefamily = @"Courier";
 - (BOOL)isSubscript:(NSDictionary *)attr {
   return [[attributes objectForKey:kSuperscript] intValue] < 0;
 }
+
+
+#pragma mark - Style from Tag
+
+
+- (void)setStyleFrom:(NSString *)tag {
+  RCTLogInfo(@"[RNStyle] setStyleFrom: %@", tag);
+  
+  if ([tag isEqualToString:@"<b>"]) {
+    self.traits ^= UIFontDescriptorTraitBold;
+  }
+  else if ([tag isEqualToString:@"<i>"]) {
+    self.traits ^= UIFontDescriptorTraitItalic;
+  }
+  else if ([tag isEqualToString:@"<u>"]) {
+    
+  }
+  
+}
+
+
+#pragma mark - Debugging
+
 
 - (NSDictionary *)toDictionary {
   return @{
