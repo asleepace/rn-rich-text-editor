@@ -294,7 +294,7 @@ RCT_EXPORT_MODULE()
   [selectedAttr setObject:@(true) forKey:@"isSuperscript"];
   [selectedAttr setObject:@(true) forKey:@"isSubscript"];
   [selectedAttr setObject:@(true) forKey:@"isCode"];
-  [selectedAttr setObject:@(true) forKey:@"isMarked"];  
+  [selectedAttr setObject:@(true) forKey:@"isMarked"];
   [selectedAttr setObject:@(false) forKey:@"isInserted"];
   [selectedAttr setObject:@(false) forKey:@"isDeleted"];
   
@@ -506,7 +506,7 @@ RCT_EXPORT_MODULE()
 
 
 
-- (NSString *)generateHTMLRaw {
+- (NSString *)generateHTML {
   NSError *error = nil;
   NSAttributedString *attributedString = self.attributedString;
   NSData *htmlData = [self.attributedString dataFromRange:NSMakeRange(0, self.attributedString.length) documentAttributes:@{ 
@@ -517,7 +517,7 @@ RCT_EXPORT_MODULE()
   return htmlString;
 }
  
-- (NSString *)generateHTML {
+- (NSString *)generateHTMLCustom {
   htmlString = [NSMutableString stringWithString:@"<p>"];
   NSRange range = NSMakeRange(0, self.attributedString.length);
   [self.attributedString enumerateAttributesInRange:range options:NSAttributedStringEnumerationLongestEffectiveRangeNotRequired usingBlock:

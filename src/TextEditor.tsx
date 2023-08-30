@@ -57,7 +57,7 @@ function ButtonList({ insert, getHTML }: ButtonListProps) {
         setIsCode(!isCode)
         insert("<code>")
       }} />
-      <Button title={"HTML"} onPress={getHTML} />
+      <Button color={'#389ef2'} title={"HTML"} onPress={getHTML} />
     </ScrollView>
   )
 }
