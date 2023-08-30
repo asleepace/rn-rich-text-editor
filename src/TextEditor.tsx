@@ -1,6 +1,7 @@
 import React from 'react';
 import { Button, InputAccessoryView, ScrollView, StyleSheet, View } from 'react-native';
 import { RichTextEditor, RichTextEditorRef } from './RichTextEditor';
+import { convertCocoaHtmlToPadletHtml } from './html';
 
 interface ButtonListProps {
   insert: (tag: string) => void;
@@ -72,8 +73,9 @@ export function TextEditor() {
   }, [editorRef])
 
   const getHTML = React.useCallback(() => {
-    const html = editorRef.current?.getHTML?.()
-    console.log({ html })
+    const html = editorRef.current?.getHTML?.() ?? ""
+    const padletHtml = convertCocoaHtmlToPadletHtml(html)
+    console.log({ padletHtml })
   }, [editorRef])
 
   return (

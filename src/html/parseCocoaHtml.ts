@@ -14,11 +14,8 @@ function toStyle(opening: string) {
 }
 
 function checkIfElementIsBracket(index: number, body: string[]) {
-  if (index >= body.length) return false
-  if (index < 0) return false
-  if (body[index] === "") return true
-  if (body[index] === '\n') return true
-  return false
+  if (index < 0 || index >= body.length) return false
+  return body[index] === "" || body[index] === "\n"
 }
 
 /**
@@ -53,7 +50,7 @@ export function parseCocoaHtml(htmlString: string) {
       tree.push({ item, kind: 'close' })
 
     } else {
-      tree.push({ item, kind: 'start' })
+      tree.push({ item, kind: 'value' })
     }
 
     return tree
