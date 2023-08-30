@@ -2,34 +2,43 @@
  * This function tags an array of parsed elements which denote opening tags, closing tags, and text.
  * Output will be a string of generated HTML based on the tags.
  * 
- * Algorithm works by taking the first element and checking the type:
+ * How it works:
  * 
- *  - If the element is an openeing tag it will append to the html and add to the open tags stack.
+ *  1. Pop the first element from the array.
  * 
- *  - If the element is a value, then it is added to the current string and the function is called again.
+ *  2. Check which kind of element it is:
  * 
- *  - If the element is a closing tag, then it will pop the last open tag from the stack and append the closing tag to the html.
+ *      value: this is a text element, so append it to the current string.
+ * 
+ *      start: this is an opening tag, so append it to the current string and push on the stack.
+ * 
+ *      close: this is a closing tag, so pop the stack and append the closing tag to the current string.
+ * 
+ *  3. Repeat until the array is empty.
+ * 
+ *  4. Close any remaining open tags by popping from the stack.
+ *
  */
 export function buildPadletHtml(elements: ParseElement[]) {
-  const openTagStack: string[] = []
+  const openTagsStack: string[] = []
   const generatedHtml = elements.reduce((html, element) => {
     switch (element.kind) {
       case 'value':
         return html.concat(element.item)
 
       case 'start':
-        const openingTag = `<${element.item}>`
-        openTagStack.push(openingTag)
-        return html.concat(openingTag)
+        const tag = `<${element.item}>`
+        openTagsStack.push(tag)
+        return html.concat(tag)
 
       case 'close':
-        const closingTag = openTagStack.pop()!
+        const closingTag = openTagsStack.pop()!
         return html.concat(closingTag.replace("<", "</"))
     }
   }, "")
 
   // close any remaining open tags by popping from the stack.
-  return openTagStack.reduceRight((html, openingTag) => {
+  return openTagsStack.reduceRight((html, openingTag) => {
     return html.concat(openingTag.replace("<", "</"))
   }, generatedHtml)  
 }
