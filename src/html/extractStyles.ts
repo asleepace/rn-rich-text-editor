@@ -1,18 +1,35 @@
+const NEW_LINE = "\n"
+const CLOSING_BRACES = "}"
+const EMPTY_STRING = ""
+const OPENING_BRACES = " {"
+const SEMICOLON = ";"
 
-export function extractStyles(doc: string) {
-  const result = doc.match(/<style[^>]*>([\s\S]*?)<\/style>/)
-  if (!result?.length) throw Error("invalid regex") 
-  const [_, styleString] = result
-  const styleItems = styleString.trim().split('\n')
-  const styles = styleItems.reduce((css, line) => {
-    const [name, attributes] = line.replace("}","").split(" {")
-    css[name] = attributes.split(";").reduce((prev, curr) => {
+export function extractStyles(htmlDocument: string) {
+
+  const styleBody = htmlDocument.match(/<style[^>]*>([\s\S]*?)<\/style>/)
+
+  if (!styleBody?.length) throw Error("invalid regex") 
+
+  const paragraph = styleBody.pop()!
+
+  const lines = paragraph.trim().split(NEW_LINE)
+
+  const styles = lines.reduce((css, line) => {
+
+    const [name, attributes] = line.replace(CLOSING_BRACES, EMPTY_STRING).split(OPENING_BRACES)
+
+    css[name] = attributes.split(SEMICOLON).reduce((prev, curr) => {
+
       const [key, value] = curr.split(": ")
       prev[key.trim()] = value.trim()
       return prev
+
     }, {} as Record<string, string>)
+
     return css
+
   }, {} as Record<string, any>)
+
   console.log(styles)
   return styles
 }
