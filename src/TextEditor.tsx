@@ -74,8 +74,6 @@ export function TextEditor() {
 
   const getHTML = React.useCallback(() => {
     const html = editorRef.current?.getHTML?.() ?? ""
-    const padletHtml = convertCocoaHtmlToPadletHtml(html)
-    console.log({ padletHtml })
   }, [editorRef])
 
   return (

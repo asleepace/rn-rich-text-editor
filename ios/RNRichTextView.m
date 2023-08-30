@@ -514,6 +514,11 @@ RCT_EXPORT_MODULE()
   } error:&error];
   NSString *htmlString = [[NSString alloc] initWithData:htmlData encoding:NSUTF8StringEncoding];
   RCTLogInfo(@"[RNRichText] generate html: %@", htmlString);
+  
+  self.onChangeText(@{
+    @"html": htmlString
+  });
+  
   return htmlString;
 }
  

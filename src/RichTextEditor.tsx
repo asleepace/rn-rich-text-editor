@@ -10,6 +10,7 @@ import ReactNative, {
   View,
   NativeSyntheticEvent
 } from 'react-native';
+import { convertCocoaHtmlToPadletHtml } from './html';
 
 const NATIVE_NAME = 'RNRichTextView';
 const RNRichTextView = requireNativeComponent<RichTextEditor>(NATIVE_NAME);
@@ -28,7 +29,7 @@ export type RichTextEditorRef = {
 
 export type RichTextEditor = {
   onSizeChange?: (event: NativeSyntheticEvent<{ height: number }>) => void;
-  onChangeText?: (event: NativeSyntheticEvent<{ text: string }>) => void;
+  onChangeText?: (event: NativeSyntheticEvent<{ text?: string, html?:string }>) => void;
   style?: StyleProp<ViewStyle>;
   ref: React.RefObject<{}>;
   customStyle?: string;
@@ -88,8 +89,12 @@ export const RichTextEditor = React.forwardRef((props: any, ref) => {
       onSizeChange={(event) => {
         console.log('[RichTextEditor] on size change: ', event.nativeEvent)
       }}
-      onChangeText={(event) => {
-        console.log('[RichTextEditor] on change text: ', event.nativeEvent)
+      onChangeText={({ nativeEvent }) => {
+        if (nativeEvent.html) {
+          convertCocoaHtmlToPadletHtml(nativeEvent.html)
+        } else {
+          console.log(nativeEvent.text)
+        }
       }}
       customStyle={`
         body {
