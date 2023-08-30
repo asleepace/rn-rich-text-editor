@@ -1,3 +1,4 @@
+import { ParseElement } from "./parseCocoaHtml"
 /**
  * This function tags an array of parsed elements which denote opening tags, closing tags, and text.
  * Output will be a string of generated HTML based on the tags.
@@ -19,26 +20,50 @@
  *  4. Close any remaining open tags by popping from the stack.
  *
  */
+
+class OpenTagsStack {
+
+  constructor(private stack: string[] = []) {}
+
+  push(element: ParseElement): string {
+    const tag = `<${element.item}>`
+    this.stack.push(tag)
+    return tag
+  }
+
+  pop(): string {
+    const tag = this.stack.pop()
+    if (tag === undefined) throw new Error("stack is empty")
+    return tag.replace("<", "</")
+  }
+
+  closeTag(html: string): string {
+    return html.replace("<", "</")
+  }
+
+  closeAll(html: string): string {
+    return this.stack.reduceRight((html, tag) =>
+       html.concat(this.closeTag(tag)
+    ), html)
+  }
+}
+
 export function buildPadletHtml(elements: ParseElement[]) {
-  const openTagsStack: string[] = []
+  const openTagsStack = new OpenTagsStack()
   const generatedHtml = elements.reduce((html, element) => {
     switch (element.kind) {
       case 'value':
         return html.concat(element.item)
 
       case 'start':
-        const tag = `<${element.item}>`
-        openTagsStack.push(tag)
+        const tag = openTagsStack.push(element)
         return html.concat(tag)
 
       case 'close':
-        const closingTag = openTagsStack.pop()!
-        return html.concat(closingTag.replace("<", "</"))
+        return html.concat(openTagsStack.pop())
     }
   }, "")
 
   // close any remaining open tags by popping from the stack.
-  return openTagsStack.reduceRight((html, openingTag) => {
-    return html.concat(openingTag.replace("<", "</"))
-  }, generatedHtml)  
+  return openTagsStack.closeAll(generatedHtml)
 }
