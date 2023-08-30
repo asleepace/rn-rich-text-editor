@@ -8,17 +8,55 @@ interface ButtonListProps {
 }
 
 function ButtonList({ insert, getHTML }: ButtonListProps) {
+
+  const [isBold, setIsBold] = React.useState(false)
+  const [isItalic, setIsItalic] = React.useState(false)
+  const [isUnderline, setIsUnderline] = React.useState(false)
+  const [isStrikeThrough, setIsStrikeThrough] = React.useState(false)
+  const [isSubscript, setIsSubscript] = React.useState(false)
+  const [isSuperscript, setIsSuperscript] = React.useState(false)
+  const [isMonospace, setIsMonospace] = React.useState(false)
+  const [isMarked, setIsMarked] = React.useState(false)
+  const [isCode, setIsCode] = React.useState(false)
+
   return (
     <ScrollView style={styles.button} horizontal={true}>
-      <Button title={"B"} onPress={() => insert("<b>")} />
-      <Button title={"I"} onPress={() => insert("<i>")} />
-      <Button title={"U"} onPress={() => insert("<u>")} />
-      <Button title={"S"} onPress={() => insert("<del>")} />
-      <Button title={"x²"} onPress={() => insert("<sup>")} />
-      <Button title={"x₂"} onPress={() => insert("<sub>")} />
-      <Button title={"[]"} onPress={() => insert("<ins>")} />
-      <Button title={"H"} onPress={() => insert("<mark>")} />
-      <Button title={"</>"} onPress={() => insert("<code>")} />
+      <Button color={isBold ? '#f39539' : '#389ef2' } title={"B"} onPress={() => {
+        setIsBold(!isBold)
+        insert("<b>")
+      }} />
+      <Button color={isItalic ? '#f39539' : '#389ef2'} title={"I"} onPress={() => {
+        setIsItalic(!isItalic)
+        insert("<i>")
+      }} />
+      <Button color={isUnderline ? '#f39539' : '#389ef2'} title={"U"} onPress={() => {
+        setIsUnderline(!isUnderline)
+        insert("<u>")
+      }} />
+      <Button color={isStrikeThrough ? '#f39539' : '#389ef2'} title={"S"} onPress={() => {
+        setIsStrikeThrough(!isStrikeThrough)
+        insert("<del>")
+      }} />
+      <Button color={isSuperscript ? '#f39539' : '#389ef2'} title={"x²"} onPress={() => {
+        setIsSuperscript(!isSuperscript)
+        insert("<sup>")
+      }} />
+      <Button color={isSubscript ? '#f39539' : '#389ef2'} title={"x₂"} onPress={() => {
+        setIsSubscript(!isSubscript)
+        insert("<sub>")
+      }} />
+      <Button color={isMonospace ? '#f39539' : '#389ef2'} title={"[]"} onPress={() => {
+        setIsMonospace(!isMonospace)
+        insert("<ins>")
+      }} />
+      <Button color={isMarked ? '#f39539' : '#389ef2'} title={"H"} onPress={() => {
+        setIsMarked(!isMarked)
+        insert("<mark>")
+      }} />
+      <Button color={isMarked ? '#f39539' : '#389ef2'} title={"</>"} onPress={() => {
+        setIsCode(!isCode)
+        insert("<code>")
+      }} />
       <Button title={"HTML"} onPress={getHTML} />
     </ScrollView>
   )

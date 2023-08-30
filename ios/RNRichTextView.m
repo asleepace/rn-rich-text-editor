@@ -277,8 +277,8 @@ RCT_EXPORT_MODULE()
 }
 
 - (void)notifyChangeListeners {
-  NSString *currentText = self.textView.attributedText.string;
-  self.onChangeText(@{ @"text": currentText ? currentText : @"" });
+  //NSString *currentText = self.textView.attributedText.string;
+  //self.onChangeText(@{ @"text": currentText ? currentText : @"" });
 }
 
 
@@ -294,9 +294,9 @@ RCT_EXPORT_MODULE()
   [selectedAttr setObject:@(true) forKey:@"isSuperscript"];
   [selectedAttr setObject:@(true) forKey:@"isSubscript"];
   [selectedAttr setObject:@(true) forKey:@"isCode"];
-  [selectedAttr setObject:@(true) forKey:@"isMarked"];
-  [selectedAttr setObject:@(true) forKey:@"isInserted"];
-  [selectedAttr setObject:@(true) forKey:@"isDeleted"];
+  [selectedAttr setObject:@(true) forKey:@"isMarked"];  
+  [selectedAttr setObject:@(false) forKey:@"isInserted"];
+  [selectedAttr setObject:@(false) forKey:@"isDeleted"];
   
   RCTLogInfo(@"[RNRichTextView] getAttributesInRange: %@", self.attributedString);
   
@@ -509,7 +509,9 @@ RCT_EXPORT_MODULE()
 - (NSString *)generateHTMLRaw {
   NSError *error = nil;
   NSAttributedString *attributedString = self.attributedString;
-  NSData *htmlData = [self.attributedString dataFromRange:NSMakeRange(0, self.attributedString.length) documentAttributes:@{ NSDocumentTypeDocumentAttribute: NSHTMLTextDocumentType } error:&error];
+  NSData *htmlData = [self.attributedString dataFromRange:NSMakeRange(0, self.attributedString.length) documentAttributes:@{ 
+    NSDocumentTypeDocumentAttribute: NSHTMLTextDocumentType
+  } error:&error];
   NSString *htmlString = [[NSString alloc] initWithData:htmlData encoding:NSUTF8StringEncoding];
   RCTLogInfo(@"[RNRichText] generate html: %@", htmlString);
   return htmlString;
