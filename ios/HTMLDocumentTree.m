@@ -19,7 +19,14 @@
 
 @synthesize styles;
 
-+ (HTMLDocumentTree *)withString:(NSAttributedString *)attributedString {
+// convenience method which returns a blank node, which can be used as the root node.
+// Note: there is nothing special about the root node.
++ (HTMLDocumentTree *)createRoot {
+  NSAttributedString *blankString = [[NSAttributedString alloc] initWithString:@""];
+  return [[HTMLDocumentTree alloc] initWithAttributedString:blankString];
+}
+
++ (HTMLDocumentTree *)createNode:(NSAttributedString *)attributedString {
   return [[HTMLDocumentTree alloc] initWithAttributedString:attributedString];
 }
 
@@ -31,7 +38,6 @@
   }
   return self;
 }
-
 
 #pragma mark - Insertion
 
@@ -100,16 +106,6 @@
   }
   self.styles = newStyles.copy;
 }
-
-//- (NSArray<NSString *> *)getNewStylesFromElement:(HTMLDocumentTree *)nextElement {
-//  NSMutableArray<NSString *> *newStyles = [NSMutableArray new];
-//  for (NSString *childStyle in nextElement.styles) {
-//    if (![self.styles containsObject:childStyle]) {
-//      [newStyles addObject:childStyle];
-//    }
-//  }
-//  return newStyles;
-//}
 
 
 - (BOOL)hasCommonStyleWith:(HTMLDocumentTree *)childElement {

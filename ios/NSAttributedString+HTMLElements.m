@@ -18,7 +18,7 @@
 const NSString *KeyUnderline = @"NSUnderline";
 const NSString *KeyStrikethrough = @"NSStrikethrough";
 const NSString *KeyBackgroundColor = @"NSBackgroundColor";
-const NSString *KeykSuperscript = @"NSSuperScript";
+const NSString *KeySuperscript = @"NSSuperScript";
 const NSString *KeyCodefamily = @"Courier";
 
 - (NSArray<NSString *> *)styles {

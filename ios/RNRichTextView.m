@@ -520,13 +520,13 @@ RCT_EXPORT_MODULE()
   // NSPlainTextDocumentType - Plain text document.
   //
   
-  HTMLDocumentTree *root = [HTMLDocumentTree new];
+  HTMLDocumentTree *root = [HTMLDocumentTree createRoot];
   
   [self.attributedString enumerateAttributesInRange:NSMakeRange(0, self.attributedString.length) options:NSAttributedStringEnumerationLongestEffectiveRangeNotRequired usingBlock:
    ^(NSDictionary<NSAttributedStringKey,id> * _Nonnull attrs, NSRange range, BOOL * _Nonnull stop) {
-    
     NSAttributedString *substring = [self.attributedString attributedSubstringFromRange:range];
-    [root insert:[HTMLDocumentTree withString:substring]];
+    HTMLDocumentTree *node = [HTMLDocumentTree createNode:substring];
+    [root insert:node];
   }];
   
   
