@@ -5,6 +5,8 @@
 //  Created by Colin Teahan on 8/23/23.
 //
 
+#import "HTMLDocumentTree.h"
+#import "RNDocumentEncoder.h"
 #import "RNRichTextView.h"
 #import "RNStylist.h"
 #import "RNStyle.h"
@@ -277,8 +279,8 @@ RCT_EXPORT_MODULE()
 }
 
 - (void)notifyChangeListeners {
-  NSString *currentText = self.textView.attributedText.string;
-  self.onChangeText(@{ @"text": currentText ? currentText : @"" });
+  //NSString *currentText = self.textView.attributedText.string;
+  //self.onChangeText(@{ @"text": currentText ? currentText : @"" });
 }
 
 
@@ -295,8 +297,8 @@ RCT_EXPORT_MODULE()
   [selectedAttr setObject:@(true) forKey:@"isSubscript"];
   [selectedAttr setObject:@(true) forKey:@"isCode"];
   [selectedAttr setObject:@(true) forKey:@"isMarked"];
-  [selectedAttr setObject:@(true) forKey:@"isInserted"];
-  [selectedAttr setObject:@(true) forKey:@"isDeleted"];
+  [selectedAttr setObject:@(false) forKey:@"isInserted"];
+  [selectedAttr setObject:@(false) forKey:@"isDeleted"];
   
   RCTLogInfo(@"[RNRichTextView] getAttributesInRange: %@", self.attributedString);
   
@@ -502,20 +504,66 @@ RCT_EXPORT_MODULE()
 
 
 
-#pragma mark - Generate HTML
+#pragma mark - HTML Generation
 
 
 
-- (NSString *)generateHTMLRaw {
-  NSError *error = nil;
-  NSAttributedString *attributedString = self.attributedString;
-  NSData *htmlData = [self.attributedString dataFromRange:NSMakeRange(0, self.attributedString.length) documentAttributes:@{ NSDocumentTypeDocumentAttribute: NSHTMLTextDocumentType } error:&error];
-  NSString *htmlString = [[NSString alloc] initWithData:htmlData encoding:NSUTF8StringEncoding];
-  RCTLogInfo(@"[RNRichText] generate html: %@", htmlString);
+- (NSString *)generateHTML {
+  
+  
+  // Output Formats:
+  // The other formats are only supported on MacOS
+  // https://developer.apple.com/documentation/uikit/nshtmltextdocumenttype
+  //
+  // NSHTMLTextDocumentType - Hypertext markup language (HTML) document.
+  // NSRTFTextDocumentType - Rich text format document.
+  // NSPlainTextDocumentType - Plain text document.
+  //
+  
+  HTMLDocumentTree *root = [HTMLDocumentTree createTree:self.attributedString];
+  
+  // generated html from the root element
+  NSString *htmlString = [root htmlString];
+  
+  // send generated html back to react (js) code
+  self.onChangeText(@{ @"html": htmlString });
+  
   return htmlString;
+  
+//  [self.attributedString enumerateAttributesInRange:NSMakeRange(0, self.attributedString.length) options:NSAttributedStringEnumerationLongestEffectiveRangeNotRequired usingBlock:
+//   ^(NSDictionary<NSAttributedStringKey,id> * _Nonnull attrs, NSRange range, BOOL * _Nonnull stop) {
+//    NSAttributedString *substring = [self.attributedString attributedSubstringFromRange:range];
+//    HTMLDocumentTree *node = [HTMLDocumentTree createNode:substring];
+//    [root insert:node];
+//  }];
+//  
+//  
+//  RCTLogInfo(@"\n\n\n\nstring: %@\n\n\n\n\n", [root html]);
+//  
+//  
+//  RNDocumentEncoder *documentEncoder = [[RNDocumentEncoder alloc] initWithDocument:self.attributedString];
+//  NSString *encodedString = [documentEncoder htmlEncode];
+//  [documentEncoder print];
+//  
+//  NSError *error = nil;
+//  NSData *htmlData = [self.attributedString dataFromRange:NSMakeRange(0, self.attributedString.length) documentAttributes:@{
+//    NSDocumentTypeDocumentAttribute: NSHTMLTextDocumentType
+//  } error:&error];
+//  NSString *htmlString = [[NSString alloc] initWithData:htmlData encoding:NSUTF8StringEncoding];
+//  
+//  RCTLogInfo(@"[RNRichText] generate html: %@", htmlString);
+//  RCTLogInfo(@"[RNRichText] html error: %@", error);
+//
+//  self.onChangeText(@{
+//    @"html": encodedString
+////    @"html": htmlString,
+////    @"attributedString": self.attributedString,
+//  });
+//  
+//  return htmlString;
 }
  
-- (NSString *)generateHTML {
+- (NSString *)generateHTMLCustom {
   htmlString = [NSMutableString stringWithString:@"<p>"];
   NSRange range = NSMakeRange(0, self.attributedString.length);
   [self.attributedString enumerateAttributesInRange:range options:NSAttributedStringEnumerationLongestEffectiveRangeNotRequired usingBlock:

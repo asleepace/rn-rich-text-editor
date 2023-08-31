@@ -14,6 +14,9 @@
 		13B07FC11A68108700A75B9A /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 13B07FB71A68108700A75B9A /* main.m */; };
 		264A50292A99578C00982B79 /* RNStylist.m in Sources */ = {isa = PBXBuildFile; fileRef = 264A50282A99578C00982B79 /* RNStylist.m */; };
 		264A502C2A9E78D100982B79 /* RNStyle.m in Sources */ = {isa = PBXBuildFile; fileRef = 264A502B2A9E78D100982B79 /* RNStyle.m */; };
+		264A50332AA0719E00982B79 /* RNDocumentEncoder.m in Sources */ = {isa = PBXBuildFile; fileRef = 264A50322AA0719E00982B79 /* RNDocumentEncoder.m */; };
+		264A50372AA11DB900982B79 /* HTMLDocumentTree.m in Sources */ = {isa = PBXBuildFile; fileRef = 264A50362AA11DB900982B79 /* HTMLDocumentTree.m */; };
+		264A503C2AA1369D00982B79 /* NSAttributedString+HTMLElements.m in Sources */ = {isa = PBXBuildFile; fileRef = 264A503B2AA1369D00982B79 /* NSAttributedString+HTMLElements.m */; };
 		265FBC612A97088C00111F6E /* app_icon.png in Resources */ = {isa = PBXBuildFile; fileRef = 265FBC602A97088C00111F6E /* app_icon.png */; };
 		26AC92DB2A96BDB500B7BD6C /* RNRichTextView.m in Sources */ = {isa = PBXBuildFile; fileRef = 26AC92DA2A96BDB500B7BD6C /* RNRichTextView.m */; };
 		26AC92E02A96C05B00B7BD6C /* RNRichTextViewManager.m in Sources */ = {isa = PBXBuildFile; fileRef = 26AC92DF2A96C05B00B7BD6C /* RNRichTextViewManager.m */; };
@@ -46,6 +49,12 @@
 		264A50282A99578C00982B79 /* RNStylist.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = RNStylist.m; sourceTree = "<group>"; };
 		264A502A2A9E78D100982B79 /* RNStyle.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = RNStyle.h; sourceTree = "<group>"; };
 		264A502B2A9E78D100982B79 /* RNStyle.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = RNStyle.m; sourceTree = "<group>"; };
+		264A50312AA0719E00982B79 /* RNDocumentEncoder.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = RNDocumentEncoder.h; sourceTree = "<group>"; };
+		264A50322AA0719E00982B79 /* RNDocumentEncoder.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = RNDocumentEncoder.m; sourceTree = "<group>"; };
+		264A50352AA11DB900982B79 /* HTMLDocumentTree.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = HTMLDocumentTree.h; sourceTree = "<group>"; };
+		264A50362AA11DB900982B79 /* HTMLDocumentTree.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = HTMLDocumentTree.m; sourceTree = "<group>"; };
+		264A503A2AA1369D00982B79 /* NSAttributedString+HTMLElements.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "NSAttributedString+HTMLElements.h"; sourceTree = "<group>"; };
+		264A503B2AA1369D00982B79 /* NSAttributedString+HTMLElements.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = "NSAttributedString+HTMLElements.m"; sourceTree = "<group>"; };
 		265FBC5F2A96E3B000111F6E /* RichTextDelegate.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = RichTextDelegate.h; sourceTree = "<group>"; };
 		265FBC602A97088C00111F6E /* app_icon.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = app_icon.png; sourceTree = "<group>"; };
 		26AC92D92A96BDB500B7BD6C /* RNRichTextView.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = RNRichTextView.h; sourceTree = "<group>"; };
@@ -101,6 +110,8 @@
 		13B07FAE1A68108700A75B9A /* RNRichTextEditor */ = {
 			isa = PBXGroup;
 			children = (
+				264A50302AA0718600982B79 /* RNDocumentEncoder */,
+				264A50342AA07A2700982B79 /* RNStyles */,
 				26AC92DD2A96BDD100B7BD6C /* RNRichTextView */,
 				13B07FAF1A68108700A75B9A /* AppDelegate.h */,
 				13B07FB01A68108700A75B9A /* AppDelegate.mm */,
@@ -113,6 +124,30 @@
 			name = RNRichTextEditor;
 			sourceTree = "<group>";
 		};
+		264A50302AA0718600982B79 /* RNDocumentEncoder */ = {
+			isa = PBXGroup;
+			children = (
+				264A50312AA0719E00982B79 /* RNDocumentEncoder.h */,
+				264A50322AA0719E00982B79 /* RNDocumentEncoder.m */,
+				264A50352AA11DB900982B79 /* HTMLDocumentTree.h */,
+				264A50362AA11DB900982B79 /* HTMLDocumentTree.m */,
+			);
+			name = RNDocumentEncoder;
+			sourceTree = "<group>";
+		};
+		264A50342AA07A2700982B79 /* RNStyles */ = {
+			isa = PBXGroup;
+			children = (
+				264A50272A99578C00982B79 /* RNStylist.h */,
+				264A50282A99578C00982B79 /* RNStylist.m */,
+				264A502A2A9E78D100982B79 /* RNStyle.h */,
+				264A502B2A9E78D100982B79 /* RNStyle.m */,
+				264A503A2AA1369D00982B79 /* NSAttributedString+HTMLElements.h */,
+				264A503B2AA1369D00982B79 /* NSAttributedString+HTMLElements.m */,
+			);
+			name = RNStyles;
+			sourceTree = "<group>";
+		};
 		26AC92DD2A96BDD100B7BD6C /* RNRichTextView */ = {
 			isa = PBXGroup;
 			children = (
@@ -121,10 +156,6 @@
 				26AC92DF2A96C05B00B7BD6C /* RNRichTextViewManager.m */,
 				26AC92D92A96BDB500B7BD6C /* RNRichTextView.h */,
 				26AC92DA2A96BDB500B7BD6C /* RNRichTextView.m */,
-				264A50272A99578C00982B79 /* RNStylist.h */,
-				264A50282A99578C00982B79 /* RNStylist.m */,
-				264A502A2A9E78D100982B79 /* RNStyle.h */,
-				264A502B2A9E78D100982B79 /* RNStyle.m */,
 			);
 			name = RNRichTextView;
 			sourceTree = "<group>";
@@ -447,9 +478,12 @@
 			buildActionMask = 2147483647;
 			files = (
 				264A50292A99578C00982B79 /* RNStylist.m in Sources */,
+				264A50372AA11DB900982B79 /* HTMLDocumentTree.m in Sources */,
 				13B07FBC1A68108700A75B9A /* AppDelegate.mm in Sources */,
 				13B07FC11A68108700A75B9A /* main.m in Sources */,
+				264A503C2AA1369D00982B79 /* NSAttributedString+HTMLElements.m in Sources */,
 				26AC92E02A96C05B00B7BD6C /* RNRichTextViewManager.m in Sources */,
+				264A50332AA0719E00982B79 /* RNDocumentEncoder.m in Sources */,
 				26AC92DB2A96BDB500B7BD6C /* RNRichTextView.m in Sources */,
 				264A502C2A9E78D100982B79 /* RNStyle.m in Sources */,
 			);

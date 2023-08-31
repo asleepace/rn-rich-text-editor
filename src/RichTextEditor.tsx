@@ -10,6 +10,7 @@ import ReactNative, {
   View,
   NativeSyntheticEvent
 } from 'react-native';
+import { convertCocoaHtmlToPadletHtml } from './html';
 
 const NATIVE_NAME = 'RNRichTextView';
 const RNRichTextView = requireNativeComponent<RichTextEditor>(NATIVE_NAME);
@@ -28,7 +29,7 @@ export type RichTextEditorRef = {
 
 export type RichTextEditor = {
   onSizeChange?: (event: NativeSyntheticEvent<{ height: number }>) => void;
-  onChangeText?: (event: NativeSyntheticEvent<{ text: string }>) => void;
+  onChangeText?: (event: NativeSyntheticEvent<{ text?: string, html?:string }>) => void;
   style?: StyleProp<ViewStyle>;
   ref: React.RefObject<{}>;
   customStyle?: string;
@@ -88,11 +89,16 @@ export const RichTextEditor = React.forwardRef((props: any, ref) => {
       onSizeChange={(event) => {
         console.log('[RichTextEditor] on size change: ', event.nativeEvent)
       }}
-      onChangeText={(event) => {
-        console.log('[RichTextEditor] on change text: ', event.nativeEvent)
+      onChangeText={({ nativeEvent }) => {
+        if (nativeEvent.html) {
+          console.log('[RichTextEditor] on change text: ', nativeEvent.html)
+          //convertCocoaHtmlToPadletHtml(nativeEvent.html)
+        } else {
+          console.log(nativeEvent.text)
+        }
       }}
       customStyle={`
-        body {
+        body, strong, em, b, i {
           font-family: -apple-system;
           font-weight: 400;
           line-height: 24px;
@@ -127,7 +133,15 @@ export const RichTextEditor = React.forwardRef((props: any, ref) => {
           aspect-fit: cover;
         }
 
-        b {
+        strong, b {
+          font-family: -apple-system;
+          font-weight: bold;
+          color: black;
+        }
+
+        em, i {
+          font-family: -apple-system;
+          font-style: italic;
           color: black;
         }
 
@@ -145,11 +159,11 @@ export const RichTextEditor = React.forwardRef((props: any, ref) => {
         }
 
         del {
-          background-color: red;
+          
         }
 
         ins { 
-          background-color: green;
+
         }
 
         poem {
@@ -157,7 +171,7 @@ export const RichTextEditor = React.forwardRef((props: any, ref) => {
           text-align: center;
         }
       `}
-      html={`<p>This is a circle x<sup>2</sup> - y<sup>2</sup> = 1</p>`}
+      html={`<p>Hello, world <b>this is bold</b> and this is <i>italic</i></p>`}
       // onLayout={(event) => {
       //   console.log('[RichTextEditor] on layout: ', event.nativeEvent)
       // }}
