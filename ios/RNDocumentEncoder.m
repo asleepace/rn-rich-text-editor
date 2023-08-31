@@ -12,7 +12,7 @@
 @interface RNDocumentEncoder()
 {
   RNStyle *prevStyle;
-  RNStyle *nextStyle;
+  RNStyle *style;
 }
 
 @property (strong, nonatomic) NSAttributedString *document;
@@ -38,7 +38,7 @@
   NSAttributedStringEnumerationOptions options = NSAttributedStringEnumerationLongestEffectiveRangeNotRequired;
   
   // initialize prevStyle with body?
-  nextStyle = [[RNStyle alloc] init];
+  style = [[RNStyle alloc] init];
   
   // enumerate the attributed string which will split the string into different chunks with different attributes,
   // which means each iteration an attribute has changed.
@@ -49,53 +49,30 @@
     
     RCTLogInfo(@"[RNDocumentEncoder] substring: %@ start: %lu length: %lu", substring, range.location, range.length);
     
-    // update the previous style
-    prevStyle = nextStyle;
-    nextStyle = [RNStyle styleFrom:attrs];
+    // update the previous style (order matters)
+    prevStyle = style;
+    style = [RNStyle styleFrom:attrs];
     
     // handle opening elements
-    [self handleOpeningElementBold];
-    [self handleOpeningElementItalic];
-    
+    if (prevStyle.isBold == false && style.isBold) [self.generatedHtml appendString:@"<b>"];
+    if (prevStyle.isItalic == false && style.isItalic) [self.generatedHtml appendString:@"<i>"];
+
     // append the current string
     [self.generatedHtml appendString:substring.string];
     
     // handle closing elements
-    [self handleClosingElementItalic];
-    [self handleClosingElementBold];
+    if (prevStyle.isItalic && style.isItalic == false) [self.generatedHtml appendString:@"</i>"];
+    if (prevStyle.isBold && style.isBold == false) [self.generatedHtml appendString:@"</b>"];
+    
   }];
   
-  // handle all closing tags one more time
-  if (nextStyle.isItalic) [self.generatedHtml appendString:@"</i>"];
-  if (nextStyle.isBold) [self.generatedHtml appendString:@"</b>"];
+  // handle all closing tags one more time in same order
+  if (style.isItalic) [self.generatedHtml appendString:@"</i>"];
+  if (style.isBold) [self.generatedHtml appendString:@"</b>"];
   [self.generatedHtml appendString:@"</body>"];
   
   // return the generated string
   return self.generatedHtml.copy;
-}
-
-- (void)handleOpeningElementBold {
-  if (prevStyle.isBold == false && nextStyle.isBold) {
-    [self.generatedHtml appendString:@"<b>"];
-  }
-}
-
-- (void)handleClosingElementBold {
-  if (prevStyle.isBold && nextStyle.isBold == false) {
-    [self.generatedHtml appendString:@"</b>"];
-  }
-}
-
-- (void)handleOpeningElementItalic {
-  if (prevStyle.isItalic == false && nextStyle.isItalic) {
-    [self.generatedHtml appendString:@"<i>"];
-  }
-}
-
-- (void)handleClosingElementItalic {
-  if (prevStyle.isItalic && nextStyle.isItalic == false) {
-    [self.generatedHtml appendString:@"</i>"];
-  }
 }
 
 
