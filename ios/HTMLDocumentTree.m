@@ -11,24 +11,54 @@
 @interface HTMLDocumentTree()
 
 
-@property (strong, nonatomic) NSMutableArray<HTMLDocumentTree *> *children;
-
 @end
 
 @implementation HTMLDocumentTree
 
 @synthesize styles;
 
-// convenience method which returns a blank node, which can be used as the root node.
-// Note: there is nothing special about the root node.
+
+#pragma mark - Class Methods
+
+
+//
+// convenience method which returns a blank root node.
+//
 + (HTMLDocumentTree *)createRoot {
-  NSAttributedString *blankString = [[NSAttributedString alloc] initWithString:@""];
-  return [[HTMLDocumentTree alloc] initWithAttributedString:blankString];
+  NSAttributedString *blankString = [[NSAttributedString alloc] initWithString:@"<body>"];
+  HTMLDocumentTree *root = [[HTMLDocumentTree alloc] initWithAttributedString:blankString];
+  root.isRoot = true;
+  return root;
 }
 
+//
+//  convenience method which creates a new tree node from an attributed string (with one style).
+//
 + (HTMLDocumentTree *)createNode:(NSAttributedString *)attributedString {
   return [[HTMLDocumentTree alloc] initWithAttributedString:attributedString];
 }
+
+//
+//  convenience method which creates a new tree from an attributed string (with many styles).
+//
++ (HTMLDocumentTree *)createTree:(NSAttributedString *)attributedString {
+  HTMLDocumentTree *root = [HTMLDocumentTree createRoot];
+  [attributedString
+    enumerateAttributesInRange:NSMakeRange(0, attributedString.length)
+                       options:NSAttributedStringEnumerationLongestEffectiveRangeNotRequired
+                    usingBlock:^(NSDictionary<NSAttributedStringKey,id> * _Nonnull attrs, NSRange range, BOOL * _Nonnull stop) {
+    
+    NSAttributedString *substring = [attributedString attributedSubstringFromRange:range];
+    HTMLDocumentTree *node = [HTMLDocumentTree createNode:substring];
+    [root insert:node];
+  }];
+  
+  return root;
+}
+
+
+#pragma mark - Instance Methods
+
 
 - (id)initWithAttributedString:(NSAttributedString *)attributedString {
   if (self = [super init]) {
@@ -38,6 +68,7 @@
   }
   return self;
 }
+
 
 #pragma mark - Insertion
 
@@ -90,8 +121,15 @@
     [generatedHtml addObject:closingTag];
   }
   
-  // output: [openTags, currentHtml, childrenHtml, closingTags]
-  return generatedHtml;
+  // append closing body tag if root
+  if (self.isRoot) [generatedHtml addObject:@"</body>"];
+  
+  return generatedHtml;   // [openTags, currentHtml, childrenHtml, closingTags]
+}
+
+
+- (NSSting *)htmlString {
+  return [[self html] componentsJoinedByString:@""];
 }
 
 

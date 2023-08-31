@@ -520,39 +520,45 @@ RCT_EXPORT_MODULE()
   // NSPlainTextDocumentType - Plain text document.
   //
   
-  HTMLDocumentTree *root = [HTMLDocumentTree createRoot];
+  HTMLDocumentTree *root = [HTMLDocumentTree createTree:self.attributedString];
   
-  [self.attributedString enumerateAttributesInRange:NSMakeRange(0, self.attributedString.length) options:NSAttributedStringEnumerationLongestEffectiveRangeNotRequired usingBlock:
-   ^(NSDictionary<NSAttributedStringKey,id> * _Nonnull attrs, NSRange range, BOOL * _Nonnull stop) {
-    NSAttributedString *substring = [self.attributedString attributedSubstringFromRange:range];
-    HTMLDocumentTree *node = [HTMLDocumentTree createNode:substring];
-    [root insert:node];
-  }];
+  // generated html from the root element
+  NSArray *html = [root htmlString];
   
+  // send generated html back to react (js) code
+  self.onChang(@{ @"html": html });
   
-  RCTLogInfo(@"\n\n\n\nstring: %@\n\n\n\n\n", [root html]);
-  
-  
-  RNDocumentEncoder *documentEncoder = [[RNDocumentEncoder alloc] initWithDocument:self.attributedString];
-  NSString *encodedString = [documentEncoder htmlEncode];
-  [documentEncoder print];
-  
-  NSError *error = nil;
-  NSData *htmlData = [self.attributedString dataFromRange:NSMakeRange(0, self.attributedString.length) documentAttributes:@{
-    NSDocumentTypeDocumentAttribute: NSHTMLTextDocumentType
-  } error:&error];
-  NSString *htmlString = [[NSString alloc] initWithData:htmlData encoding:NSUTF8StringEncoding];
-  
-  RCTLogInfo(@"[RNRichText] generate html: %@", htmlString);
-  RCTLogInfo(@"[RNRichText] html error: %@", error);
-
-  self.onChangeText(@{
-    @"html": encodedString
-//    @"html": htmlString,
-//    @"attributedString": self.attributedString,
-  });
-  
-  return htmlString;
+//  [self.attributedString enumerateAttributesInRange:NSMakeRange(0, self.attributedString.length) options:NSAttributedStringEnumerationLongestEffectiveRangeNotRequired usingBlock:
+//   ^(NSDictionary<NSAttributedStringKey,id> * _Nonnull attrs, NSRange range, BOOL * _Nonnull stop) {
+//    NSAttributedString *substring = [self.attributedString attributedSubstringFromRange:range];
+//    HTMLDocumentTree *node = [HTMLDocumentTree createNode:substring];
+//    [root insert:node];
+//  }];
+//  
+//  
+//  RCTLogInfo(@"\n\n\n\nstring: %@\n\n\n\n\n", [root html]);
+//  
+//  
+//  RNDocumentEncoder *documentEncoder = [[RNDocumentEncoder alloc] initWithDocument:self.attributedString];
+//  NSString *encodedString = [documentEncoder htmlEncode];
+//  [documentEncoder print];
+//  
+//  NSError *error = nil;
+//  NSData *htmlData = [self.attributedString dataFromRange:NSMakeRange(0, self.attributedString.length) documentAttributes:@{
+//    NSDocumentTypeDocumentAttribute: NSHTMLTextDocumentType
+//  } error:&error];
+//  NSString *htmlString = [[NSString alloc] initWithData:htmlData encoding:NSUTF8StringEncoding];
+//  
+//  RCTLogInfo(@"[RNRichText] generate html: %@", htmlString);
+//  RCTLogInfo(@"[RNRichText] html error: %@", error);
+//
+//  self.onChangeText(@{
+//    @"html": encodedString
+////    @"html": htmlString,
+////    @"attributedString": self.attributedString,
+//  });
+//  
+//  return htmlString;
 }
  
 - (NSString *)generateHTMLCustom {
