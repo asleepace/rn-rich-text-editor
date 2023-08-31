@@ -5,6 +5,7 @@
 //  Created by Colin Teahan on 8/23/23.
 //
 
+#import "HTMLDocumentTree.h"
 #import "RNDocumentEncoder.h"
 #import "RNRichTextView.h"
 #import "RNStylist.h"
@@ -518,6 +519,19 @@ RCT_EXPORT_MODULE()
   // NSRTFTextDocumentType - Rich text format document.
   // NSPlainTextDocumentType - Plain text document.
   //
+  
+  HTMLDocumentTree *root = [HTMLDocumentTree new];
+  
+  [self.attributedString enumerateAttributesInRange:NSMakeRange(0, self.attributedString.length) options:NSAttributedStringEnumerationLongestEffectiveRangeNotRequired usingBlock:
+   ^(NSDictionary<NSAttributedStringKey,id> * _Nonnull attrs, NSRange range, BOOL * _Nonnull stop) {
+    
+    NSAttributedString *substring = [self.attributedString attributedSubstringFromRange:range];
+    [root insert:[HTMLDocumentTree withString:substring]];
+  }];
+  
+  
+  RCTLogInfo(@"\n\n\n\nstring: %@\n\n\n\n\n", [root html]);
+  
   
   RNDocumentEncoder *documentEncoder = [[RNDocumentEncoder alloc] initWithDocument:self.attributedString];
   NSString *encodedString = [documentEncoder htmlEncode];

@@ -6,6 +6,7 @@
 //
 
 #import "HTMLDocumentTree.h"
+#import "NSAttributedString+HTMLElements.h"
 
 @interface HTMLDocumentTree()
 
@@ -18,11 +19,15 @@
 
 @synthesize styles;
 
++ (HTMLDocumentTree *)withString:(NSAttributedString *)attributedString {
+  return [[HTMLDocumentTree alloc] initWithAttributedString:attributedString];
+}
+
 - (id)initWithAttributedString:(NSAttributedString *)attributedString {
   if (self = [super init]) {
     self.children = [NSMutableArray new];
     self.current = attributedString;
-    self.styles = [NSArray new];
+    self.styles = [attributedString styles];
   }
   return self;
 }
@@ -61,20 +66,25 @@
 
 - (NSArray<NSString *> *)html {
   
+  // start array with open element tags (aka styles)
   NSMutableArray<NSString *> *generatedHtml = [NSMutableArray arrayWithArray:self.styles];
   
+  // append current plain text string
   [generatedHtml addObject:self.current.string];
   
+  // append all children html elements
   for (HTMLDocumentTree *childElement in self.children) {
     [generatedHtml addObjectsFromArray:[childElement html]];
   }
   
+  // append all closing tags
   NSRange firstCharRange = NSMakeRange(0, 1);
   for (NSString *style in self.styles) {
     NSString *closingTag = [style stringByReplacingCharactersInRange:firstCharRange withString:@"</"];
     [generatedHtml addObject:closingTag];
   }
   
+  // output: [openTags, currentHtml, childrenHtml, closingTags]
   return generatedHtml;
 }
 
