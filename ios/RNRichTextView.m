@@ -504,7 +504,7 @@ RCT_EXPORT_MODULE()
 
 
 
-#pragma mark - Generate HTML
+#pragma mark - HTML Generation
 
 
 
@@ -523,10 +523,12 @@ RCT_EXPORT_MODULE()
   HTMLDocumentTree *root = [HTMLDocumentTree createTree:self.attributedString];
   
   // generated html from the root element
-  NSArray *html = [root htmlString];
+  NSString *htmlString = [root htmlString];
   
   // send generated html back to react (js) code
-  self.onChang(@{ @"html": html });
+  self.onChangeText(@{ @"html": htmlString });
+  
+  return htmlString;
   
 //  [self.attributedString enumerateAttributesInRange:NSMakeRange(0, self.attributedString.length) options:NSAttributedStringEnumerationLongestEffectiveRangeNotRequired usingBlock:
 //   ^(NSDictionary<NSAttributedStringKey,id> * _Nonnull attrs, NSRange range, BOOL * _Nonnull stop) {

@@ -127,8 +127,10 @@
   return generatedHtml;   // [openTags, currentHtml, childrenHtml, closingTags]
 }
 
-
-- (NSSting *)htmlString {
+//
+//  calls the above method and joins the result array to a string
+//
+- (NSString *)htmlString {
   return [[self html] componentsJoinedByString:@""];
 }
 

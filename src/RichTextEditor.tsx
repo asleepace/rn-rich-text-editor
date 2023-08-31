@@ -91,7 +91,8 @@ export const RichTextEditor = React.forwardRef((props: any, ref) => {
       }}
       onChangeText={({ nativeEvent }) => {
         if (nativeEvent.html) {
-          convertCocoaHtmlToPadletHtml(nativeEvent.html)
+          console.log('[RichTextEditor] on change text: ', nativeEvent.html)
+          //convertCocoaHtmlToPadletHtml(nativeEvent.html)
         } else {
           console.log(nativeEvent.text)
         }
