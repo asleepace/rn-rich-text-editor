@@ -33,6 +33,9 @@ class HTMLDocumentTree {
   // right and down as possible first.
   public insert(child: CocoaString): boolean {
 
+    // exit if the child not does not has common style ancestors
+    if (!this.hasCommonStyleWith(child.style)) return false
+
     // try and insert to the right first
     const lastChildIndex = this.children.length - 1
     if (lastChildIndex >= 0) {
@@ -40,9 +43,6 @@ class HTMLDocumentTree {
       const didInsertOnChild = lastInsertedChild.insert(child)
       if (didInsertOnChild) return true
     }
-
-    // exit if the child not does not has common style ancestors
-    if (!this.hasCommonStyleWith(child.style)) return false
 
     // extract only the new styles which are present
     const newStyles = child.style.filter((newStyle) => {
@@ -77,14 +77,19 @@ class HTMLDocumentTree {
     return generatedHtml;
   }
 
+
+  public debugPrint() {
+    console.log(`[${this.value.html}] (${this.children.length} children)`)
+    this.children.map(c => c.debugPrint())
+  }
 }
 
-
-
 const root = new HTMLDocumentTree({ html: "", style: [] })
-
-console.log(root.insert({ html: "This is a plain text string", style: []  }))
-
-console.log(root)
-
-console.log(root.html())
+root.insert({ html: "This is a plain text string ", style: []  })
+root.insert({ html: "italic ", style: ["<i>"] })
+root.insert({ html: "and italic bolded ", style: ["<b>", "<i>"] })
+root.insert({ html: "and back to bold ", style: ["<b>"]  })
+root.insert({ html: "with normal again", style: [] })
+root.insert({ html: 'random bold italic', style: ["<b>", "<i>"] })
+const output = root.html()
+console.log(output.join(""))
