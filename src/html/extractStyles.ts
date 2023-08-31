@@ -3,6 +3,7 @@ const CLOSING_BRACES = "}"
 const EMPTY_STRING = ""
 const OPENING_BRACES = " {"
 const SEMICOLON = ";"
+const DECLARATION = ": "
 
 export function extractStyles(htmlDocument: string) {
 
@@ -20,7 +21,7 @@ export function extractStyles(htmlDocument: string) {
 
     css[name] = attributes.split(SEMICOLON).reduce((prev, curr) => {
 
-      const [key, value] = curr.split(": ")
+      const [key, value] = curr.split(DECLARATION)
       prev[key.trim()] = value.trim()
       return prev
 

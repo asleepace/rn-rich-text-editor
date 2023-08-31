@@ -97,7 +97,7 @@ export const RichTextEditor = React.forwardRef((props: any, ref) => {
         }
       }}
       customStyle={`
-        body {
+        body, strong, em, b, i {
           font-family: -apple-system;
           font-weight: 400;
           line-height: 24px;
@@ -132,7 +132,15 @@ export const RichTextEditor = React.forwardRef((props: any, ref) => {
           aspect-fit: cover;
         }
 
-        b {
+        strong, b {
+          font-family: -apple-system;
+          font-weight: bold;
+          color: black;
+        }
+
+        em, i {
+          font-family: -apple-system;
+          font-style: italic;
           color: black;
         }
 

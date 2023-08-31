@@ -5,6 +5,7 @@
 //  Created by Colin Teahan on 8/23/23.
 //
 
+#import "RNDocumentEncoder.h"
 #import "RNRichTextView.h"
 #import "RNStylist.h"
 #import "RNStyle.h"
@@ -507,16 +508,34 @@ RCT_EXPORT_MODULE()
 
 
 - (NSString *)generateHTML {
+  
+  
+  // Output Formats:
+  // The other formats are only supported on MacOS
+  // https://developer.apple.com/documentation/uikit/nshtmltextdocumenttype
+  //
+  // NSHTMLTextDocumentType - Hypertext markup language (HTML) document.
+  // NSRTFTextDocumentType - Rich text format document.
+  // NSPlainTextDocumentType - Plain text document.
+  //
+  
+  RNDocumentEncoder *documentEncoder = [[RNDocumentEncoder alloc] initWithDocument:self.attributedString];
+  NSString *encodedString = [documentEncoder htmlEncode];
+  [documentEncoder print];
+  
   NSError *error = nil;
-  NSAttributedString *attributedString = self.attributedString;
-  NSData *htmlData = [self.attributedString dataFromRange:NSMakeRange(0, self.attributedString.length) documentAttributes:@{ 
+  NSData *htmlData = [self.attributedString dataFromRange:NSMakeRange(0, self.attributedString.length) documentAttributes:@{
     NSDocumentTypeDocumentAttribute: NSHTMLTextDocumentType
   } error:&error];
   NSString *htmlString = [[NSString alloc] initWithData:htmlData encoding:NSUTF8StringEncoding];
-  RCTLogInfo(@"[RNRichText] generate html: %@", htmlString);
   
+  RCTLogInfo(@"[RNRichText] generate html: %@", htmlString);
+  RCTLogInfo(@"[RNRichText] html error: %@", error);
+
   self.onChangeText(@{
-    @"html": htmlString
+    @"html": encodedString
+//    @"html": htmlString,
+//    @"attributedString": self.attributedString,
   });
   
   return htmlString;
