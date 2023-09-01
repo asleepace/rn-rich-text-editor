@@ -18,6 +18,7 @@ export function TextEditor() {
         </View>
         <ButtonList 
           insert={(tag: string) => editorRef.current?.insertTag?.(tag)} 
+          insertHtml={(html: string) => editorRef.current?.insertHtml?.(html)}
           generateHtml={() => editorRef.current?.getHTML?.()} 
           activeStyles={activeStyles} />
       </InputAccessoryView>

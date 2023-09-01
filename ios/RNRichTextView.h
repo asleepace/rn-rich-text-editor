@@ -38,6 +38,7 @@ NS_ASSUME_NONNULL_BEGIN
 - (void)hideKeyboard;
 - (void)resize;
 
+- (void)insertHtmlContent:(NSString *)htmlContent;
 - (void)insertTag:(NSString *)tag;
 - (NSString *)generateHTML;
 

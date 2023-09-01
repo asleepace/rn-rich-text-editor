@@ -1,8 +1,9 @@
-import React, { useCallback, useEffect, useState } from 'react';
+import React, { useCallback } from 'react';
 import { Button, ScrollView, StyleSheet } from 'react-native';
 
 interface ButtonListProps {
   activeStyles: ActiveStyles
+  insertHtml(html: string): void
   insert(tag: string): void
   generateHtml(): void
 }
@@ -17,6 +18,7 @@ export type ActiveStyles = {
   isMonospace?: boolean
   isMarked?: boolean
   isCode?: boolean
+  isUnordedList?: boolean
 }
 
 export type StyleName = keyof ActiveStyles
@@ -27,7 +29,7 @@ export type ButtonProps = {
   tag: string
 }
 
-export function ButtonList({ insert, generateHtml, activeStyles = {} }: ButtonListProps) {
+export function ButtonList({ insert, insertHtml, generateHtml, activeStyles = {} }: ButtonListProps) {
 
   const onToggleSyle = useCallback((item: StyleName, tag: string) => {
     insert(tag)
@@ -41,7 +43,7 @@ export function ButtonList({ insert, generateHtml, activeStyles = {} }: ButtonLi
       { title: 'S', tag: '<del>', style: 'isStrikeThrough' },
       { title: 'x²', tag: '<sup>', style: 'isSuperscript' },
       { title: 'x₂', tag: '<sub>', style: 'isSubscript' },
-      { title: '[]', tag: '<ins>', style: 'isMonospace' },
+      { title: 'M', tag: '<ins>', style: 'isMonospace' },
       { title: 'H', tag: '<mark>', style: 'isMarked' },
       { title: '</>', tag: '<code>', style: 'isCode' },
     ]
@@ -59,6 +61,7 @@ export function ButtonList({ insert, generateHtml, activeStyles = {} }: ButtonLi
           />
         ))
       }
+      <Button color={normalColor} title={"[:]"} onPress={() => insertHtml('<ul><li></li></u>')} />
       <Button color={normalColor} title={"HTML"} onPress={() => generateHtml()} />
     </ScrollView>
   )
@@ -68,36 +71,11 @@ const normalColor = '#389ef2'
 const activeColor = '#f39539'
 
 const styles = StyleSheet.create({
-  editor: {
-    justifyContent: 'flex-end',
-    backgroundColor: 'white',
-    borderTopLeftRadius: 16,
-    borderTopRightRadius: 16,
-    // backgroundColor: "white",
-    fontFamily: 'Roboto',
-    minHeight: 60,
-    // flexGrow: 1,
-    flexShrink: 1,
-    padding: 8,
-  },
-  overlay: {
-    position: 'absolute',
-    left: 0, right:0, top: 0, bottom: 0,
-    backgroundColor: '#333',
-    justifyContent: 'flex-end',
-    flex: 1,
-  },
   button :{
     maxHeight: 60,
     backgroundColor: '#F2F2F7',
     flexDirection: 'row',
     flexShrink: 1,
     padding: 8,
-  },
-  bottom: {
-    // flex: 1, 
-    // flexGrow: 1,
-    minHeight:44, 
-    backgroundColor: '#DDD'
   }
-});
+})

@@ -78,7 +78,7 @@ RCT_EXPORT_METHOD(insertTag:(nonnull NSNumber *)reactTag html:(NSString *)tag)
 };
 
 // returns the generated HTML output from the string
-RCT_EXPORT_METHOD(getHTML:(nonnull NSNumber *)reactTag)
+RCT_EXPORT_METHOD(generateHtml:(nonnull NSNumber *)reactTag)
 {
     [self.bridge.uiManager addUIBlock:^(__unused RCTUIManager *uiManager, NSDictionary<NSNumber *, RNRichTextView *> *viewRegistry) {
         RNRichTextView *view = viewRegistry[reactTag];
@@ -88,6 +88,19 @@ RCT_EXPORT_METHOD(getHTML:(nonnull NSNumber *)reactTag)
           RCTLogInfo(@"[TM] must be a view!");
         }
     }];
+}
+
+// returns the generated HTML output from the string
+RCT_EXPORT_METHOD(insertHtml:(nonnull NSNumber *)reactTag html:(NSString *)htmlContent)
+{
+  [self.bridge.uiManager addUIBlock:^(__unused RCTUIManager *uiManager, NSDictionary<NSNumber *, RNRichTextView *> *viewRegistry) {
+    RNRichTextView *view = viewRegistry[reactTag];
+    if ([view isKindOfClass:[RNRichTextView class]]) {
+      [view insertHtmlContent:htmlContent];
+    } else {
+      RCTLogInfo(@"[TM] must be a view!");
+    }
+  }];
 }
 
 

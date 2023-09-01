@@ -1,26 +1,21 @@
-import React, { SyntheticEvent, useEffect } from 'react';
-import ReactNative, {
-  Animated,
-  NativeModules,
+import React, { forwardRef, useImperativeHandle, useRef } from 'react';
+import {
+  NativeSyntheticEvent,
   StyleProp,
-  StyleSheet,
   UIManager,
   ViewStyle,
-  requireNativeComponent,
-  View,
-  NativeSyntheticEvent
+  findNodeHandle,
+  requireNativeComponent
 } from 'react-native';
-import { convertCocoaHtmlToPadletHtml } from './html';
 import { ActiveStyles } from './ButtonList';
-
-const NATIVE_NAME = 'RNRichTextView';
-const RNRichTextView = requireNativeComponent<RichTextEditor>(NATIVE_NAME);
+import { CSSStyles } from './styles';
 
 export type RichTextFont = {
   fontFamily: string; 
 }
 
 export type RichTextEditorRef = {
+  insertHtml(html: string): void;
   insertTag(tag: string): void;
   showKeyboard(): void;
   hideKeyboard(): void;
@@ -28,7 +23,7 @@ export type RichTextEditorRef = {
 }
 
 export type RichTextEditor = {
-  onChangeStyle?: (event:NativeSyntheticEvent<{ active: ActiveStyles }>) => void;
+  onChangeStyle?:(event: NativeSyntheticEvent<{ active: ActiveStyles }>) => void;
   onSizeChange?: (event: NativeSyntheticEvent<{ height: number }>) => void;
   onChangeText?: (event: NativeSyntheticEvent<{ text?: string, html?:string }>) => void;
   style?: StyleProp<ViewStyle>;
@@ -38,152 +33,55 @@ export type RichTextEditor = {
   html?: string
 }
 
-export type RichTextAttriubtes = {
-  isBold: boolean;
-  isItalic: boolean;
-  isUnderline: boolean;
-  isStrikeThrough: boolean;
-  isSubscript: boolean;
-  isSuperscript: boolean;
-  isMonospace: boolean;
-  isMarked: boolean;
-  isCode: boolean;
-}
-
 export type RichTextEditorProps = {
   onChangeStyle(active: ActiveStyles): void
 }
 
-export const RichTextEditor = React.forwardRef((props: RichTextEditorProps, ref) => {
+// access native component by name (manager is automatically appended)
+const NativeComponent = 'RNRichTextView';
+const RNRichTextView = requireNativeComponent<RichTextEditor>(NativeComponent);
 
-  const nativeRef = React.useRef(null)
+// allows javascript to call native methods on the component via a ref
+const { dispatchViewManagerCommand, getViewManagerConfig } = UIManager;
+const { Commands } = getViewManagerConfig(NativeComponent);
 
-  // callback methods
-  const insertTag = React.useCallback((tag: string) => {
-    console.log('[RichTextEditor] insert tag called: ', tag)
-    UIManager.dispatchViewManagerCommand(
-      ReactNative.findNodeHandle(nativeRef.current),
-      UIManager.getViewManagerConfig(NATIVE_NAME).Commands.insertTag,
-      [tag]
-    )
-  }, [nativeRef])
 
-  const getHTML = React.useCallback(() => {
-    UIManager.dispatchViewManagerCommand(
-      ReactNative.findNodeHandle(nativeRef.current),
-      UIManager.getViewManagerConfig(NATIVE_NAME).Commands.getHTML,
-      []
-    )
-  }, [nativeRef])
+export const RichTextEditor = forwardRef((props: RichTextEditorProps, ref) => {
 
-  const onSelection = React.useCallback((data: SyntheticEvent) => {
-    console.log('[RichTextEditor] on selection: ', {data})
-  }, [])
+  // access native component
+  const editor = useRef(null)
 
-  React.useImperativeHandle(ref, () => ({
-    insertTag,
-    getHTML,
-  }), [insertTag, getHTML])
+  // expose methods to outside classes
+  useImperativeHandle(ref, () => ({
+    insertTag(tag: string) {
+      dispatchViewManagerCommand(findNodeHandle(editor.current), Commands.insertTag, [tag])
+    },
+    generateHtml() {
+      dispatchViewManagerCommand(findNodeHandle(editor.current), Commands.generateHtml, [])
+    },
+    insertHtml(html: string) {
+      dispatchViewManagerCommand(findNodeHandle(editor.current), Commands.insertHtml, [html])
+    }
+  }), [])
 
 
   return (
     <RNRichTextView
-      ref={nativeRef}
+      html={''}
+      ref={editor}
       editable={true}
+      customStyle={CSSStyles}
       style={{ minHeight: 64.0, backgroundColor: 'white' }}
       onChangeStyle={({ nativeEvent }) => {
         console.log('[RichTextEditor] on change style: ', nativeEvent.active)
         props.onChangeStyle(nativeEvent.active)
       }}
-      onSizeChange={(event) => {
-        console.log('[RichTextEditor] on size change: ', event.nativeEvent)
+      onSizeChange={({ nativeEvent }) => {
+        console.log('[RichTextEditor] on size change: ', nativeEvent)
       }}
       onChangeText={({ nativeEvent }) => {
-        if (nativeEvent.html) {
-          console.log('[RichTextEditor] on change text: ', nativeEvent.html)
-          //convertCocoaHtmlToPadletHtml(nativeEvent.html)
-        } else {
-          console.log(nativeEvent.text)
-        }
+        console.log('[RichTextEditor] on change text: ', nativeEvent.html)
       }}
-      customStyle={`
-        body, strong, em, b, i {
-          font-family: -apple-system;
-          font-weight: 400;
-          line-height: 24px;
-          font-size: 16px;
-          color: black;
-        }
-
-        pre {
-          background-color: #F2F2F7;
-        }
-
-        code {
-          font-family: monospace;
-          font-size: 14px;
-          line-height: 24px;
-          background-color: #F2F2F7;
-          border-radius: 4px;
-          padding: 8px;
-        }
-
-        mark {
-          background-color: yellow;
-          border-radius: 4px;
-          padding: 4px;
-        }
-
-        img {
-          width: auto;
-          height: 120px;
-          border-radius: 8px;
-          border: 1px solid black;
-          aspect-fit: cover;
-        }
-
-        strong, b {
-          font-family: -apple-system;
-          font-weight: bold;
-          color: black;
-        }
-
-        em, i {
-          font-family: -apple-system;
-          font-style: italic;
-          color: black;
-        }
-
-        pdlt-mention {
-          color: powderblue;
-          font-weight: bold;
-        }
-
-        p {
-          font-family: -apple-system;
-          font-weight: 400;
-          line-height: 24px;
-          font-size: 16px;
-          color: black;
-        }
-
-        del {
-          
-        }
-
-        ins { 
-
-        }
-
-        poem {
-          font-family: Chalkduster;
-          text-align: center;
-        }
-      `}
-      html={`<p>Hello, world <b>this is bold</b> and this is <i>italic</i></p>`}
-      // onLayout={(event) => {
-      //   console.log('[RichTextEditor] on layout: ', event.nativeEvent)
-      // }}
     />
   )
 })

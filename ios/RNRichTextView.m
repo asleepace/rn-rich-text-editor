@@ -201,7 +201,21 @@ RCT_EXPORT_MODULE()
   return current;
 }
 
-
+- (void)insertHtmlContent:(NSString *)htmlContent {
+  RCTLogInfo(@"[RNRichTextEditor] insertingHtmlContent: %@", htmlContent);
+  NSString *htmlString = [self.stylist createHtmlDocument:htmlContent];
+  NSData *data = [htmlString dataUsingEncoding:NSUnicodeStringEncoding];
+  NSDictionary *options = @{
+    NSDocumentTypeDocumentAttribute: NSHTMLTextDocumentType,
+    NSCharacterEncodingDocumentAttribute: @(NSUTF8StringEncoding),
+  };
+  
+  // see the setter method for more details on this method
+  NSAttributedString *stringFromHTML = [[NSMutableAttributedString alloc] initWithData:data options:options documentAttributes:nil error:nil];
+  NSMutableAttributedString *nextStr = [[NSMutableAttributedString alloc] initWithAttributedString:self.attributedString];
+  [nextStr appendAttributedString:stringFromHTML];
+  [self.textView setAttributedText:nextStr];
+}
 
 
 #pragma mark - Dynamic Sizing
@@ -243,6 +257,7 @@ RCT_EXPORT_MODULE()
 
 
 #pragma mark - UITextView Delegate Methods
+
 
 - (void)notifyStyleChanges {
   RNStyle *style = [RNStyle styleFrom:self.textView.typingAttributes];
