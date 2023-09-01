@@ -101,8 +101,23 @@ const NSString *kCodefamily = @"Courier";
   };
 }
 
+- (NSString *)stringHash {
+  NSMutableArray<NSString *> *styleEnum = [NSMutableArray new];
+  [styleEnum addObject:self.isBold ? @"1" : @"0"];
+  [styleEnum addObject:self.isItalic ? @"1" : @"0"];
+  [styleEnum addObject:self.isUnderlined ? @"1" : @"0"];
+  [styleEnum addObject:self.isStrikethrough ? @"1" : @"0"];
+  [styleEnum addObject:self.isHighlighted ? @"1" : @"0"];
+  [styleEnum addObject:self.isSuperscript ? @"1" : @"0"];
+  [styleEnum addObject:self.isSubscript ? @"1" : @"0"];
+  [styleEnum addObject:self.isCode ? @"1" : @"0"];
+  return [styleEnum componentsJoinedByString:@""];
+}
+
 - (BOOL)isSame:(RNStyle *)otherStyle {
-  return [[self toDictionary] hash] == [[otherStyle toDictionary] hash];
+  NSString *current = [self stringHash];
+  NSString *other = [otherStyle stringHash];
+  return [current isEqualToString:other];
 }
 
 @end

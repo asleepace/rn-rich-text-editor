@@ -197,7 +197,7 @@ RCT_EXPORT_MODULE()
 
 - (NSAttributedString *)attributedString {
   NSAttributedString *current = self.textView.attributedText;
-  RCTLogInfo(@"[RNRichTextEditor] getting attributed string: %@", current.string);
+  // RCTLogInfo(@"[RNRichTextEditor] getting attributed string: %@", current.string);
   return current;
 }
 
@@ -248,10 +248,7 @@ RCT_EXPORT_MODULE()
   RNStyle *style = [RNStyle styleFrom:self.textView.typingAttributes];
   
   // check if anything has changed
-  if ([style isSame:prevStyle]) {
-    RCTLogInfo(@"[RNRichTextView] styles are equal, not returning...");
-    return;
-  }
+  if ([style isSame:prevStyle]) return;
   
   NSDictionary *activeStyles = [style toDictionary];
   self.onChangeStyle(@{ @"active": activeStyles });
@@ -316,7 +313,7 @@ RCT_EXPORT_MODULE()
   [selectedAttr setObject:@(false) forKey:@"isInserted"];
   [selectedAttr setObject:@(false) forKey:@"isDeleted"];
   
-  RCTLogInfo(@"[RNRichTextView] getAttributesInRange: %@", self.attributedString);
+  // RCTLogInfo(@"[RNRichTextView] getAttributesInRange: %@", self.attributedString);
   
   [self.attributedString enumerateAttributesInRange:range options:NSAttributedStringEnumerationLongestEffectiveRangeNotRequired usingBlock:
      ^(NSDictionary<NSAttributedStringKey,id> * _Nonnull attrs, NSRange range, BOOL * _Nonnull stop) {
