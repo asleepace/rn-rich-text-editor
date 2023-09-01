@@ -242,13 +242,17 @@ RCT_EXPORT_MODULE()
 
 #pragma mark - UITextView Delegate Methods
 
+- (void)notifyStyleChanges {
+  RNStyle *style = [RNStyle styleFrom:self.textView.typingAttributes];
+  NSDictionary *activeStyles = [style toDictionary];
+  self.onChangeStyle(@{ @"active": activeStyles });
+}
 
 // most important method for reporting size changes to react-native
 - (void)textViewDidChange:(UITextView *)textView {
   [self reportSize:textView];
   [self notifyChangeListeners];
-  RNStyle *style = [RNStyle styleFrom:self.textView.typingAttributes];
-  RCTLogInfo(@"[RNRichTextView] typing attributes: %@", [style toDictionary]);
+  [self notifyStyleChanges];
 }
 
 - (void)textViewDidEndEditing:(UITextView *)textView {
@@ -257,14 +261,14 @@ RCT_EXPORT_MODULE()
 }
 
 - (void)textViewDidBeginEditing:(UITextView *)textView {
+  [self notifyStyleChanges];
   if (textView.attributedText.length > 0) {
     [self clearPlaceholder];
   }
 }
 
 - (void)textViewDidChangeSelection:(UITextView *)textView {
-  RNStyle *style = [RNStyle styleFrom:self.textView.typingAttributes];
-  RCTLogInfo(@"[RNRichTextView] typing attributes: %@", [style toDictionary]);
+  [self notifyStyleChanges];
   UITextPosition* beginning = textView.beginningOfDocument;
   UITextRange* selectedRange = textView.selectedTextRange;
   UITextPosition* selectionStart = selectedRange.start;

@@ -18,6 +18,8 @@ RCT_EXPORT_VIEW_PROPERTY(html, NSString *)
 
 RCT_EXPORT_VIEW_PROPERTY(onSizeChange, RCTBubblingEventBlock)
 RCT_EXPORT_VIEW_PROPERTY(onChangeText, RCTBubblingEventBlock)
+RCT_EXPORT_VIEW_PROPERTY(onChangeStyle, RCTBubblingEventBlock)
+
 
 
 - (UIView *)view {

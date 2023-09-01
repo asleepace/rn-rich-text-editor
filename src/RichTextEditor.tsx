@@ -11,13 +11,13 @@ import ReactNative, {
   NativeSyntheticEvent
 } from 'react-native';
 import { convertCocoaHtmlToPadletHtml } from './html';
+import { ActiveStyles } from './ButtonList';
 
 const NATIVE_NAME = 'RNRichTextView';
 const RNRichTextView = requireNativeComponent<RichTextEditor>(NATIVE_NAME);
 
 export type RichTextFont = {
-  fontFamily: string;
-  
+  fontFamily: string; 
 }
 
 export type RichTextEditorRef = {
@@ -28,6 +28,7 @@ export type RichTextEditorRef = {
 }
 
 export type RichTextEditor = {
+  onChangeStyle?: (event:NativeSyntheticEvent<{ active: ActiveStyles }>) => void;
   onSizeChange?: (event: NativeSyntheticEvent<{ height: number }>) => void;
   onChangeText?: (event: NativeSyntheticEvent<{ text?: string, html?:string }>) => void;
   style?: StyleProp<ViewStyle>;
@@ -86,6 +87,9 @@ export const RichTextEditor = React.forwardRef((props: any, ref) => {
       ref={nativeRef}
       editable={true}
       style={{ minHeight: 64.0, backgroundColor: 'white' }}
+      onChangeStyle={({ nativeEvent }) => {
+        console.log('[RichTextEditor] on change style: ', nativeEvent.active)
+      }}
       onSizeChange={(event) => {
         console.log('[RichTextEditor] on size change: ', event.nativeEvent)
       }}
