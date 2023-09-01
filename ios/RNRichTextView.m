@@ -543,7 +543,8 @@ RCT_EXPORT_MODULE()
 //
 //  convert the attributed string into html and output to javascript.
 //
-- (NSString *)generateHTML {
+- (NSString *)generateHtml {
+  RCTLogInfo(@"[RNRichTextView] generating html from: %@", self.attributedString);
   HTMLDocumentTree *root = [HTMLDocumentTree createTree:self.attributedString];
   NSString *htmlString = [root htmlString];
   self.onChangeText(@{ @"html": htmlString });

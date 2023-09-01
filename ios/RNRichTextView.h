@@ -40,7 +40,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (void)insertHtmlContent:(NSString *)htmlContent;
 - (void)insertTag:(NSString *)tag;
-- (NSString *)generateHTML;
+- (NSString *)generateHtml;
 
 @end
 

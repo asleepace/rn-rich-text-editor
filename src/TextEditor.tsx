@@ -10,6 +10,8 @@ export function TextEditor() {
 
   const [activeStyles, setActiveStyles] = React.useState({})
 
+  console.log('[TextEditor] editorRef:', editorRef)
+
   return (
     <View style={styles.overlay}>
       <InputAccessoryView>
@@ -19,7 +21,7 @@ export function TextEditor() {
         <ButtonList 
           insert={(tag: string) => editorRef.current?.insertTag?.(tag)} 
           insertHtml={(html: string) => editorRef.current?.insertHtml?.(html)}
-          generateHtml={() => editorRef.current?.getHTML?.()} 
+          generateHtml={() => editorRef.current?.generateHtml?.()} 
           activeStyles={activeStyles} />
       </InputAccessoryView>
       <View style={styles.bottom} />

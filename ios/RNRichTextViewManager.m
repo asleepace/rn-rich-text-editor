@@ -80,14 +80,14 @@ RCT_EXPORT_METHOD(insertTag:(nonnull NSNumber *)reactTag html:(NSString *)tag)
 // returns the generated HTML output from the string
 RCT_EXPORT_METHOD(generateHtml:(nonnull NSNumber *)reactTag)
 {
-    [self.bridge.uiManager addUIBlock:^(__unused RCTUIManager *uiManager, NSDictionary<NSNumber *, RNRichTextView *> *viewRegistry) {
-        RNRichTextView *view = viewRegistry[reactTag];
-        if ([view isKindOfClass:[RNRichTextView class]]) {
-          [view generateHTML];
-        } else {
-          RCTLogInfo(@"[TM] must be a view!");
-        }
-    }];
+  [self.bridge.uiManager addUIBlock:^(__unused RCTUIManager *uiManager, NSDictionary<NSNumber *, RNRichTextView *> *viewRegistry) {
+    RNRichTextView *view = viewRegistry[reactTag];
+      if ([view isKindOfClass:[RNRichTextView class]]) {
+        [view generateHtml];
+      } else {
+        RCTLogInfo(@"[TM] must be a view!");
+      }
+  }];
 }
 
 // returns the generated HTML output from the string

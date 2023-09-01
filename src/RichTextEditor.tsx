@@ -19,7 +19,7 @@ export type RichTextEditorRef = {
   insertTag(tag: string): void;
   showKeyboard(): void;
   hideKeyboard(): void;
-  getHTML(): string;
+  generateHtml(): string;
 }
 
 export type RichTextEditor = {
@@ -57,7 +57,8 @@ export const RichTextEditor = forwardRef((props: RichTextEditorProps, ref) => {
       dispatchViewManagerCommand(findNodeHandle(editor.current), Commands.insertTag, [tag])
     },
     generateHtml() {
-      dispatchViewManagerCommand(findNodeHandle(editor.current), Commands.generateHtml, [])
+      console.log('[RichTextEditor] generate html called:', Commands)
+      dispatchViewManagerCommand(findNodeHandle(editor.current), Commands.generateHtml)
     },
     insertHtml(html: string) {
       dispatchViewManagerCommand(findNodeHandle(editor.current), Commands.insertHtml, [html])
