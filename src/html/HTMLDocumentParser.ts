@@ -1,14 +1,6 @@
-/*
-
-<p class="p1">
-  <span class="s1">This is some normal text with </span>
-    <span class="s2">bold </span>
-    <span class="s3">and bolder italics</span>
-    <span class="s1"> and back to normal</span>
-</p>
-*/
-
-console.clear()
+/**
+ * This is efficetly the same algoithm as the one in HTMLDocumentTree.m (iOS) and isn't currently being used
+ */
 
 
 type CocoaStyles = '<b>' | '<i>' | '<u>' | '<del>' | '<mark>' | '<li>' | '<code>' | '<body>'
@@ -18,9 +10,11 @@ type CocoaString = {
   style: CocoaStyles[]
 }
 
-// 1. Insertions happen on the right
-// 
-
+//
+//  1. Insertions happen on the right.
+//  2. Child must contain all the styles of the parent.
+//  3. Inserted children will only have styles which are not present in the parent.
+//
 class HTMLDocumentTree {
 
   constructor(
@@ -83,13 +77,3 @@ class HTMLDocumentTree {
     this.children.map(c => c.debugPrint())
   }
 }
-
-const root = new HTMLDocumentTree({ html: "", style: [] })
-root.insert({ html: "This is a plain text string ", style: []  })
-root.insert({ html: "italic ", style: ["<i>"] })
-root.insert({ html: "and italic bolded ", style: ["<b>", "<i>"] })
-root.insert({ html: "and back to bold ", style: ["<b>"]  })
-root.insert({ html: "with normal again", style: [] })
-root.insert({ html: 'random bold italic', style: ["<b>", "<i>"] })
-const output = root.html()
-console.log(output.join(""))

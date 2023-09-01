@@ -507,84 +507,16 @@ RCT_EXPORT_MODULE()
 #pragma mark - HTML Generation
 
 
-
-- (NSString *)generateHTML {
-  
-  
-  // Output Formats:
-  // The other formats are only supported on MacOS
-  // https://developer.apple.com/documentation/uikit/nshtmltextdocumenttype
-  //
-  // NSHTMLTextDocumentType - Hypertext markup language (HTML) document.
-  // NSRTFTextDocumentType - Rich text format document.
-  // NSPlainTextDocumentType - Plain text document.
-  //
-  
-  HTMLDocumentTree *root = [HTMLDocumentTree createTree:self.attributedString];
-  
-  // generated html from the root element
-  NSString *htmlString = [root htmlString];
-  
-  // send generated html back to react (js) code
-  self.onChangeText(@{ @"html": htmlString });
-  
-  return htmlString;
-  
-//  [self.attributedString enumerateAttributesInRange:NSMakeRange(0, self.attributedString.length) options:NSAttributedStringEnumerationLongestEffectiveRangeNotRequired usingBlock:
-//   ^(NSDictionary<NSAttributedStringKey,id> * _Nonnull attrs, NSRange range, BOOL * _Nonnull stop) {
-//    NSAttributedString *substring = [self.attributedString attributedSubstringFromRange:range];
-//    HTMLDocumentTree *node = [HTMLDocumentTree createNode:substring];
-//    [root insert:node];
-//  }];
-//  
-//  
-//  RCTLogInfo(@"\n\n\n\nstring: %@\n\n\n\n\n", [root html]);
-//  
-//  
-//  RNDocumentEncoder *documentEncoder = [[RNDocumentEncoder alloc] initWithDocument:self.attributedString];
-//  NSString *encodedString = [documentEncoder htmlEncode];
-//  [documentEncoder print];
-//  
-//  NSError *error = nil;
-//  NSData *htmlData = [self.attributedString dataFromRange:NSMakeRange(0, self.attributedString.length) documentAttributes:@{
-//    NSDocumentTypeDocumentAttribute: NSHTMLTextDocumentType
-//  } error:&error];
-//  NSString *htmlString = [[NSString alloc] initWithData:htmlData encoding:NSUTF8StringEncoding];
-//  
-//  RCTLogInfo(@"[RNRichText] generate html: %@", htmlString);
-//  RCTLogInfo(@"[RNRichText] html error: %@", error);
 //
-//  self.onChangeText(@{
-//    @"html": encodedString
-////    @"html": htmlString,
-////    @"attributedString": self.attributedString,
-//  });
-//  
-//  return htmlString;
+//  convert the attributed string into html and output to javascript.
+//
+- (NSString *)generateHTML {
+  HTMLDocumentTree *root = [HTMLDocumentTree createTree:self.attributedString];
+  NSString *htmlString = [root htmlString];
+  self.onChangeText(@{ @"html": htmlString });
+  return htmlString;
 }
  
-- (NSString *)generateHTMLCustom {
-  htmlString = [NSMutableString stringWithString:@"<p>"];
-  NSRange range = NSMakeRange(0, self.attributedString.length);
-  [self.attributedString enumerateAttributesInRange:range options:NSAttributedStringEnumerationLongestEffectiveRangeNotRequired usingBlock:
-    ^(NSDictionary<NSAttributedStringKey,id> * _Nonnull attrs, NSRange range, BOOL * _Nonnull stop) {
-      NSString *text = [self.attributedString.string substringWithRange:range];
-      //RCTLogInfo(@"[RichTextEditor] '%@'", text);
-      NSString *currentTags = [self getTagForAttribute:attrs]; // call this before closeOpenTags!
-      NSString *closingTags = [self closeOpenTags];
-    RCTLogInfo(@"[RNRichText] currentTags: %@ closingTags: %@", currentTags, closingTags);
-      [htmlString appendString:closingTags];
-      [htmlString appendString:currentTags];
-      [htmlString appendString:text];
-      nextHTML = [NSMutableArray new]; // next html applies only to the current element
-      nextTags = [NSMutableArray new]; // next tags only apply to the current element
-  }];
-  //RCTLogInfo(@"[RichTextEditor] open tags: %@", openTags);
-  [htmlString appendString:[self closeOpenTags]];
-  [htmlString appendString:@"</p>"];
-  RCTLogInfo(@"[RichTextEditor] generated html: \n%@", htmlString);
-  return htmlString.copy;
-}
 
 // This methods returns an array of html tags that is present on the current attributed text
 // which will then be added to our generated html output. Since there can already be open tags
