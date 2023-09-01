@@ -1,4 +1,4 @@
-import React, { useCallback, useState } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import { Button, ScrollView, StyleSheet } from 'react-native';
 
 interface ButtonListProps {
@@ -30,6 +30,11 @@ export type ButtonProps = {
 export function ButtonList({ insert, generateHtml, activeStyles = {} }: ButtonListProps) {
 
   const [style, setStyle] = useState<ActiveStyles>({ ...activeStyles })
+
+  useEffect(() => {
+    console.log('[ButtonList] activeStyles changed: ', { activeStyles })
+    setStyle({ ...activeStyles })
+  }, [activeStyles])
 
   const onToggleSyle = useCallback((item: StyleName, tag: string) => {
     setStyle((prevStyle) => ({ ...prevStyle, [item]: !prevStyle[item] }))

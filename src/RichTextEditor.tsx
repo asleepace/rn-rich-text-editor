@@ -50,7 +50,11 @@ export type RichTextAttriubtes = {
   isCode: boolean;
 }
 
-export const RichTextEditor = React.forwardRef((props: any, ref) => {
+export type RichTextEditorProps = {
+  onChangeStyle(active: ActiveStyles): void
+}
+
+export const RichTextEditor = React.forwardRef((props: RichTextEditorProps, ref) => {
 
   const nativeRef = React.useRef(null)
 
@@ -89,6 +93,7 @@ export const RichTextEditor = React.forwardRef((props: any, ref) => {
       style={{ minHeight: 64.0, backgroundColor: 'white' }}
       onChangeStyle={({ nativeEvent }) => {
         console.log('[RichTextEditor] on change style: ', nativeEvent.active)
+        props.onChangeStyle(nativeEvent.active)
       }}
       onSizeChange={(event) => {
         console.log('[RichTextEditor] on size change: ', event.nativeEvent)

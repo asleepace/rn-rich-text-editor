@@ -8,16 +8,18 @@ export function TextEditor() {
 
   const editorRef = React.useRef<RichTextEditorRef>(null)
 
+  const [activeStyles, setActiveStyles] = React.useState({})
+
   return (
     <View style={styles.overlay}>
       <InputAccessoryView>
         <View style={styles.editor}>
-          <RichTextEditor ref={editorRef} />
+          <RichTextEditor ref={editorRef} onChangeStyle={(active) => setActiveStyles({ ...activeStyles, ...active })} />
         </View>
         <ButtonList 
           insert={(tag: string) => editorRef.current?.insertTag?.(tag)} 
           generateHtml={() => editorRef.current?.getHTML?.()} 
-          activeStyles={{}} />
+          activeStyles={activeStyles} />
       </InputAccessoryView>
       <View style={styles.bottom} />
     </View>
