@@ -14,6 +14,8 @@
 @interface RNRichTextView()
 {
   CGSize lastReportedSize;
+  RNStyle *prevStyle;
+  
   // added from previous class
   __block NSMutableString *htmlString;
   NSMutableArray *openTags;
@@ -244,8 +246,18 @@ RCT_EXPORT_MODULE()
 
 - (void)notifyStyleChanges {
   RNStyle *style = [RNStyle styleFrom:self.textView.typingAttributes];
+  
+  // check if anything has changed
+  if ([style isSame:prevStyle]) {
+    RCTLogInfo(@"[RNRichTextView] styles are equal, not returning...");
+    return;
+  }
+  
   NSDictionary *activeStyles = [style toDictionary];
   self.onChangeStyle(@{ @"active": activeStyles });
+  
+  // update the previous
+  prevStyle = style;
 }
 
 // most important method for reporting size changes to react-native

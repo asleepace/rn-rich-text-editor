@@ -34,5 +34,6 @@
 // methods
 + (RNStyle *)styleFrom:(NSDictionary *)fontAttributes;
 - (NSDictionary *)toDictionary;
+- (BOOL)isSame:(RNStyle *)otherStyle;
 
 @end

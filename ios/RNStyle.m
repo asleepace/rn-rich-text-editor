@@ -101,5 +101,8 @@ const NSString *kCodefamily = @"Courier";
   };
 }
 
+- (BOOL)isSame:(RNStyle *)otherStyle {
+  return [[self toDictionary] hash] == [[otherStyle toDictionary] hash];
+}
 
 @end
