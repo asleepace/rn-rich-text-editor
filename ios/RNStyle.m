@@ -38,7 +38,6 @@ const NSString *kCodefamily = @"Courier";
 }
 
 - (void)setPropertiesFromTraits {
-  UIFont *font = [attributes objectForKey:NSFontAttributeName];
   self.font = [attributes objectForKey:NSFontAttributeName];
   _traits = self.font.fontDescriptor.symbolicTraits;
 }

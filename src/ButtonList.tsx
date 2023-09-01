@@ -29,17 +29,9 @@ export type ButtonProps = {
 
 export function ButtonList({ insert, generateHtml, activeStyles = {} }: ButtonListProps) {
 
-  const [style, setStyle] = useState<ActiveStyles>({ ...activeStyles })
-
-  useEffect(() => {
-    console.log('[ButtonList] activeStyles changed: ', { activeStyles })
-    setStyle({ ...activeStyles })
-  }, [activeStyles])
-
   const onToggleSyle = useCallback((item: StyleName, tag: string) => {
-    setStyle((prevStyle) => ({ ...prevStyle, [item]: !prevStyle[item] }))
     insert(tag)
-  }, [insert, setStyle])
+  }, [insert])
 
   const buttons: ButtonProps[] = React.useMemo(() => {
     return [
@@ -61,7 +53,7 @@ export function ButtonList({ insert, generateHtml, activeStyles = {} }: ButtonLi
         buttons.map((item) => (
           <Button
             key={item.title}
-            color={style[item.style] ? activeColor: normalColor}
+            color={activeStyles[item.style] ? activeColor: normalColor}
             title={item.title}
             onPress={() => onToggleSyle(item.style, item.tag)}
           />

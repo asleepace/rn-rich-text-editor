@@ -251,7 +251,12 @@ RCT_EXPORT_MODULE()
   if ([style isSame:prevStyle]) return;
   
   NSDictionary *activeStyles = [style toDictionary];
+  
+  // send these twice?
   self.onChangeStyle(@{ @"active": activeStyles });
+  dispatch_async(dispatch_get_main_queue(), ^{
+    self.onChangeStyle(@{ @"active": activeStyles });
+  });
   
   // update the previous
   prevStyle = style;

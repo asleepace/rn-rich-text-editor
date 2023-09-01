@@ -46,7 +46,7 @@
 }
 
 - (NSDictionary *)attributesForTag:(NSString *)tag {
-  printf("[RNStyle] getting attributes for tag: %@", tag);
+  printf("[RNStyle] getting attributes for tag: %s", [tag cStringUsingEncoding:NSUTF8StringEncoding]);
   if (tag.length == 0) return [self attributesForTag:@"<p>"];
   NSString *closingTag = [self getClosingTag:tag];
   NSString *tagsString = [NSString stringWithFormat:@"%@example%@", tag, closingTag];
