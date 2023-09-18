@@ -11,6 +11,7 @@
 
 @property (strong, nonatomic) NSMutableArray<HTMLDocumentTree *> *children;
 @property (strong, nonatomic) NSArray<NSString *> *styles;
+@property (strong, nonatomic) NSArray<NSString *> *blocks;
 @property (strong, nonatomic) NSAttributedString *current;
 @property (assign, nonatomic) BOOL isRoot;
 

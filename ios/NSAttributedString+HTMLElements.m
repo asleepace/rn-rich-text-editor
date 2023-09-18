@@ -26,6 +26,9 @@ const NSString *KeyCodefamily = @"Courier";
   NSDictionary *attributes = [self attributes];
   UIFont *font = [attributes objectForKey:NSFontAttributeName];
   UIFontDescriptor *fontDescriptor = font.fontDescriptor;
+  
+  [self handleListElements:&attributes on:&currentStyles];
+  
   [self handleBoldElements:fontDescriptor.symbolicTraits on:&currentStyles];
   [self handleItalicElements:fontDescriptor.symbolicTraits on:&currentStyles];
   [self handleUnderlinedElements:&attributes on:&currentStyles];
@@ -33,23 +36,53 @@ const NSString *KeyCodefamily = @"Courier";
   [self handleHighlightedElements:&attributes on:&currentStyles];
   [self handleSuperscriptElements:&attributes on:&currentStyles];
   [self handleSubscriptElements:&attributes on:&currentStyles];
-  
-  // testing lists
-  [self handleListElements:&attributes on:&currentStyles];
-  
   return currentStyles;
 }
 
+// TODO: parse block elements seperate from styles.
+- (NSArray<NSString *> *)blocks {
+  NSMutableArray<NSString *> *currentBlocks = [NSMutableArray new];
+  NSDictionary *attributes = [self attributes];
+  UIFont *font = [attributes objectForKey:NSFontAttributeName];
+  UIFontDescriptor *fontDescriptor = font.fontDescriptor;
+  [self handleListElements:&attributes on:&currentBlocks];
+  return currentBlocks;
+}
 
 - (void)handleListElements:(NSDictionary **)attributes on:(NSMutableArray **)styles {
   NSParagraphStyle *paragraphStyle = [*attributes objectForKey:NSParagraphStyleAttributeName];
-  NSLog(@"[RNRichTextEditor] handleListElements paragraphStyle: %@", paragraphStyle);
+  //NSLog(@"[RNRichTextEditor] handleListElements paragraphStyle: %@", paragraphStyle);
   if (!paragraphStyle) return;
   if (!paragraphStyle.textLists) return;
   if (paragraphStyle.textLists.count == 0) return;
-  NSLog(@"[RNRichTextEditor] text lists: %@", paragraphStyle.textLists);
-  [*styles addObject:@"<li>"];
+  
+  bool hasNewline = [self.string containsString:@"\n"];
+  bool hasTabIndent = [self.string containsString:@"\t"];
+  
+  NSLog(@"[item] list element: \"%@\" (newline: %@ tabs: %@)", self.string, hasNewline ? @"yes" : @"no", hasTabIndent ? @"yes" : @"no");
+  
+  // determine if the list is either an ordered or unordered list
+  for (NSTextList *textList in paragraphStyle.textLists) {
+    //NSLog(@"[RNRichTextEditor] marker format: %@", textList.markerFormat);
+    
+    if ([textList.markerFormat isEqualToString:NSTextListMarkerDecimal]) {
+      [*styles addObject:@"<ol>"];
+    } else {
+      [*styles addObject:@"<ul>"];
+    }
+  }
 }
+
+- (bool)inListBlock {
+  NSParagraphStyle *paragraphStyle = [[self attributes] objectForKey:NSParagraphStyleAttributeName];
+  if (!paragraphStyle) return false;
+  if (!paragraphStyle.textLists) return false;
+  if (paragraphStyle.textLists.count == 0) return false;
+  return true;
+}
+
+
+#pragma mark - Styling Attributes
 
 
 - (NSDictionary *)attributes {

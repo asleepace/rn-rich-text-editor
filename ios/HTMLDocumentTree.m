@@ -15,7 +15,7 @@
 
 @implementation HTMLDocumentTree
 
-@synthesize styles;
+@synthesize styles, blocks;
 
 
 #pragma mark - Class Methods
