@@ -61,8 +61,8 @@ export function ButtonList({ insert, insertHtml, generateHtml, activeStyles = {}
           />
         ))
       }
-      <Button color={normalColor} title={"[ : ]"} onPress={() => insertHtml('<ul><li></li>')} />
-      <Button color={normalColor} title={"[ 1 ]"} onPress={() => insertHtml('<ol><li></li>')} />
+      <Button color={normalColor} title={"[ : ]"} onPress={() => insertHtml('<ul><li></li></ul>')} />
+      <Button color={normalColor} title={"[ 1 ]"} onPress={() => insertHtml('<ol><li></li></li>')} />
       <Button color={normalColor} title={"Done"} onPress={() => generateHtml()} />
     </ScrollView>
   )

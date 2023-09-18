@@ -319,8 +319,6 @@ RCT_EXPORT_MODULE()
 
 #pragma mark - Inserting HTML Tags
 
-
-
 - (void)getAttributesInRange:(NSRange)range {
   selectedAttr = [NSMutableDictionary new];
   [selectedAttr setObject:@(true) forKey:@"isBold"];
@@ -545,6 +543,8 @@ RCT_EXPORT_MODULE()
 //
 - (NSString *)generateHtml {
   RCTLogInfo(@"[RNRichTextView] generating html from: %@", self.attributedString);
+  NSLog(@"[RNRichTextView] generating html from: %@", self.attributedString);
+  
   HTMLDocumentTree *root = [HTMLDocumentTree createTree:self.attributedString];
   NSString *htmlString = [root htmlString];
   self.onChangeText(@{ @"html": htmlString });

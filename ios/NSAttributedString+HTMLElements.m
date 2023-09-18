@@ -33,7 +33,22 @@ const NSString *KeyCodefamily = @"Courier";
   [self handleHighlightedElements:&attributes on:&currentStyles];
   [self handleSuperscriptElements:&attributes on:&currentStyles];
   [self handleSubscriptElements:&attributes on:&currentStyles];
+  
+  // testing lists
+  [self handleListElements:&attributes on:&currentStyles];
+  
   return currentStyles;
+}
+
+
+- (void)handleListElements:(NSDictionary **)attributes on:(NSMutableArray **)styles {
+  NSParagraphStyle *paragraphStyle = [*attributes objectForKey:NSParagraphStyleAttributeName];
+  NSLog(@"[RNRichTextEditor] handleListElements paragraphStyle: %@", paragraphStyle);
+  if (!paragraphStyle) return;
+  if (!paragraphStyle.textLists) return;
+  if (paragraphStyle.textLists.count == 0) return;
+  NSLog(@"[RNRichTextEditor] text lists: %@", paragraphStyle.textLists);
+  [*styles addObject:@"<li>"];
 }
 
 
