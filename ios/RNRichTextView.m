@@ -149,15 +149,28 @@ RCT_EXPORT_MODULE()
 #pragma mark - Set Text Based on HTML
 
 
+// use this method to preprocess raw html that is passed to the TextView to perform
+// operations such as converting <p></p> tags to newlines, etc.
+- (NSString *)preprocessHtmlString:(NSString *)html {
+  NSString *processed = [NSMutableString stringWithString:html];
+  processed = [processed stringByReplacingOccurrencesOfString:@"<p></p>" withString:@"\n"];
+  return processed;
+}
+
+
 
 - (void)setHtml:(NSString *)html {
-  NSString *htmlString = [self.stylist createHtmlDocument:html];
-  RCTLogInfo(@"[RNRichTextView] setting html: \n%@ \n %@", html, htmlString);
+  
+  NSString *processedHtml = [self preprocessHtmlString:html];
+  NSString *htmlString = [self.stylist createHtmlDocument:processedHtml];
+  RCTLogInfo(@"[RNRichTextView] setting html: \n%@ \n %@ \n %@", html, processedHtml, htmlString);
   NSData *data = [htmlString dataUsingEncoding:NSUnicodeStringEncoding];
   NSMutableParagraphStyle *paragraphStyle = [[NSMutableParagraphStyle alloc] init];
   paragraphStyle.headIndent = 0;
   paragraphStyle.firstLineHeadIndent = 0;
-  paragraphStyle.lineSpacing = 8;
+  paragraphStyle.minimumLineHeight = 1;
+  paragraphStyle.maximumLineHeight = 4;
+  paragraphStyle.lineSpacing = 2;
   NSDictionary *options = @{
     NSParagraphStyleAttributeName: paragraphStyle,
     NSDocumentTypeDocumentAttribute: NSHTMLTextDocumentType,
@@ -170,6 +183,7 @@ RCT_EXPORT_MODULE()
   NSDictionary *attributes = [self.stylist attributesForTag:@"<p>"];
   RCTLogInfo(@"[RNRichTextView] setHTML attributes: %@", attributes);
   [self.textView setTypingAttributes:attributes];
+  [self resize];
 }
 
 // when setting an attributed string from HTML we need to strip away extra whitespaces and newlines added by the editor,
@@ -216,6 +230,7 @@ RCT_EXPORT_MODULE()
   [nextStr appendAttributedString:stringFromHTML];
   [self.textView setAttributedText:nextStr];
 }
+
 
 
 #pragma mark - Dynamic Sizing
@@ -304,6 +319,9 @@ RCT_EXPORT_MODULE()
   UITextPosition* selectionEnd = selectedRange.end;
   const NSInteger location = [textView offsetFromPosition:beginning toPosition:selectionStart];
   const NSInteger length = [textView offsetFromPosition:selectionStart toPosition:selectionEnd];
+  
+  NSLog(@"[RNRichTextView] selected range: %@", textView.selectedTextRange);
+  
   if (length == 0) return;
   //RCTLogInfo(@"[RichTextEditor] location: %lu length: %lu", location, length);
   NSRange range = NSMakeRange(location, length);
@@ -318,6 +336,7 @@ RCT_EXPORT_MODULE()
 
 
 #pragma mark - Inserting HTML Tags
+
 
 - (void)getAttributesInRange:(NSRange)range {
   selectedAttr = [NSMutableDictionary new];
@@ -544,7 +563,7 @@ RCT_EXPORT_MODULE()
 - (NSString *)generateHtml {
   RCTLogInfo(@"[RNRichTextView] generating html from: %@", self.attributedString);
   NSLog(@"[RNRichTextView] generating html from: %@", self.attributedString);
-  
+  NSLog(@"[RNRichTextView] basic string: %@", self.attributedString.string);
   HTMLDocumentTree *root = [HTMLDocumentTree createTree:self.attributedString];
   NSString *htmlString = [root htmlString];
   self.onChangeText(@{ @"html": htmlString });

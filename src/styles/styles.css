@@ -2,7 +2,7 @@
 body, strong, em, b, i {
   font-family: -apple-system;
   font-weight: 400;
-  line-height: 24px;
+  line-height: 18px;
   font-size: 18px;
   color: #111;
 }
@@ -53,7 +53,7 @@ pdlt-mention {
 p {
   font-family: -apple-system;
   font-weight: normal;
-  line-height: 24px;
+  line-height: 18px;
   font-size: 18px;
   color: #111;
 }
@@ -69,4 +69,8 @@ ins {
 poem {
   font-family: Chalkduster;
   text-align: center;
+}
+
+ul p {
+  display: inline;
 }

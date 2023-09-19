@@ -70,13 +70,13 @@ NSParagraphStyle *createParagraphStyle(void) {
 }
 
 NSString *createHtmlString(NSString *body, NSString *styles) {
-  NSString *document = [NSString stringWithFormat:@"<!doctype html>\n<html>\n<head>\n<style>\n%@\n</style>\n</head>\n<body>\n%@\n</body>\n</html>", styles, body];
+  NSString *document = [NSString stringWithFormat:@"<!doctype html><html><head><style>%@</style></head><body>%@</body></html>", styles, body];
   printf("[RNStyle] document: \n%s\n", [document cStringUsingEncoding:NSUTF8StringEncoding]);
   return document;
 }
 
 - (NSString *)createHtmlDocument:(NSString *)body {
-  NSString *document = [NSString stringWithFormat:@"<!doctype html>\n<html>\n<head>\n<style>\n%@\n</style>\n</head>\n<body>\n%@\n</body>\n</html>", self.css, body];
+  NSString *document = [NSString stringWithFormat:@"<!doctype html><html><head><style>%@</style></head><body>%@</body></html>", self.css, body];
   printf("[RNStyle] createHtmlDocument: \n%s\n", [document cStringUsingEncoding:NSUTF8StringEncoding]);
   return document;
 }

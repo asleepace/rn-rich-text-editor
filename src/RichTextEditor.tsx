@@ -68,7 +68,9 @@ export const RichTextEditor = forwardRef((props: RichTextEditorProps, ref) => {
 
   return (
     <RNRichTextView
-      html={''}
+      html={
+        `<p>This is an example of a list with <strong>bold elements </strong>along with some <em>italic text </em>and some other items.</p><p>This is a single new line sentence.</p><p><br></p><p>This is a <mark>double</mark> newline line sentence which should have several break before the next list item.</p><p><br></p><ul><li><p>This is the first element</p></li><li><p>This is the <strong>bold</strong> <em>element</em></p></li><li><p><em>This is the continued list</em></p></li></ul><p><br></p><p>This is some text after the list!</p></p>`
+      }
       ref={editor}
       editable={true}
       customStyle={CSSStyles}
