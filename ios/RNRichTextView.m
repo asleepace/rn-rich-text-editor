@@ -153,22 +153,65 @@ RCT_EXPORT_MODULE()
 // operations such as converting <p></p> tags to newlines, etc.
 - (NSString *)preprocessHtmlString:(NSString *)html {
   NSString *processed = [NSMutableString stringWithString:html];
-  processed = [processed stringByReplacingOccurrencesOfString:@"<p><br></p>" withString:@"<br />"];
-//  processed = [processed stringByReplacingOccurrencesOfString:@"<p></p>" withString:@"\\r"];
+  
+  // define newline, line seperator and paragraph seperator characters
+  // https://stackoverflow.com/questions/21208686/nslineseparatorcharacter-in-ios
+  unichar NewLineCharacter = 0x000a;
+  unichar NewLineSeparator = 0x2028;
+  unichar NewParagraphSeparator = 0x2029;
+  NSString *NewLine = [NSString stringWithCharacters:&NewLineCharacter length:1];
+  NSString *LineSeparator = [NSString stringWithCharacters:&NewLineSeparator length:1];
+  NSString *ParagraphSeparator = [NSString stringWithCharacters:&NewParagraphSeparator length:1];
+  
+  // HTML Specific elements
+  NSString *HTMLBreak = @"<br>";
+  NSString *HTMLUnorderedListEnd = @"</u>";
+  NSString *HTMLEndList = [@[HTMLUnorderedListEnd, LineSeparator] componentsJoinedByString:@""];
+  NSString *HTMLNewLine = @"</p><p>";
+  
+  NSLog(@"[RNRichTextView] preprocessed (pre-html): \n%@\n\n\n", processed);
+  
+  // transform html elements into text ready to be replaced
   processed = [processed stringByReplacingOccurrencesOfString:@"<li><p>" withString:@"<li>"];
   processed = [processed stringByReplacingOccurrencesOfString:@"</p></li>" withString:@"</li>"];
+  processed = [processed stringByReplacingOccurrencesOfString:@"<p><br></p>" withString:@"<br>"];
+  processed = [processed stringByReplacingOccurrencesOfString:@"</p></p>" withString:@"</p>"];
+  
+  NSLog(@"[RNRichTextView] preprocessed (post-html): \n%@\n\n\n", processed);
 
-  NSLog(@"[RNRichTextView] preprocessed: %@", processed);
+  // replace html paragraph line breaks with the new line character
+
+  processed = [processed stringByReplacingOccurrencesOfString:@"<p><br></p>" withString:@"<br>"];
+  processed = [processed stringByReplacingOccurrencesOfString:@"</p><br>" withString:@"<br>"];
+  processed = [processed stringByReplacingOccurrencesOfString:@"<br><p>" withString:@"<br>"];
+  processed = [processed stringByReplacingOccurrencesOfString:@"<br><ul>" withString:[NSString stringWithFormat:@"%@<ul>", NewLine]];
+  processed = [processed stringByReplacingOccurrencesOfString:@"<br>" withString:ParagraphSeparator];
+  
+  processed = [processed stringByReplacingOccurrencesOfString:HTMLNewLine withString:LineSeparator];
+
+  
+  // Step 2. carriage return after list
+  //processed = [processed stringByReplacingOccurrencesOfString:@"</ul>" withString:@"</ul>"];
+  
+  // Step 3. replace new paragraph elements with line seperator
+  //NSString *breakSeparatedNewLines = [NSString stringWithFormat:];
+  
+  
+  //processed = [processed stringByReplacingOccurrencesOfString:@"</p><p>" withString:LineSeparator];
+  
+  // Setp 4. replace line breaks & parahraph fragments
+
+
+
+  NSLog(@"[RNRichTextView] preprocessed: \n%@\n\n\n", processed);
   return processed;
 }
 
 
 
 - (void)setHtml:(NSString *)html {
-  
   NSString *processedHtml = [self preprocessHtmlString:html];
   NSString *htmlString = [self.stylist createHtmlDocument:processedHtml];
-  RCTLogInfo(@"[RNRichTextView] setting html: \n%@ \n %@ \n %@", html, processedHtml, htmlString);
   NSData *data = [htmlString dataUsingEncoding:NSUnicodeStringEncoding];
   NSMutableParagraphStyle *paragraphStyle = [[NSMutableParagraphStyle alloc] init];
   paragraphStyle.headIndent = 0;
@@ -186,7 +229,7 @@ RCT_EXPORT_MODULE()
   NSAttributedString *stringFromHTML = [[NSMutableAttributedString alloc] initWithData:data options:options documentAttributes:nil error:nil];
   self.attributedString = [self trim:stringFromHTML];
   NSDictionary *attributes = [self.stylist attributesForTag:@"<p>"];
-  RCTLogInfo(@"[RNRichTextView] setHTML attributes: %@", attributes);
+  //RCTLogInfo(@"[RNRichTextView] setHTML attributes: %@", attributes);
   [self.textView setTypingAttributes:attributes];
   [self resize];
 }

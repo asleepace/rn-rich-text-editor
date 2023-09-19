@@ -1,9 +1,9 @@
 
-body, strong, em, b, i {
+body, p, strong, em, b, i {
   font-family: -apple-system;
   font-weight: 400;
   line-height: 18px;
-  font-size: 18px;
+  font-size: 17px;
   color: #111;
 }
 
@@ -54,7 +54,7 @@ p {
   font-family: -apple-system;
   font-weight: normal;
   line-height: 18px;
-  font-size: 18px;
+  font-size: 17px;
   color: #111;
 }
 
