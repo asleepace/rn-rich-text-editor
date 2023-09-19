@@ -184,24 +184,8 @@ RCT_EXPORT_MODULE()
   processed = [processed stringByReplacingOccurrencesOfString:@"<p><br></p>" withString:@"<br>"];
   processed = [processed stringByReplacingOccurrencesOfString:@"</p><br>" withString:@"<br>"];
   processed = [processed stringByReplacingOccurrencesOfString:@"<br><p>" withString:@"<br>"];
-  processed = [processed stringByReplacingOccurrencesOfString:@"<br><ul>" withString:[NSString stringWithFormat:@"%@<ul>", NewLine]];
   processed = [processed stringByReplacingOccurrencesOfString:@"<br>" withString:ParagraphSeparator];
-  
   processed = [processed stringByReplacingOccurrencesOfString:HTMLNewLine withString:LineSeparator];
-
-  
-  // Step 2. carriage return after list
-  //processed = [processed stringByReplacingOccurrencesOfString:@"</ul>" withString:@"</ul>"];
-  
-  // Step 3. replace new paragraph elements with line seperator
-  //NSString *breakSeparatedNewLines = [NSString stringWithFormat:];
-  
-  
-  //processed = [processed stringByReplacingOccurrencesOfString:@"</p><p>" withString:LineSeparator];
-  
-  // Setp 4. replace line breaks & parahraph fragments
-
-
 
   NSLog(@"[RNRichTextView] preprocessed: \n%@\n\n\n", processed);
   return processed;
