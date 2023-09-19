@@ -601,74 +601,7 @@ RCT_EXPORT_MODULE()
   self.onChangeText(@{ @"html": htmlString });
   return htmlString;
 }
- 
-
-// This methods returns an array of html tags that is present on the current attributed text
-// which will then be added to our generated html output. Since there can already be open tags
-// we want to prevent multiple instances of the same tag being open at once, so even if a trait
-// is present, we first check if it has already been opened before adding to the html array.
-
-- (NSString *)getTagForAttribute:(NSDictionary *)attributes {
-    UIFont *font = [attributes objectForKey:NSFontAttributeName];
-    UIFontDescriptor *fontDescriptor = font.fontDescriptor;
-    UIFontDescriptorSymbolicTraits traits = fontDescriptor.symbolicTraits;
-    if ([self isFontBold:traits]) [self addTag:@"<b>"];
-    if ([self isFontItalic:traits]) [self addTag:@"<i>"];
-    if ([self isFontStrikethrough:attributes]) [self addTag:@"<del>"];
-    if ([self isFontSubscript:attributes]) [self addTag:@"<sub>"];
-    if ([self isFontSuperscript:attributes]) [self addTag:@"<sup>"];
-    if ([self isFontInserted:attributes]) [self addTag:@"<ins>"];
-    
-    // these two should be rendered seperatly
-    if ([self isFontCode:attributes]) [self addTag:@"<code>"];
-    else if ([self isFontMarked:attributes]) [self addTag:@"<mark>"];
-    
-    return [nextHTML componentsJoinedByString:@""];
-}
-
-// This method checks to see if any open tags need to be closed after iterating to the next element,
-// if the next element is missing a tag that is currently open, then we need to close that tag before
-// moving on. We compare the next elements atttributes to the current open tags, if the next elements
-// tags are missing, then we add the closing tag and remove that tag from openTags.
-
-- (NSString *)closeOpenTags {
-    NSMutableArray *closingTags = [NSMutableArray new];
-    NSArray *openTagsFrozenCopy = [openTags copy];
-    for (NSString *openedTag in [openTagsFrozenCopy reverseObjectEnumerator]) {
-        if (!isFound(openedTag, nextTags)) {
-            [closingTags addObject:closeTag(openedTag)];
-            [openTags removeObject:openedTag];
-        }
-    }
-    return [closingTags componentsJoinedByString:@""];
-}
 
 
-// This helper methods converts a given tag into the cooresponding mathcing tag
-// for example it will convert the tag <strong> to </strong>
-NSString * closeTag(NSString *tag) {
-    return [NSString stringWithFormat:@"</%@",[tag substringFromIndex:1]];
-}
-
-// Add Tag is called each time an attribute is found on the current string segment, this will always add
-// the tag to nextTags (which is used to detect when to close tags) it then checks the openTags array to
-// make sure the tag isn't already open. If it is not open, this then adds the tag to openTags as well as
-// the current strings nextHTML array (which is used to generated the html).
-
-- (void)addTag:(NSString *)tag {
-    [nextTags addObject:tag];
-    if (isFound(tag, openTags)) return;
-    [openTags addObject:tag];
-    [nextHTML addObject:tag];
-}
-
-// This helper method checks if a given string exists on a given array, and returns
-// true if found or false if not found.
-BOOL isFound(NSString *item, NSArray *array) {
-    for (NSString *tag in array) {
-        if ([item isEqualToString:tag])
-            return true;
-    } return false;
-}
 
 @end
