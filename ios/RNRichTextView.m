@@ -153,7 +153,12 @@ RCT_EXPORT_MODULE()
 // operations such as converting <p></p> tags to newlines, etc.
 - (NSString *)preprocessHtmlString:(NSString *)html {
   NSString *processed = [NSMutableString stringWithString:html];
-  processed = [processed stringByReplacingOccurrencesOfString:@"<p></p>" withString:@"\n"];
+  processed = [processed stringByReplacingOccurrencesOfString:@"<p><br></p>" withString:@"<br />"];
+//  processed = [processed stringByReplacingOccurrencesOfString:@"<p></p>" withString:@"\\r"];
+  processed = [processed stringByReplacingOccurrencesOfString:@"<li><p>" withString:@"<li>"];
+  processed = [processed stringByReplacingOccurrencesOfString:@"</p></li>" withString:@"</li>"];
+
+  NSLog(@"[RNRichTextView] preprocessed: %@", processed);
   return processed;
 }
 
