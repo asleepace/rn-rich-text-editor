@@ -43,6 +43,7 @@ RCT_EXPORT_MODULE()
 //const NSStringDrawingOptions drawOptions = NSStringDrawingUsesLineFragmentOrigin | NSStringDrawingUsesFontLeading;
 //const UIViewAnimationOptions viewOptions = UIViewAnimationOptionAllowUserInteraction | UIViewAnimationOptionCurveEaseInOut;
 
+
 + (BOOL)requiresMainQueueSetup {
   return true;
 }
@@ -153,7 +154,6 @@ RCT_EXPORT_MODULE()
 // operations such as converting <p></p> tags to newlines, etc.
 - (NSString *)preprocessHtmlString:(NSString *)html {
   NSString *processed = [NSMutableString stringWithString:html];
-  
   // define newline, line seperator and paragraph seperator characters
   // https://stackoverflow.com/questions/21208686/nslineseparatorcharacter-in-ios
   unichar NewLineCharacter = 0x000a;
@@ -162,31 +162,24 @@ RCT_EXPORT_MODULE()
   NSString *NewLine = [NSString stringWithCharacters:&NewLineCharacter length:1];
   NSString *LineSeparator = [NSString stringWithCharacters:&NewLineSeparator length:1];
   NSString *ParagraphSeparator = [NSString stringWithCharacters:&NewParagraphSeparator length:1];
-  
   // HTML Specific elements
   NSString *HTMLBreak = @"<br>";
   NSString *HTMLUnorderedListEnd = @"</u>";
   NSString *HTMLEndList = [@[HTMLUnorderedListEnd, LineSeparator] componentsJoinedByString:@""];
   NSString *HTMLNewLine = @"</p><p>";
-  
   NSLog(@"[RNRichTextView] preprocessed (pre-html): \n%@\n\n\n", processed);
-  
   // transform html elements into text ready to be replaced
   processed = [processed stringByReplacingOccurrencesOfString:@"<li><p>" withString:@"<li>"];
   processed = [processed stringByReplacingOccurrencesOfString:@"</p></li>" withString:@"</li>"];
   processed = [processed stringByReplacingOccurrencesOfString:@"<p><br></p>" withString:@"<br>"];
   processed = [processed stringByReplacingOccurrencesOfString:@"</p></p>" withString:@"</p>"];
-  
   NSLog(@"[RNRichTextView] preprocessed (post-html): \n%@\n\n\n", processed);
-
   // replace html paragraph line breaks with the new line character
-
   processed = [processed stringByReplacingOccurrencesOfString:@"<p><br></p>" withString:@"<br>"];
   processed = [processed stringByReplacingOccurrencesOfString:@"</p><br>" withString:@"<br>"];
   processed = [processed stringByReplacingOccurrencesOfString:@"<br><p>" withString:@"<br>"];
   processed = [processed stringByReplacingOccurrencesOfString:@"<br>" withString:ParagraphSeparator];
   processed = [processed stringByReplacingOccurrencesOfString:HTMLNewLine withString:LineSeparator];
-
   NSLog(@"[RNRichTextView] preprocessed: \n%@\n\n\n", processed);
   return processed;
 }
@@ -201,8 +194,8 @@ RCT_EXPORT_MODULE()
   paragraphStyle.headIndent = 0;
   paragraphStyle.firstLineHeadIndent = 0;
   paragraphStyle.minimumLineHeight = 1;
-  paragraphStyle.maximumLineHeight = 4;
-  paragraphStyle.lineSpacing = 2;
+  paragraphStyle.maximumLineHeight = 1;
+  paragraphStyle.lineSpacing = 1;
   NSDictionary *options = @{
     NSParagraphStyleAttributeName: paragraphStyle,
     NSDocumentTypeDocumentAttribute: NSHTMLTextDocumentType,
@@ -324,17 +317,74 @@ RCT_EXPORT_MODULE()
   prevStyle = style;
 }
 
-// most important method for reporting size changes to react-native
+// TextViewDidChange:
+// 1. Replace new lines characters with line separators
+// 2. Ensure carret position is the same
 - (void)textViewDidChange:(UITextView *)textView {
+
+  unichar NewLineCharacter = 0x000a;
+  unichar NewLineSeparator = 0x2028;
+  NSString *NewLine = [NSString stringWithCharacters:&NewLineCharacter length:1];
+  NSString *LineSeparator = [NSString stringWithCharacters:&NewLineSeparator length:1];
+
+  // replace characters in text by converting to a mutable string
+  UITextRange *selectedRange = self.textView.selectedTextRange;
+  NSMutableAttributedString *mutableString = [[NSMutableAttributedString alloc] initWithAttributedString: self.textView.attributedText];
+  NSRange range = [mutableString.string rangeOfString:NewLine];
+  
+  // replace newLines with lineSeparators
+  while (range.length != 0 && range.location != 0) {
+    [mutableString replaceCharactersInRange:range withString:LineSeparator];
+    range = [mutableString.string rangeOfString:NewLine];
+  }
+  
+  // reset the cursor position
+  self.textView.attributedText = mutableString;
+  
+  // set the list item style
+
+  
+  
+  NSArray<NSString *> *components = [mutableString.string componentsSeparatedByString:LineSeparator];
+  NSLog(@"[RNRichTextView] text view: %@", components);
+  for (NSString *line in components) {
+    if (![line hasPrefix:@"- "]) continue;
+    
+    NSMutableDictionary *dict = [[self.textView.attributedText attributesAtIndex:0 effectiveRange:nil] mutableCopy];
+    NSMutableParagraphStyle *pStyle = [[dict objectForKey:NSParagraphStyleAttributeName] mutableCopy];
+    NSTextList *textList = [[NSTextList alloc] initWithMarkerFormat:NSTextListMarkerDisc options:0];
+    [pStyle setTextLists:@[textList]];
+    
+    NSRange listItemRange = [mutableString.string rangeOfString:line];
+    //NSAttributedString *attributedString = [self.textView.attributedText attributedSubstringFromRange:listItemRange];
+    
+    NSString *marker = [NSString stringWithFormat:@"\t%@", textList.markerFormat];
+    NSString *newListLine = [line stringByReplacingCharactersInRange:listItemRange withString:@"\t%@  "];
+    
+    NSMutableAttributedString *newAttributedString = [[NSMutableAttributedString alloc] initWithString:newListLine attributes:@{
+      NSParagraphStyleAttributeName: pStyle
+    }];
+    
+    [mutableString replaceCharactersInRange:listItemRange withAttributedString:newAttributedString];
+  }
+  
+  
+  // reset cursor position and update the string
+  self.textView.selectedTextRange = selectedRange;
+  self.textView.attributedText = mutableString;
+  
+  // notify size changes
   [self reportSize:textView];
   [self notifyChangeListeners];
   [self notifyStyleChanges];
 }
 
+
 - (void)textViewDidEndEditing:(UITextView *)textView {
   [self setPlaceholder];
   [self reportSize:textView];
 }
+
 
 - (void)textViewDidBeginEditing:(UITextView *)textView {
   [self notifyStyleChanges];
@@ -342,6 +392,7 @@ RCT_EXPORT_MODULE()
     [self clearPlaceholder];
   }
 }
+
 
 - (void)textViewDidChangeSelection:(UITextView *)textView {
   [self notifyStyleChanges];
@@ -351,9 +402,7 @@ RCT_EXPORT_MODULE()
   UITextPosition* selectionEnd = selectedRange.end;
   const NSInteger location = [textView offsetFromPosition:beginning toPosition:selectionStart];
   const NSInteger length = [textView offsetFromPosition:selectionStart toPosition:selectionEnd];
-  
-  NSLog(@"[RNRichTextView] selected range: %@", textView.selectedTextRange);
-  
+    
   if (length == 0) return;
   //RCTLogInfo(@"[RichTextEditor] location: %lu length: %lu", location, length);
   NSRange range = NSMakeRange(location, length);
@@ -601,7 +650,74 @@ RCT_EXPORT_MODULE()
   self.onChangeText(@{ @"html": htmlString });
   return htmlString;
 }
+ 
+
+// This methods returns an array of html tags that is present on the current attributed text
+// which will then be added to our generated html output. Since there can already be open tags
+// we want to prevent multiple instances of the same tag being open at once, so even if a trait
+// is present, we first check if it has already been opened before adding to the html array.
+
+- (NSString *)getTagForAttribute:(NSDictionary *)attributes {
+    UIFont *font = [attributes objectForKey:NSFontAttributeName];
+    UIFontDescriptor *fontDescriptor = font.fontDescriptor;
+    UIFontDescriptorSymbolicTraits traits = fontDescriptor.symbolicTraits;
+    if ([self isFontBold:traits]) [self addTag:@"<b>"];
+    if ([self isFontItalic:traits]) [self addTag:@"<i>"];
+    if ([self isFontStrikethrough:attributes]) [self addTag:@"<del>"];
+    if ([self isFontSubscript:attributes]) [self addTag:@"<sub>"];
+    if ([self isFontSuperscript:attributes]) [self addTag:@"<sup>"];
+    if ([self isFontInserted:attributes]) [self addTag:@"<ins>"];
+    
+    // these two should be rendered seperatly
+    if ([self isFontCode:attributes]) [self addTag:@"<code>"];
+    else if ([self isFontMarked:attributes]) [self addTag:@"<mark>"];
+    
+    return [nextHTML componentsJoinedByString:@""];
+}
+
+// This method checks to see if any open tags need to be closed after iterating to the next element,
+// if the next element is missing a tag that is currently open, then we need to close that tag before
+// moving on. We compare the next elements atttributes to the current open tags, if the next elements
+// tags are missing, then we add the closing tag and remove that tag from openTags.
+
+- (NSString *)closeOpenTags {
+    NSMutableArray *closingTags = [NSMutableArray new];
+    NSArray *openTagsFrozenCopy = [openTags copy];
+    for (NSString *openedTag in [openTagsFrozenCopy reverseObjectEnumerator]) {
+        if (!isFound(openedTag, nextTags)) {
+            [closingTags addObject:closeTag(openedTag)];
+            [openTags removeObject:openedTag];
+        }
+    }
+    return [closingTags componentsJoinedByString:@""];
+}
 
 
+// This helper methods converts a given tag into the cooresponding mathcing tag
+// for example it will convert the tag <strong> to </strong>
+NSString * closeTag(NSString *tag) {
+    return [NSString stringWithFormat:@"</%@",[tag substringFromIndex:1]];
+}
+
+// Add Tag is called each time an attribute is found on the current string segment, this will always add
+// the tag to nextTags (which is used to detect when to close tags) it then checks the openTags array to
+// make sure the tag isn't already open. If it is not open, this then adds the tag to openTags as well as
+// the current strings nextHTML array (which is used to generated the html).
+
+- (void)addTag:(NSString *)tag {
+    [nextTags addObject:tag];
+    if (isFound(tag, openTags)) return;
+    [openTags addObject:tag];
+    [nextHTML addObject:tag];
+}
+
+// This helper method checks if a given string exists on a given array, and returns
+// true if found or false if not found.
+BOOL isFound(NSString *item, NSArray *array) {
+    for (NSString *tag in array) {
+        if ([item isEqualToString:tag])
+            return true;
+    } return false;
+}
 
 @end
