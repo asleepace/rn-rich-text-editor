@@ -317,6 +317,15 @@ RCT_EXPORT_MODULE()
   prevStyle = style;
 }
 
+
+
+- (BOOL)textView:(UITextView *)textView shouldChangeTextInRange:(NSRange)range replacementText:(NSString *)text {
+  NSLog(@"[RNRichTextView] shouldChangeText in range: %@", text);
+  return true;
+}
+
+
+
 // TextViewDidChange:
 // 1. Replace new lines characters with line separators
 // 2. Ensure carret position is the same
@@ -342,30 +351,34 @@ RCT_EXPORT_MODULE()
   self.textView.attributedText = mutableString;
   
   // set the list item style
-
-  
-  
+  NSLog(@"inserting list elements...");
   NSArray<NSString *> *components = [mutableString.string componentsSeparatedByString:LineSeparator];
   NSLog(@"[RNRichTextView] text view: %@", components);
   for (NSString *line in components) {
     if (![line hasPrefix:@"- "]) continue;
     
-    NSMutableDictionary *dict = [[self.textView.attributedText attributesAtIndex:0 effectiveRange:nil] mutableCopy];
-    NSMutableParagraphStyle *pStyle = [[dict objectForKey:NSParagraphStyleAttributeName] mutableCopy];
-    NSTextList *textList = [[NSTextList alloc] initWithMarkerFormat:NSTextListMarkerDisc options:0];
-    [pStyle setTextLists:@[textList]];
-    
     NSRange listItemRange = [mutableString.string rangeOfString:line];
-    //NSAttributedString *attributedString = [self.textView.attributedText attributedSubstringFromRange:listItemRange];
+    NSLog(@"[RNRichTextView] items of text in range: %li, %li", listItemRange.location, listItemRange.length);
     
-    NSString *marker = [NSString stringWithFormat:@"\t%@", textList.markerFormat];
-    NSString *newListLine = [line stringByReplacingCharactersInRange:listItemRange withString:@"\t%@  "];
+    NSMutableParagraphStyle *paragraph = [NSMutableParagraphStyle defaultParagraphStyle];
     
-    NSMutableAttributedString *newAttributedString = [[NSMutableAttributedString alloc] initWithString:newListLine attributes:@{
-      NSParagraphStyleAttributeName: pStyle
-    }];
     
-    [mutableString replaceCharactersInRange:listItemRange withAttributedString:newAttributedString];
+//    NSMutableDictionary *dict = [[self.textView.attributedText attributesAtIndex:0 effectiveRange:nil] mutableCopy];
+//    NSMutableParagraphStyle *pStyle = [[dict objectForKey:NSParagraphStyleAttributeName] mutableCopy];
+//    NSTextList *textList = [[NSTextList alloc] initWithMarkerFormat:NSTextListMarkerDisc options:0];
+//    [pStyle setTextLists:@[textList]];
+//    
+//    //NSAttributedString *attributedString = [self.textView.attributedText attributedSubstringFromRange:listItemRange];
+//    
+//    NSString *marker = [NSString stringWithFormat:@"\t%@", textList.markerFormat];
+//    NSString *newListLine = [line stringByReplacingCharactersInRange:listItemRange withString:marker];
+//    
+//    NSMutableAttributedString *newAttributedString = [[NSMutableAttributedString alloc] initWithString:newListLine attributes:@{
+//      NSParagraphStyleAttributeName: pStyle
+//    }];
+//    
+//    NSLog(@"[RNRichTextView] replacing characters in range: %li, %li", listItemRange.location, listItemRange.length);
+//    [mutableString replaceCharactersInRange:listItemRange withAttributedString:newAttributedString];
   }
   
   
