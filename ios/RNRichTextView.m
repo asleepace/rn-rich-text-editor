@@ -375,6 +375,20 @@ void printSize(NSString *name, CGSize size) {
 }
 
 
+- (BOOL)didAppendNextListItem {
+  unichar NewLineCharacter = 0x000a;
+  unichar NewLineSeparator = 0x2028;
+  NSString *NewLine = [NSString stringWithCharacters:&NewLineCharacter length:1];
+  NSString *LineSeparator = [NSString stringWithCharacters:&NewLineSeparator length:1];
+  NSArray<NSString *> *components = [self.textView.textStorage.mutableString componentsSeparatedByString:LineSeparator];
+  NSString *lastItem = [components lastObject];
+  if ([lastItem hasPrefix:@"  •  "] && ![lastItem isEqual:@"  •  \n"] && [lastItem hasSuffix:NewLine]) {
+    NSString *nextListItem = [NSString stringWithFormat:@"%@  •  ", LineSeparator];
+    [self replaceString:NewLine with:nextListItem];
+    return true;
+  }
+  return false;
+}
 
 
 // TextViewDidChange:
@@ -392,8 +406,15 @@ void printSize(NSString *name, CGSize size) {
   NSString *listItem = @"- ";
   NSString *listMarker = @"  •  ";
   
+  BOOL didAppendListItem = [self didAppendNextListItem];
+  
   [self replaceString:NewLine with:LineSeparator];
   BOOL didInsertList = [self replaceString:@"- " with:@"  •  "];
+  
+  if (didInsertList || didAppendListItem) {
+    NSLog(@"updating to end of document...");
+    self.textView.selectedRange = NSMakeRange(self.textView.textStorage.string.length, 0);
+  }
 
 //  // replace characters in text by converting to a mutable string
 //  UITextRange *selectedRange = self.textView.selectedTextRange;
