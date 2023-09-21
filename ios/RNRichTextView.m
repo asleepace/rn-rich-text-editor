@@ -193,8 +193,8 @@ RCT_EXPORT_MODULE()
   NSMutableParagraphStyle *paragraphStyle = [[NSMutableParagraphStyle alloc] init];
   paragraphStyle.headIndent = 0;
   paragraphStyle.firstLineHeadIndent = 0;
-  paragraphStyle.minimumLineHeight = 1;
-  paragraphStyle.maximumLineHeight = 1;
+  paragraphStyle.minimumLineHeight = 32.f;
+  paragraphStyle.maximumLineHeight = 32.f;
   paragraphStyle.lineSpacing = 1;
   NSDictionary *options = @{
     NSParagraphStyleAttributeName: paragraphStyle,
@@ -271,10 +271,24 @@ RCT_EXPORT_MODULE()
 }
 
 
+void printFrame(NSString *name, CGRect frame) {
+  NSLog(@"%@ frame (width: %lf, height: %lf, x: %lf, y: %lf)", name, frame.size.width, frame.size.height, frame.origin.x, frame.origin.y);
+}
+
+
 - (void)reportSize:(UITextView *)textView {
+  
+  NSLog(@"[RNRichTextView] before size: (%lf, %lf)", self.textView.frame.size.width, self.textView.frame.size.height);
+  
+  CGRect oldFrame = self.textView.frame;
+  printFrame(@"oldSelfFrame", self.frame);
+  printFrame(@"oldFrame", oldFrame);
+  
   [self.textView sizeToFit];
   [self.textView layoutIfNeeded];
   
+  printFrame(@"newFrame", self.textView.frame);
+
   CGRect updatedFrame = self.frame;
   updatedFrame.size = CGSizeMake(updatedFrame.size.width, self.textView.frame.size.height);
   
@@ -286,6 +300,8 @@ RCT_EXPORT_MODULE()
   // update the container views frame
   lastReportedSize = updatedFrame.size;
   self.frame = updatedFrame;
+
+  printFrame(@"mewSelfFrame", self.frame);
   
   // report size changes to react-native
   [self.delegate didUpdate:updatedFrame.size on:self];
@@ -319,10 +335,10 @@ RCT_EXPORT_MODULE()
 
 
 
-- (BOOL)textView:(UITextView *)textView shouldChangeTextInRange:(NSRange)range replacementText:(NSString *)text {
-  NSLog(@"[RNRichTextView] shouldChangeText in range: %@", text);
-  return true;
-}
+//- (BOOL)textView:(UITextView *)textView shouldChangeTextInRange:(NSRange)range replacementText:(NSString *)text {
+//  NSLog(@"[RNRichTextView] shouldChangeText in range: %@", text);
+//  return true;
+//}
 
 
 - (BOOL)replaceString:(NSString *)stringToReplace with:(NSString *)newString {
@@ -336,9 +352,9 @@ RCT_EXPORT_MODULE()
     [self.textView.textStorage edited:NSTextStorageEditedCharacters range:foundRange changeInLength:changeInLength];
     didReplace = true;
   }
-  NSLog(@"[RNRichTextView] didReplace: %@", didReplace ?  @"true" : @"false");
   return didReplace;
 }
+
 
 
 
@@ -346,15 +362,30 @@ RCT_EXPORT_MODULE()
 // 1. Replace new lines characters with line separators
 // 2. Ensure carret position is the same
 - (void)textViewDidChange:(UITextView *)textView {
+  
+  NSLog(@"[RNRichTextView] textViewDidChange");
 
   unichar NewLineCharacter = 0x000a;
   unichar NewLineSeparator = 0x2028;
   NSString *NewLine = [NSString stringWithCharacters:&NewLineCharacter length:1];
   NSString *LineSeparator = [NSString stringWithCharacters:&NewLineSeparator length:1];
   
+  NSString *listItem = @"- ";
+  NSString *listMarker = @"  •  ";
+  
   [self.textView.textStorage beginEditing];
   [self replaceString:NewLine with:LineSeparator];
+  
+  BOOL didInsertList = [self replaceString:@"- " with:@"  •  "];
+  
   [self.textView.textStorage endEditing];
+  
+  if (didInsertList) {
+    NSLog(@"[RNRichTextView] replacing list items!");
+//    [UIView animateWithDuration:0.1 animations:^{
+//      self.textView.selectedRange = NSMakeRange(self.textView.textStorage.string.length, 0);
+//    }];
+  }
 
 //  // replace characters in text by converting to a mutable string
 //  UITextRange *selectedRange = self.textView.selectedTextRange;
@@ -400,27 +431,26 @@ RCT_EXPORT_MODULE()
   
   
   // notify size changes
-  [self reportSize:textView];
+  // [self reportSize:textView];
+  [self resize];
   [self notifyChangeListeners];
   [self notifyStyleChanges];
 }
 
 
 - (void)textViewDidEndEditing:(UITextView *)textView {
-  [self setPlaceholder];
+  //[self setPlaceholder];
   [self reportSize:textView];
 }
 
 
 - (void)textViewDidBeginEditing:(UITextView *)textView {
   [self notifyStyleChanges];
-  if (textView.attributedText.length > 0) {
-    [self clearPlaceholder];
-  }
 }
 
 
 - (void)textViewDidChangeSelection:(UITextView *)textView {
+  NSLog(@"[RNRichTextView] textViewDidChangeSelection...");
   [self notifyStyleChanges];
   UITextPosition* beginning = textView.beginningOfDocument;
   UITextRange* selectedRange = textView.selectedTextRange;
