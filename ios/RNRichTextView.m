@@ -325,6 +325,22 @@ RCT_EXPORT_MODULE()
 }
 
 
+- (BOOL)replaceString:(NSString *)stringToReplace with:(NSString *)newString {
+  BOOL didReplace = false;
+  while ([self.textView.textStorage.mutableString containsString:stringToReplace]) {
+    NSLog(@"[RNRichTextView] replacing string (%@) with (%@)", stringToReplace, newString);
+    NSRange foundRange = [self.textView.textStorage.string rangeOfString:stringToReplace];
+    NSInteger changeInLength = stringToReplace.length - newString.length;
+    NSLog(@"[RNRichTextView] replacing at (location: %li, length: %li) changeInLength: %li", foundRange.location, foundRange.length, changeInLength);
+    [self.textView.textStorage.mutableString replaceCharactersInRange:foundRange withString:newString];
+    [self.textView.textStorage edited:NSTextStorageEditedCharacters range:foundRange changeInLength:changeInLength];
+    didReplace = true;
+  }
+  NSLog(@"[RNRichTextView] didReplace: %@", didReplace ?  @"true" : @"false");
+  return didReplace;
+}
+
+
 
 // TextViewDidChange:
 // 1. Replace new lines characters with line separators
@@ -335,56 +351,53 @@ RCT_EXPORT_MODULE()
   unichar NewLineSeparator = 0x2028;
   NSString *NewLine = [NSString stringWithCharacters:&NewLineCharacter length:1];
   NSString *LineSeparator = [NSString stringWithCharacters:&NewLineSeparator length:1];
+  
+  [self.textView.textStorage beginEditing];
+  [self replaceString:NewLine with:LineSeparator];
+  [self.textView.textStorage endEditing];
 
-  // replace characters in text by converting to a mutable string
-  UITextRange *selectedRange = self.textView.selectedTextRange;
-  NSMutableAttributedString *mutableString = [[NSMutableAttributedString alloc] initWithAttributedString: self.textView.attributedText];
-  NSRange range = [mutableString.string rangeOfString:NewLine];
+//  // replace characters in text by converting to a mutable string
+//  UITextRange *selectedRange = self.textView.selectedTextRange;
+//  NSMutableAttributedString *mutableString = [[NSMutableAttributedString alloc] initWithAttributedString: self.textView.attributedText];
+//  NSRange range = [mutableString.string rangeOfString:NewLine];
+//  
+//  // replace newLines with lineSeparators
+//  while (range.length != 0 && range.location != 0) {
+//    NSLog(@"[RNRichTextView] replacing newline %li %li %li", mutableString.string.length, range.location, range.length);
+//    [mutableString replaceCharactersInRange:range withString:LineSeparator];
+//    range = [mutableString.string rangeOfString:NewLine];
+//  }
+//  
+//  // reset the cursor position
+//  self.textView.attributedText = mutableString;
+//  
+//  // set the list item style
+//  NSArray<NSString *> *components = [mutableString.string componentsSeparatedByString:LineSeparator];
+//  NSLog(@"[RNRichTextView] components %@", components);
+//  
+//  BOOL wasLastLineListItem = false;
+//  for (NSString *line in components) {
+//    NSLog(@"line %@", line);
+//    if (![line isEqualToString:@"- "] || wasLastLineListItem) {
+//      wasLastLineListItem = false;
+//      continue;
+//    }
+//    NSLog(@"Checking for lits...");
+//    NSRange listItemRange = [mutableString.string rangeOfString:line];
+//    [mutableString replaceCharactersInRange:listItemRange withString:@"  •  " ];
+//    wasLastLineListItem = true;
+//  }
+//  
+//  if (wasLastLineListItem && [mutableString.string hasSuffix:LineSeparator]) {
+//    NSRange lastNewLineRange = [mutableString.string rangeOfString:LineSeparator];
+//    [mutableString replaceCharactersInRange:lastNewLineRange withString:[NSString stringWithFormat:@"%@  •  ", LineSeparator]];
+//  }
+//
+//  
+//  // reset cursor position and update the string
+//  self.textView.selectedTextRange = selectedRange;
+//  self.textView.attributedText = mutableString;
   
-  // replace newLines with lineSeparators
-  while (range.length != 0 && range.location != 0) {
-    [mutableString replaceCharactersInRange:range withString:LineSeparator];
-    range = [mutableString.string rangeOfString:NewLine];
-  }
-  
-  // reset the cursor position
-  self.textView.attributedText = mutableString;
-  
-  // set the list item style
-  NSLog(@"inserting list elements...");
-  NSArray<NSString *> *components = [mutableString.string componentsSeparatedByString:LineSeparator];
-  NSLog(@"[RNRichTextView] text view: %@", components);
-  for (NSString *line in components) {
-    if (![line hasPrefix:@"- "]) continue;
-    
-    NSRange listItemRange = [mutableString.string rangeOfString:line];
-    NSLog(@"[RNRichTextView] items of text in range: %li, %li", listItemRange.location, listItemRange.length);
-    
-    NSMutableParagraphStyle *paragraph = [NSMutableParagraphStyle defaultParagraphStyle];
-    
-    
-//    NSMutableDictionary *dict = [[self.textView.attributedText attributesAtIndex:0 effectiveRange:nil] mutableCopy];
-//    NSMutableParagraphStyle *pStyle = [[dict objectForKey:NSParagraphStyleAttributeName] mutableCopy];
-//    NSTextList *textList = [[NSTextList alloc] initWithMarkerFormat:NSTextListMarkerDisc options:0];
-//    [pStyle setTextLists:@[textList]];
-//    
-//    //NSAttributedString *attributedString = [self.textView.attributedText attributedSubstringFromRange:listItemRange];
-//    
-//    NSString *marker = [NSString stringWithFormat:@"\t%@", textList.markerFormat];
-//    NSString *newListLine = [line stringByReplacingCharactersInRange:listItemRange withString:marker];
-//    
-//    NSMutableAttributedString *newAttributedString = [[NSMutableAttributedString alloc] initWithString:newListLine attributes:@{
-//      NSParagraphStyleAttributeName: pStyle
-//    }];
-//    
-//    NSLog(@"[RNRichTextView] replacing characters in range: %li, %li", listItemRange.location, listItemRange.length);
-//    [mutableString replaceCharactersInRange:listItemRange withAttributedString:newAttributedString];
-  }
-  
-  
-  // reset cursor position and update the string
-  self.textView.selectedTextRange = selectedRange;
-  self.textView.attributedText = mutableString;
   
   // notify size changes
   [self reportSize:textView];
