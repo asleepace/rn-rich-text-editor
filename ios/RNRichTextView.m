@@ -374,7 +374,6 @@ void printSize(NSString *name, CGSize size) {
   return didReplace;
 }
 
-
 - (BOOL)didAppendNextListItem {
   unichar NewLineCharacter = 0x000a;
   unichar NewLineSeparator = 0x2028;
@@ -382,7 +381,16 @@ void printSize(NSString *name, CGSize size) {
   NSString *LineSeparator = [NSString stringWithCharacters:&NewLineSeparator length:1];
   NSArray<NSString *> *components = [self.textView.textStorage.mutableString componentsSeparatedByString:LineSeparator];
   NSString *lastItem = [components lastObject];
-  if ([lastItem hasPrefix:@"  •  "] && ![lastItem isEqual:@"  •  \n"] && [lastItem hasSuffix:NewLine]) {
+  
+  NSString *emptyListItem = @"  •  \n";
+  
+  if ([lastItem isEqualToString:emptyListItem]) {
+    NSLog(@"[RNRichTextView] removing empty row!");
+    [self replaceString:emptyListItem with:@""];
+    return true;
+  }
+  
+  if ([lastItem hasPrefix:@"  •  "] && [lastItem hasSuffix:NewLine]) {
     NSString *nextListItem = [NSString stringWithFormat:@"%@  •  ", LineSeparator];
     [self replaceString:NewLine with:nextListItem];
     return true;
@@ -409,6 +417,7 @@ void printSize(NSString *name, CGSize size) {
   BOOL didAppendListItem = [self didAppendNextListItem];
   
   [self replaceString:NewLine with:LineSeparator];
+  
   BOOL didInsertList = [self replaceString:@"- " with:@"  •  "];
   
   if (didInsertList || didAppendListItem) {
