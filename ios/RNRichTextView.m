@@ -275,6 +275,10 @@ void printFrame(NSString *name, CGRect frame) {
   NSLog(@"%@ frame (width: %lf, height: %lf, x: %lf, y: %lf)", name, frame.size.width, frame.size.height, frame.origin.x, frame.origin.y);
 }
 
+void printSize(NSString *name, CGSize size) {
+  NSLog(@"%@ size (width: %lf, height: %lf)", name, size.width, size.height);
+}
+
 
 - (void)reportSize:(UITextView *)textView {
   
@@ -284,24 +288,38 @@ void printFrame(NSString *name, CGRect frame) {
   printFrame(@"oldSelfFrame", self.frame);
   printFrame(@"oldFrame", oldFrame);
   
+  printSize(@"oldContentSize", [self.textView contentSize]);
+  printSize(@"oldIntrinsicSize", [self.textView intrinsicContentSize]);
+  
   [self.textView sizeToFit];
   [self.textView layoutIfNeeded];
   
   printFrame(@"newFrame", self.textView.frame);
+  printSize(@"newContentSize", [self.textView contentSize]);
+  printSize(@"newIntrinsicSize", [self.textView intrinsicContentSize]);
+
 
   CGRect updatedFrame = self.frame;
   updatedFrame.size = CGSizeMake(updatedFrame.size.width, self.textView.frame.size.height);
   
   // check if the height has changed, if not return early.
   if (lastReportedSize.height == updatedFrame.size.height) {
+    
     return;
   }
   
   // update the container views frame
   lastReportedSize = updatedFrame.size;
-  self.frame = updatedFrame;
+  self.frame = CGRectMake(self.frame.origin.x,
+                          self.frame.origin.y,
+                          updatedFrame.size.width,
+                          updatedFrame.size.height);
 
-  printFrame(@"mewSelfFrame", self.frame);
+  printFrame(@"newSelfFrame", self.frame);
+  printSize(@"finalContentSize", [self.textView contentSize]);
+  printSize(@"finalIntrinsicSize", [self.textView intrinsicContentSize]);
+
+  [self layoutIfNeeded];
   
   // report size changes to react-native
   [self.delegate didUpdate:updatedFrame.size on:self];
@@ -343,15 +361,16 @@ void printFrame(NSString *name, CGRect frame) {
 
 - (BOOL)replaceString:(NSString *)stringToReplace with:(NSString *)newString {
   BOOL didReplace = false;
+  [self.textView.textStorage beginEditing];
   while ([self.textView.textStorage.mutableString containsString:stringToReplace]) {
     NSLog(@"[RNRichTextView] replacing string (%@) with (%@)", stringToReplace, newString);
     NSRange foundRange = [self.textView.textStorage.string rangeOfString:stringToReplace];
-    NSInteger changeInLength = stringToReplace.length - newString.length;
+    NSInteger changeInLength = newString.length - stringToReplace.length;
     NSLog(@"[RNRichTextView] replacing at (location: %li, length: %li) changeInLength: %li", foundRange.location, foundRange.length, changeInLength);
     [self.textView.textStorage.mutableString replaceCharactersInRange:foundRange withString:newString];
-    [self.textView.textStorage edited:NSTextStorageEditedCharacters range:foundRange changeInLength:changeInLength];
     didReplace = true;
   }
+  [self.textView.textStorage endEditing];
   return didReplace;
 }
 
@@ -373,19 +392,8 @@ void printFrame(NSString *name, CGRect frame) {
   NSString *listItem = @"- ";
   NSString *listMarker = @"  •  ";
   
-  [self.textView.textStorage beginEditing];
   [self replaceString:NewLine with:LineSeparator];
-  
   BOOL didInsertList = [self replaceString:@"- " with:@"  •  "];
-  
-  [self.textView.textStorage endEditing];
-  
-  if (didInsertList) {
-    NSLog(@"[RNRichTextView] replacing list items!");
-//    [UIView animateWithDuration:0.1 animations:^{
-//      self.textView.selectedRange = NSMakeRange(self.textView.textStorage.string.length, 0);
-//    }];
-  }
 
 //  // replace characters in text by converting to a mutable string
 //  UITextRange *selectedRange = self.textView.selectedTextRange;
